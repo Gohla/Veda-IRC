@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Veda.Bot")]
+[assembly: AssemblyTitle("Veda.ConsoleServer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Veda.Bot")]
+[assembly: AssemblyProduct("Veda.ConsoleServer")]
 [assembly: AssemblyCopyright("Copyright © Gabriël Konat 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

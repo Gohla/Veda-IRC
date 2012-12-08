@@ -48,9 +48,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bot.cs" />
+    <Compile Include="Configuration\BotData.cs" />
+    <Compile Include="Configuration\ChannelData.cs" />
+    <Compile Include="Configuration\ConnectionData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Gohla.Shared\Gohla.Shared\Gohla.Shared.csproj">
+      <Project>{6e1a3f05-4a08-41a0-bab7-a1b6f3315e2a}</Project>
+      <Name>Gohla.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ReactiveIRC\Interface\ReactiveIRC.Interface.csproj">
       <Project>{C699BFFA-5FE2-441C-9679-59BEAD165BC6}</Project>
       <Name>ReactiveIRC.Interface</Name>

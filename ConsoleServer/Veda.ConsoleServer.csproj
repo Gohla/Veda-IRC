@@ -74,6 +74,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -93,7 +99,11 @@
       <Project>{c699bffa-5fe2-441c-9679-59bead165bc6}</Project>
       <Name>ReactiveIRC.Interface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bot\Veda.csproj">
+    <ProjectReference Include="..\Storage\Veda.Storage.csproj">
+      <Project>{0aaae694-1bde-445d-99ad-0e61301d91e5}</Project>
+      <Name>Veda.Storage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Veda\Veda.csproj">
       <Project>{70760d4b-99f0-4ba3-8e03-a3db96e9e268}</Project>
       <Name>Veda</Name>
     </ProjectReference>

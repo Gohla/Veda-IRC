@@ -5,6 +5,7 @@ using Autofac.Integration.Mef;
 using Gohla.Shared.Composition;
 using ReactiveIRC.Client;
 using ReactiveIRC.Interface;
+using Veda.Storage;
 
 namespace Veda.ConsoleServer
 {
@@ -22,7 +23,19 @@ namespace Veda.ConsoleServer
             builder.RegisterAssemblyTypes(currentAssembly)
                 .AsImplementedInterfaces();
 
-            // ReactiveIRC client
+            // Veda.Storage
+            builder.RegisterType<JsonStorage>()
+                .As<IStorage>()
+                .Exported(x => x.As<IStorage>())
+                .SingleInstance()
+                ;
+            builder.RegisterType<StorageManager>()
+                .As<IStorageManager>()
+                .Exported(x => x.As<IStorageManager>())
+                .SingleInstance()
+                ;
+
+            // ReactiveIRC.Client
             builder.RegisterType<Client>()
                 .As<IClient>()
                 .Exported(x => x.As<IClient>())

@@ -96,7 +96,9 @@ namespace Veda
             if(result.Name == null)
                 return;
 
-            _logger.Info("Command - " + result.Name + ": " + result.Arguments.ToString(", "));
+            String reply = "Command - " + result.Name + ": " + result.Arguments.ToString(", ");
+            _logger.Info(reply);
+            message.Receiver.SendMessage(reply);
         }
     }
 }

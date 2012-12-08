@@ -14,15 +14,22 @@ namespace Veda.ConsoleServer
     {
         public AppBootstrapper()
         {
-            var currentAssembly = Assembly.GetExecutingAssembly();
-            var builder = new ContainerBuilder();
-            var catalog = new AggregateCatalog();
+            Assembly currentAssembly = Assembly.GetExecutingAssembly();
+            ContainerBuilder builder = new ContainerBuilder();
+            AggregateCatalog catalog = new AggregateCatalog();
 
             catalog.Catalogs.Add(new AssemblyCatalog(currentAssembly));
             builder.RegisterComposablePartCatalog(catalog);
 
             builder.RegisterAssemblyTypes(currentAssembly)
                 .AsImplementedInterfaces();
+
+            // ReactiveIRC.Client
+            builder.RegisterType<Client>()
+                .As<IClient>()
+                .Exported(x => x.As<IClient>())
+                .SingleInstance()
+                ;
 
             // Veda.Storage
             builder.RegisterType<JsonStorage>()
@@ -48,10 +55,10 @@ namespace Veda.ConsoleServer
                 .SingleInstance()
                 ;
 
-            // ReactiveIRC.Client
-            builder.RegisterType<Client>()
-                .As<IClient>()
-                .Exported(x => x.As<IClient>())
+            // Veda
+            builder.RegisterType<Bot>()
+                .As<IBot>()
+                .Exported(x => x.As<IBot>())
                 .SingleInstance()
                 ;
 

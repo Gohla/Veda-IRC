@@ -6,9 +6,9 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using ReactiveIRC.Interface;
+using Veda.Command;
 using Veda.Configuration;
 using Veda.Storage;
-using Veda.Command;
 
 namespace Veda.ConsoleServer
 {

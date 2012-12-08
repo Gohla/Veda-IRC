@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using ReactiveIRC.Interface;
-using Veda.Configuration;
-using Veda.Storage;
 using System.Linq;
 using Gohla.Shared;
+using ReactiveIRC.Interface;
 using Veda.Command;
+using Veda.Configuration;
+using Veda.Storage;
 
 namespace Veda
 {
-    public class Bot : IDisposable
+    public class Bot : IBot
     {
+        private static readonly String _storageIdentifier = "BotData";
+
         private IClient _client;
         private IStorageManager _storage;
         private ICommandManager _command;
@@ -26,7 +28,7 @@ namespace Veda
 
             Connections = new ObservableCollection<IClientConnection>();
 
-            _data = storage.Get<BotData>("BotData");
+            _data = storage.Get<BotData>(_storageIdentifier);
             if(_data == null)
                 _data = new BotData();
 
@@ -38,7 +40,7 @@ namespace Veda
 
         public void Dispose()
         {
-            _storage.Set("BotData", _data);
+            _storage.Set(_storageIdentifier, _data);
         }
 
         public IClientConnection Connect(ConnectionData data)

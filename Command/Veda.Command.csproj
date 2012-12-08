@@ -50,9 +50,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command.cs" />
+    <Compile Include="CommandConverter.cs" />
+    <Compile Include="CommandConverterWithContext.cs" />
+    <Compile Include="CommandConverterWithoutContext.cs" />
+    <Compile Include="CommandManager.cs" />
+    <Compile Include="CommandParser.cs" />
+    <Compile Include="ExpressionCommand.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="ICommandConverter.cs" />
+    <Compile Include="ICommandManager.cs" />
+    <Compile Include="ICommandParser.cs" />
+    <Compile Include="IParseResult.cs" />
+    <Compile Include="MethodCommand.cs" />
+    <Compile Include="ParseResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Gohla.Shared\Gohla.Shared\Gohla.Shared.csproj">
+      <Project>{6e1a3f05-4a08-41a0-bab7-a1b6f3315e2a}</Project>
+      <Name>Gohla.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utility\Veda.Utility.csproj">
       <Project>{f11ef1b0-8c1b-44fb-b11b-1fba04f9cdfe}</Project>
       <Name>Veda.Utility</Name>

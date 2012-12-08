@@ -8,6 +8,7 @@ using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Configuration;
 using Veda.Storage;
+using Veda.Command;
 
 namespace Veda.ConsoleServer
 {
@@ -62,9 +63,12 @@ namespace Veda.ConsoleServer
             IStorageManager storage = CompositionManager.Get<IStorageManager>();
             storage.Open(Path.Combine(BasePath, _storagePath), _globalStorageFile);
 
+            // Create command manager
+            ICommandManager command = CompositionManager.Get<ICommandManager>();
+
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
-            Bot bot = new Bot(client, storage);
+            Bot bot = new Bot(client, storage, command);
             if(bot.Connections.Count == 0)
             {
                 ConnectionData data = new ConnectionData();
@@ -94,6 +98,7 @@ namespace Veda.ConsoleServer
             }
 
             // Clean up
+            bot.Dispose();
             storage.Dispose();
         }
     }

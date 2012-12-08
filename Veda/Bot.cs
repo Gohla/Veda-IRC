@@ -5,6 +5,7 @@ using Veda.Configuration;
 using Veda.Storage;
 using System.Linq;
 using Gohla.Shared;
+using Veda.Command;
 
 namespace Veda
 {
@@ -12,14 +13,16 @@ namespace Veda
     {
         private IClient _client;
         private IStorageManager _storage;
+        private ICommandManager _command;
         private BotData _data;
 
         public ObservableCollection<IClientConnection> Connections { get; private set; }
 
-        public Bot(IClient client, IStorageManager storage)
+        public Bot(IClient client, IStorageManager storage, ICommandManager command)
         {
             _client = client;
             _storage = storage;
+            _command = command;
 
             Connections = new ObservableCollection<IClientConnection>();
 
@@ -27,7 +30,7 @@ namespace Veda
             if(_data == null)
                 _data = new BotData();
 
-            foreach(ConnectionData data in _data.Connections)
+            foreach(ConnectionData data in _data.Connections.ToArray())
             {
                 Connect(data);
             }
@@ -51,8 +54,10 @@ namespace Veda
             _data.Connections.Add(data);
             connection.Connect().Subscribe(
                 _ => { },
-                () => connection.Login(data.Nickname, data.Username, data.Realname, data.Password)
+                e => Console.WriteLine(e.Message),
+                () => connection.Login(data.Nickname, data.Username, data.Realname, data.Password).Subscribe()
             );
+            connection.ReceivedMessages.Subscribe(x => Console.WriteLine(x.Contents));
             return connection;
         }
     }

@@ -99,6 +99,10 @@
       <Project>{c699bffa-5fe2-441c-9679-59bead165bc6}</Project>
       <Name>ReactiveIRC.Interface</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Command\Veda.Command.csproj">
+      <Project>{5c8bfb0b-a0cb-4b98-bc8e-e703d9e44f83}</Project>
+      <Name>Veda.Command</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Storage\Veda.Storage.csproj">
       <Project>{0aaae694-1bde-445d-99ad-0e61301d91e5}</Project>
       <Name>Veda.Storage</Name>

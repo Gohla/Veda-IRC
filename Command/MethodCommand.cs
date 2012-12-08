@@ -9,8 +9,8 @@ namespace Veda.Command
         private MethodInfo _method;
         private object _obj;
 
-        public MethodCommand(String name, String displayName, MethodInfo method, object obj):
-            base(name, displayName, method.GetParameters().Select(p => p.GetType()).ToArray())
+        public MethodCommand(String name, String description, MethodInfo method, object obj):
+            base(name, description, method.GetParameters().Select(p => p.GetType()).ToArray())
         {
             _method = method;
             _obj = obj;

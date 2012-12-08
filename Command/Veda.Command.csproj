@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="CommandBuilder.cs" />
     <Compile Include="CommandConverter.cs" />
     <Compile Include="CommandConverterWithContext.cs" />
     <Compile Include="CommandConverterWithoutContext.cs" />

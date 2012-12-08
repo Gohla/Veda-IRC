@@ -9,6 +9,9 @@ using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Command;
 using Veda.Configuration;
+using Veda.Plugin;
+using Veda.Plugins.Help;
+using Veda.Plugins.Plugin;
 using Veda.Storage;
 
 namespace Veda.ConsoleServer
@@ -66,10 +69,16 @@ namespace Veda.ConsoleServer
 
             // Create command manager
             ICommandManager command = CompositionManager.Get<ICommandManager>();
+            command.Add(CommandBuilder.CreateConverter<IPlugin, IBot>((s, b) => b.PluginManager.Get(s)));
+
+            // Create plugin manager
+            IPluginManager plugin = CompositionManager.Get<IPluginManager>();
+            plugin.Load(new PluginPlugin());
+            plugin.Load(new HelpPlugin());
 
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
-            Bot bot = new Bot(client, storage, command);
+            IBot bot = new Bot(client, storage, command, plugin);
             if(bot.Connections.IsEmpty())
             {
                 ConnectionData data = new ConnectionData();

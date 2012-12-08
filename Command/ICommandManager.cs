@@ -26,10 +26,5 @@ namespace Veda.Command
         void Remove(ICommand command);
         void Add(ICommandConverter converter);
         void Remove(ICommandConverter converter);
-
-        ICommand CreateCommand(String name, String displayName, MethodInfo method, object obj = null);
-        ICommand CreateCommand<T>(String name, String displayName, Expression<T> expression);
-        ICommandConverter CreateConverter<TTo>(Func<String, TTo> converter);
-        ICommandConverter CreateConverter<TTo, TContext>(Func<String, TContext, TTo> converter);
     }
 }

@@ -18,12 +18,12 @@ namespace Veda.Command
             _parser = parser;
 
             // Add default converters
-            Add(CreateConverter<Char>(s => Char.Parse(s)));
-            Add(CreateConverter<Int16>(s => Int16.Parse(s)));
-            Add(CreateConverter<Int32>(s => Int32.Parse(s)));
-            Add(CreateConverter<Int64>(s => Int64.Parse(s)));
-            Add(CreateConverter<Single>(s => Single.Parse(s)));
-            Add(CreateConverter<Double>(s => Double.Parse(s)));
+            Add(CommandBuilder.CreateConverter<Char>(s => Char.Parse(s)));
+            Add(CommandBuilder.CreateConverter<Int16>(s => Int16.Parse(s)));
+            Add(CommandBuilder.CreateConverter<Int32>(s => Int32.Parse(s)));
+            Add(CommandBuilder.CreateConverter<Int64>(s => Int64.Parse(s)));
+            Add(CommandBuilder.CreateConverter<Single>(s => Single.Parse(s)));
+            Add(CommandBuilder.CreateConverter<Double>(s => Double.Parse(s)));
         }
 
         public IEnumerable<ICommand> GetCommands(String name)
@@ -130,26 +130,6 @@ namespace Veda.Command
         {
             // TODO: Efficient removal
             _converters.Remove(converter);
-        }
-
-        public ICommand CreateCommand(String name, String displayName, MethodInfo method, object obj = null)
-        {
-            return new MethodCommand(name, displayName, method, obj);
-        }
-
-        public ICommand CreateCommand<T>(String name, String displayName, Expression<T> expression)
-        {
-            return new ExpressionCommand<T>(name, displayName, expression);
-        }
-
-        public ICommandConverter CreateConverter<TTo>(Func<String, TTo> converter)
-        {
-            return new CommandConverterWithoutContext<TTo>(converter);
-        }
-
-        public ICommandConverter CreateConverter<TTo, TContext>(Func<String, TContext, TTo> converter)
-        {
-            return new CommandConverterWithContext<TTo, TContext>(converter);
         }
 
         private Func<object> Resolve(String name, object conversionContext, object[] commandContext, 

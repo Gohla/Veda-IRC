@@ -55,7 +55,9 @@
     <Compile Include="Configuration\BotData.cs" />
     <Compile Include="Configuration\ChannelData.cs" />
     <Compile Include="Configuration\ConnectionData.cs" />
+    <Compile Include="Context.cs" />
     <Compile Include="IBot.cs" />
+    <Compile Include="IContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

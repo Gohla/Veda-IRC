@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Gohla.Shared;
 using NLog;
 using ReactiveIRC.Interface;
 using Veda.Command;
 using Veda.Configuration;
+using Veda.Plugin;
 using Veda.Storage;
 
 namespace Veda
@@ -20,6 +22,8 @@ namespace Veda
         private IClient _client;
         private IStorageManager _storage;
         private ICommandManager _command;
+        private IPluginManager _plugin;
+
         private BotData _data;
         private List<BotClientConnection> _botConnections = new List<BotClientConnection>();
         private ISubject<IReceiveMessage> _receivedMessages = new Subject<IReceiveMessage>();
@@ -31,12 +35,15 @@ namespace Veda
                 return _botConnections.Select(x => x.Connection);
             }
         }
+        public ICommandManager CommandManager { get { return _command; } }
+        public IPluginManager PluginManager { get { return _plugin; } }
 
-        public Bot(IClient client, IStorageManager storage, ICommandManager command)
+        public Bot(IClient client, IStorageManager storage, ICommandManager command, IPluginManager plugin)
         {
             _client = client;
             _storage = storage;
             _command = command;
+            _plugin = plugin;
 
             _data = storage.Get<BotData>(_storageIdentifier);
             if(_data == null)
@@ -78,7 +85,9 @@ namespace Veda
             _data.Connections.Add(data);
 
             // Subscribe to received messages.
-            botConnection.ReceivedMessages.Subscribe(_receivedMessages);
+            botConnection.ReceivedMessages
+                .Where(m => m.Type == ReceiveType.Message || m.Type == ReceiveType.Notice)
+                .Subscribe(_receivedMessages);
 
             // Create connection
             connection.Connect().Subscribe(
@@ -92,13 +101,42 @@ namespace Veda
 
         private void ReceivedMessage(IReceiveMessage message)
         {
-            IParseResult result = _command.Parse(message.Contents);
-            if(result.Name == null)
+            IClientConnection connection = message.Connection;
+            Context context = new Context { Bot = this, Connection = connection, Message = message };
+            Func<object> func = _command.Call(message.Contents, this, context);
+            if(func == null)
+            {
+                _logger.Info("Unknown command: " + message.Contents);
                 return;
+            }
 
-            String reply = "Command - " + result.Name + ": " + result.Arguments.ToString(", ");
-            _logger.Info(reply);
-            message.Receiver.SendMessage(reply);
+            try
+            {
+                String result = null;
+
+                try
+                {
+                    result = func() as String;
+                }
+                catch(Exception e)
+                {
+                    result = "Error: " + e.Message;
+                }
+                
+                if(result != null)
+                {
+                    IMessageTarget replyTarget = null;
+                    if(message.Receiver.Equals(connection.Me))
+                        replyTarget = message.Sender;
+                    else
+                        replyTarget = message.Receiver;
+                    replyTarget.SendMessage(result);
+                }
+            }
+            catch(Exception e)
+            {
+                _logger.ErrorException("Error executing: \"" + message.Contents + "\".", e);
+            }
         }
     }
 }

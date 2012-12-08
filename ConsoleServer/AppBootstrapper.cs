@@ -6,6 +6,7 @@ using Gohla.Shared.Composition;
 using ReactiveIRC.Client;
 using ReactiveIRC.Interface;
 using Veda.Command;
+using Veda.Plugin;
 using Veda.Storage;
 
 namespace Veda.ConsoleServer
@@ -40,6 +41,13 @@ namespace Veda.ConsoleServer
             builder.RegisterType<StorageManager>()
                 .As<IStorageManager>()
                 .Exported(x => x.As<IStorageManager>())
+                .SingleInstance()
+                ;
+
+            // Veda.Plugin
+            builder.RegisterType<PluginManager>()
+                .As<IPluginManager>()
+                .Exported(x => x.As<IPluginManager>())
                 .SingleInstance()
                 ;
 

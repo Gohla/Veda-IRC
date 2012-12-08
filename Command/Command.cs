@@ -8,13 +8,13 @@ namespace Veda.Command
     public abstract class Command : ICommand
     {
         public String Name { get; private set; }
-        public String DisplayName { get; private set; }
+        public String Description { get; private set; }
         public Type[] ParameterTypes { get; private set; }
 
-        public Command(String name, String displayName, params Type[] parameterTypes)
+        public Command(String name, String description, params Type[] parameterTypes)
         {
             Name = name;
-            DisplayName = displayName;
+            Description = description;
             ParameterTypes = parameterTypes;
         }
 

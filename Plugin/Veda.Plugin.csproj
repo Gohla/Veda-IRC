@@ -50,9 +50,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IPlugin.cs" />
+    <Compile Include="IPluginManager.cs" />
+    <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Gohla.Shared\Gohla.Shared\Gohla.Shared.csproj">
+      <Project>{6e1a3f05-4a08-41a0-bab7-a1b6f3315e2a}</Project>
+      <Name>Gohla.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Command\Veda.Command.csproj">
+      <Project>{5c8bfb0b-a0cb-4b98-bc8e-e703d9e44f83}</Project>
+      <Name>Veda.Command</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utility\Veda.Utility.csproj">
       <Project>{f11ef1b0-8c1b-44fb-b11b-1fba04f9cdfe}</Project>
       <Name>Veda.Utility</Name>

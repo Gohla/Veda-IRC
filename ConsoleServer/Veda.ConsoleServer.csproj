@@ -99,9 +99,25 @@
       <Project>{c699bffa-5fe2-441c-9679-59bead165bc6}</Project>
       <Name>ReactiveIRC.Interface</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\Help\Veda.Plugins.Help.csproj">
+      <Project>{b7b82246-2e3b-4f8b-9573-cd7cc507a5b9}</Project>
+      <Name>Veda.Plugins.Help</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\Plugin\Veda.Plugins.Plugin.csproj">
+      <Project>{7e3af69c-9179-4fd0-8d80-18df9f7bb116}</Project>
+      <Name>Veda.Plugins.Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Authentication\Veda.Authentication.csproj">
+      <Project>{5d600922-52fe-4a83-b8a5-ed42ae18ca54}</Project>
+      <Name>Veda.Authentication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Command\Veda.Command.csproj">
       <Project>{5c8bfb0b-a0cb-4b98-bc8e-e703d9e44f83}</Project>
       <Name>Veda.Command</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin\Veda.Plugin.csproj">
+      <Project>{8f44f23f-d615-473b-ac4a-fe6b01f0bc74}</Project>
+      <Name>Veda.Plugin</Name>
     </ProjectReference>
     <ProjectReference Include="..\Storage\Veda.Storage.csproj">
       <Project>{0aaae694-1bde-445d-99ad-0e61301d91e5}</Project>

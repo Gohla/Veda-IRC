@@ -12,7 +12,8 @@ namespace Veda.Command
         IEnumerable<ICommand> GetCommands(String name, params Type[] argumentTypes);
         IEnumerable<ICommand> GetCommandsByArguments(params Type[] argumentTypes);
         IEnumerable<ICommand> GetCommandsByArgumentsExact(params Type[] argumentTypes);
-        
+
+        IParseResult Parse(String command);
         bool IsCommand(String command);
 
         Func<object> Call(String command, object conversionContext);

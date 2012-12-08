@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Gohla.Shared;
 using Gohla.Shared.Composition;
 using NLog;
 using NLog.Config;
@@ -69,7 +70,7 @@ namespace Veda.ConsoleServer
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
             Bot bot = new Bot(client, storage, command);
-            if(bot.Connections.Count == 0)
+            if(bot.Connections.IsEmpty())
             {
                 ConnectionData data = new ConnectionData();
                 Console.WriteLine("No connections have been set up yet, adding a connection now.");

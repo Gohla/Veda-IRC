@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>..\..\Veda-dev\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Reactive.Core">
       <HintPath>..\..\Veda-dev\packages\Rx-Core.2.0.21114\lib\Net45\System.Reactive.Core.dll</HintPath>
@@ -48,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bot.cs" />
+    <Compile Include="BotClientConnection.cs" />
     <Compile Include="Configuration\BotData.cs" />
     <Compile Include="Configuration\ChannelData.cs" />
     <Compile Include="Configuration\ConnectionData.cs" />

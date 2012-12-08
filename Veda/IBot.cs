@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using ReactiveIRC.Interface;
+using Veda.Configuration;
 
 namespace Veda
 {
     public interface IBot : IDisposable
     {
-        ObservableCollection<IClientConnection> Connections { get; }
+        IEnumerable<IClientConnection> Connections { get; }
 
-        IClientConnection Connect(Veda.Configuration.ConnectionData data);
+        IClientConnection Connect(ConnectionData data);
     }
 }

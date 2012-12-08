@@ -6,7 +6,7 @@ namespace Veda.Command
 {
     public class CommandParser : ICommandParser
     {
-        private char _start = '!';
+        private char _start = '~';
         private char _separator = ' ';
         private char _joiner = '"';
         private char _escape = '\\';

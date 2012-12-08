@@ -66,6 +66,11 @@ namespace Veda.Command
                 ;
         }
 
+        public IParseResult Parse(String command)
+        {
+            return _parser.Parse(command);
+        }
+
         public bool IsCommand(String command)
         {
             IParseResult result = _parser.Parse(command);

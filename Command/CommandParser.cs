@@ -17,20 +17,18 @@ namespace Veda.Command
 
         }
 
-        public IParseResult Parse(String command)
+        public String[] Parse(String command)
         {
             String str = command.Trim();
             if(str.Length < 2)
-                return ParseResult.Empty;
+                return null;
 
             if(str[0] != _start)
-                return ParseResult.Empty;
+                return null;
 
-            bool first = true;
             bool joiner = false;
             StringBuilder builder = new StringBuilder();
 
-            String name = null;
             List<String> args = new List<String>();
             for(int i = 1; i < str.Length; ++i)
             {
@@ -47,16 +45,7 @@ namespace Veda.Command
                 }
                 else if((str[i] == _separator && !joiner) || (str[i] == _joiner && joiner))
                 {
-                    if(first)
-                    {
-                        name = builder.ToString();
-                        first = false;
-                    }
-                    else
-                    {
-                        args.Add(builder.ToString());
-                    }
-
+                    args.Add(builder.ToString());
                     builder.Clear();
                 }
                 else
@@ -67,13 +56,10 @@ namespace Veda.Command
 
             if(builder.Length > 0)
             {
-                if(first)
-                    name = builder.ToString();
-                else
-                    args.Add(builder.ToString());
+                args.Add(builder.ToString());
             }
 
-            return new ParseResult(name, args.ToArray());
+            return args.ToArray();
         }
     }
 }

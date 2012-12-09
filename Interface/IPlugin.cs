@@ -4,7 +4,7 @@ using Gohla.Shared;
 
 namespace Veda.Interface
 {
-    public interface IPlugin : IDisposable, IKeyedObject<String>
+    public interface IPlugin : IDisposable, IEquatable<IPlugin>
     {
         String Name { get; }
         String Description { get; }

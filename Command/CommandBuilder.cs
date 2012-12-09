@@ -7,14 +7,14 @@ namespace Veda.Command
 {
     public static class CommandBuilder
     {
-        public static ICommand CreateCommand(String name, String description, MethodInfo method, object obj = null)
+        public static ICommand CreateCommand(IPlugin plugin, String name, String description, MethodInfo method, object obj = null)
         {
-            return new MethodCommand(name, description, method, obj);
+            return new MethodCommand(plugin, name, description, method, obj);
         }
 
-        public static ICommand CreateCommand<T>(String name, String description, Expression<T> expression)
+        public static ICommand CreateCommand<T>(IPlugin plugin, String name, String description, Expression<T> expression)
         {
-            return new ExpressionCommand<T>(name, description, expression);
+            return new ExpressionCommand<T>(plugin, name, description, expression);
         }
 
         public static ICommandConverter CreateConverter<TTo>(Func<String, TTo> converter)

@@ -22,7 +22,7 @@ namespace Veda.Command
             {
                 return _method.Invoke(_obj, arguments);
             }
-            catch(System.Reflection.TargetInvocationException e)
+            catch(TargetInvocationException e)
             {
                 throw e.InnerException;
             }

@@ -136,7 +136,7 @@ namespace Veda.Command
         {
             IEnumerable<ICommand> commandsByName = GetCommands(name);
             if(!commandsByName.Any())
-                return null;
+                throw new ArgumentException("Command with name " + name + " does not exist.", "name");
 
             // If there are more arguments than the longest command can handle, concatenate the rest of the string 
             // arguments into one.
@@ -163,7 +163,7 @@ namespace Veda.Command
                     return () => command.Call(commandContext.Concat(args));
             }
 
-            return null;
+            throw new InvalidOperationException("Could not convert one or more arguments to the correct type.");
         }
 
         private object ConvertOne(object commandContext, String str, Type target)

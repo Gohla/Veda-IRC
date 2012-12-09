@@ -80,6 +80,7 @@ namespace Veda.ConsoleServer
             if(bot.Connections.IsEmpty())
             {
                 Console.WriteLine("No connections have been set up yet, adding a connection now.");
+
                 Console.WriteLine("Server address?");
                 String address = Console.ReadLine();
                 Console.WriteLine("Server port?");

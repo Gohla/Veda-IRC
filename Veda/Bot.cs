@@ -94,6 +94,7 @@ namespace Veda
 
             // Subscribe to received messages.
             botConnection.ReceivedMessages
+                .Where(m => !m.Sender.Equals(connection.Me))
                 .Where(m => m.Type == ReceiveType.Message || m.Type == ReceiveType.Notice)
                 .Subscribe(_receivedMessages);
 
@@ -111,12 +112,6 @@ namespace Veda
         {
             IClientConnection connection = message.Connection;
             Context context = new Context { Bot = this, Connection = connection, Message = message };
-            Func<object> func = _command.Call(message.Contents, this, context);
-            if(func == null)
-            {
-                _logger.Info("Unknown command: " + message.Contents);
-                return;
-            }
 
             try
             {
@@ -124,11 +119,12 @@ namespace Veda
 
                 try
                 {
-                    result = func() as String;
+                    result = _command.Call(message.Contents, this, context)() as String;
                 }
                 catch(Exception e)
                 {
                     result = "Error: " + e.Message;
+                    _logger.InfoException("Error executing: \"" + message.Contents + "\".", e);
                 }
                 
                 if(result != null)

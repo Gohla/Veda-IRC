@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Veda.Interface
 {
@@ -7,6 +8,7 @@ namespace Veda.Interface
     {
         IEnumerable<IPlugin> Plugins { get; }
 
+        void Load(Assembly assembly);
         IPlugin Load(IPlugin plugin);
         IPlugin Load(Type type);
         IPlugin Get(String name);

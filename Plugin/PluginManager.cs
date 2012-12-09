@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gohla.Shared;
+using System.Reflection;
+using NLog;
 using Veda.Interface;
 
 namespace Veda.Plugin
 {
     public class PluginManager : IPluginManager
     {
+        private readonly Logger _logger = LogManager.GetLogger("PluginManager");
+
         private ICommandManager _commandManager;
         private Dictionary<String, IPlugin> _plugins = 
             new Dictionary<String, IPlugin>(StringComparer.OrdinalIgnoreCase);
@@ -29,6 +32,22 @@ namespace Veda.Plugin
             _plugins = null;
         }
 
+        public void Load(Assembly assembly)
+        {
+            IEnumerable<IPlugin> plugins = PluginScanner.Scan(assembly);
+            foreach(IPlugin plugin in plugins)
+            {
+                try
+                {
+                    Load(plugin);
+                }
+                catch(Exception e)
+                {
+                    _logger.ErrorException("Unable to load plugin " + plugin.Name + ".", e);
+                }
+            }
+        }
+
         public IPlugin Load(IPlugin plugin)
         {
             if(_plugins.ContainsKey(plugin.Name))
@@ -36,7 +55,17 @@ namespace Veda.Plugin
 
             _plugins.Add(plugin.Name, plugin);
             foreach(ICommand command in plugin.Commands)
-                _commandManager.Add(command);
+            {
+                try
+                {
+                    _commandManager.Add(command);
+                }
+                catch(Exception e)
+                {
+                    _logger.ErrorException("Unable to add command " + command.Name + " from plugin " 
+                        + plugin.Name + ".", e);
+                }
+            }
 
             return plugin;
         }

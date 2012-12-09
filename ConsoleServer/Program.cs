@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
-using Gohla.Shared;
 using Gohla.Shared.Composition;
 using NLog;
 using NLog.Config;
@@ -10,9 +11,6 @@ using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Command;
 using Veda.Interface;
-using Veda.Plugins.Google;
-using Veda.Plugins.Info;
-using Veda.Plugins.Plugin;
 
 namespace Veda.ConsoleServer
 {
@@ -78,9 +76,7 @@ namespace Veda.ConsoleServer
 
             // Create plugin manager
             IPluginManager plugin = CompositionManager.Get<IPluginManager>();
-            plugin.Load(typeof(PluginPlugin));
-            plugin.Load(typeof(InfoPlugin));
-            plugin.Load(typeof(GooglePlugin));
+            GetAssemblies().Do(x => plugin.Load(x));
 
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
@@ -117,6 +113,29 @@ namespace Veda.ConsoleServer
             // Clean up
             bot.Dispose();
             storage.Dispose();
+        }
+
+        private static IEnumerable<Assembly> GetAssemblies()
+        {
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .ToList()
+                ;
+            var loadedPaths = loadedAssemblies
+                .Where(a => !a.IsDynamic)
+                .Select(a => a.Location)
+                .ToArray()
+                ;
+
+            var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            var toLoad = referencedPaths
+                .Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase))
+                .ToList()
+                ;
+            toLoad
+                .ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path))))
+                ;
+
+            return AppDomain.CurrentDomain.GetAssemblies();
         }
     }
 }

@@ -18,6 +18,8 @@
 /Command/obj
 /ConsoleServer/bin
 /ConsoleServer/obj
+/Interface/bin
+/Interface/obj
 /Plugin/bin
 /Plugin/obj
 /Storage/bin

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using ReactiveIRC.Interface;
-using Veda.Command;
-using Veda.Configuration;
-using Veda.Plugin;
 
-namespace Veda
+namespace Veda.Interface
 {
     public interface IBot : IDisposable
     {
@@ -13,6 +10,7 @@ namespace Veda
         ICommandManager CommandManager { get; }
         IPluginManager PluginManager { get; }
 
-        IClientConnection Connect(ConnectionData data);
+        IClientConnection Connect(String address, ushort port, String nickname, String username, String realname,
+            String password);
     }
 }

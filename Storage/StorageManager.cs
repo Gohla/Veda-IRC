@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Gohla.Shared.Composition;
+using Veda.Interface;
 
 namespace Veda.Storage
 {

@@ -116,6 +116,10 @@
       <Project>{5c8bfb0b-a0cb-4b98-bc8e-e703d9e44f83}</Project>
       <Name>Veda.Command</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Interface\Veda.Interface.csproj">
+      <Project>{bfd3723b-68d5-4a3f-8223-58b9c6e72178}</Project>
+      <Name>Veda.Interface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Plugin\Veda.Plugin.csproj">
       <Project>{8f44f23f-d615-473b-ac4a-fe6b01f0bc74}</Project>
       <Name>Veda.Plugin</Name>

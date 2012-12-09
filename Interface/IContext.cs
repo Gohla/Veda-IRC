@@ -1,6 +1,6 @@
 ﻿using ReactiveIRC.Interface;
 
-namespace Veda
+namespace Veda.Interface
 {
     public interface IContext
     {

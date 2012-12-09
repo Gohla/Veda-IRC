@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gohla.Shared;
-using Veda.Command;
 
-namespace Veda.Plugin
+namespace Veda.Interface
 {
     public interface IPlugin : IDisposable, IKeyedObject<String>
     {

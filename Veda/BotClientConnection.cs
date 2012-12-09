@@ -1,6 +1,7 @@
 ﻿using System;
 using ReactiveIRC.Interface;
 using Veda.Configuration;
+using Veda.Interface;
 
 namespace Veda
 {

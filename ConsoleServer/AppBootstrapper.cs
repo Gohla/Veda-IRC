@@ -6,6 +6,7 @@ using Gohla.Shared.Composition;
 using ReactiveIRC.Client;
 using ReactiveIRC.Interface;
 using Veda.Command;
+using Veda.Interface;
 using Veda.Plugin;
 using Veda.Storage;
 

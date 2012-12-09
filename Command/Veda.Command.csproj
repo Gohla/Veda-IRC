@@ -59,11 +59,6 @@
     <Compile Include="CommandManager.cs" />
     <Compile Include="CommandParser.cs" />
     <Compile Include="ExpressionCommand.cs" />
-    <Compile Include="ICommand.cs" />
-    <Compile Include="ICommandConverter.cs" />
-    <Compile Include="ICommandManager.cs" />
-    <Compile Include="ICommandParser.cs" />
-    <Compile Include="IParseResult.cs" />
     <Compile Include="MethodCommand.cs" />
     <Compile Include="ParseResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,6 +67,10 @@
     <ProjectReference Include="..\..\Gohla.Shared\Gohla.Shared\Gohla.Shared.csproj">
       <Project>{6e1a3f05-4a08-41a0-bab7-a1b6f3315e2a}</Project>
       <Name>Gohla.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Interface\Veda.Interface.csproj">
+      <Project>{BFD3723B-68D5-4A3F-8223-58B9C6E72178}</Project>
+      <Name>Veda.Interface</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utility\Veda.Utility.csproj">
       <Project>{f11ef1b0-8c1b-44fb-b11b-1fba04f9cdfe}</Project>

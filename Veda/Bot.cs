@@ -6,10 +6,8 @@ using System.Reactive.Subjects;
 using Gohla.Shared;
 using NLog;
 using ReactiveIRC.Interface;
-using Veda.Command;
 using Veda.Configuration;
-using Veda.Plugin;
-using Veda.Storage;
+using Veda.Interface;
 
 namespace Veda
 {
@@ -69,7 +67,17 @@ namespace Veda
             _storage.Set(_storageIdentifier, _data);
         }
 
-        public IClientConnection Connect(ConnectionData data)
+        public IClientConnection Connect(String address, ushort port, String nickname, String username, String realname,
+            String password)
+        {
+            return Connect(new ConnectionData
+            {
+                Address = address, Port = port, Nickname = nickname, Username = username, Realname = realname, 
+                Password = password
+            });
+        }
+
+        private IClientConnection Connect(ConnectionData data)
         {
             // Prevent duplicate connections
             if(!Connections

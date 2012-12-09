@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Veda.Command
+namespace Veda.Interface
 {
     public interface ICommandConverter : IEquatable<ICommandConverter>
     {

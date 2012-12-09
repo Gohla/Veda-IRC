@@ -2,6 +2,7 @@
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Veda.Interface;
 
 namespace Veda.Storage
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gohla.Shared;
-using Veda.Command;
+using Veda.Interface;
 
 namespace Veda.Plugin
 {

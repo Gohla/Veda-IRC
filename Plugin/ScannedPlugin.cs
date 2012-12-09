@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Veda.Command;
+using Veda.Interface;
 
 namespace Veda.Plugin
 {

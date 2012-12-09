@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Veda.Storage
+namespace Veda.Interface
 {
     public interface IStorage : IDisposable
     {

@@ -1,5 +1,5 @@
-﻿using System;
-using ReactiveIRC.Interface;
+﻿using ReactiveIRC.Interface;
+using Veda.Interface;
 
 namespace Veda
 {

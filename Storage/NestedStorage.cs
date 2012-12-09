@@ -1,5 +1,6 @@
 ﻿using System;
 using Gohla.Shared;
+using Veda.Interface;
 
 namespace Veda.Storage
 {

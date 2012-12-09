@@ -1,4 +1,5 @@
 ﻿using System;
+using Veda.Interface;
 
 namespace Veda.Command
 {

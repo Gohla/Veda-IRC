@@ -56,8 +56,6 @@
     <Compile Include="Configuration\ChannelData.cs" />
     <Compile Include="Configuration\ConnectionData.cs" />
     <Compile Include="Context.cs" />
-    <Compile Include="IBot.cs" />
-    <Compile Include="IContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +74,10 @@
     <ProjectReference Include="..\Command\Veda.Command.csproj">
       <Project>{5C8BFB0B-A0CB-4B98-BC8E-E703D9E44F83}</Project>
       <Name>Veda.Command</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Interface\Veda.Interface.csproj">
+      <Project>{BFD3723B-68D5-4A3F-8223-58B9C6E72178}</Project>
+      <Name>Veda.Interface</Name>
     </ProjectReference>
     <ProjectReference Include="..\Plugin\Veda.Plugin.csproj">
       <Project>{8F44F23F-D615-473B-AC4A-FE6B01F0BC74}</Project>

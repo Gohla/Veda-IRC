@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Veda.Plugin
+namespace Veda.Interface
 {
     public interface IPluginManager : IDisposable
     {

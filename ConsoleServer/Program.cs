@@ -8,11 +8,9 @@ using NLog.Config;
 using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Command;
-using Veda.Configuration;
-using Veda.Plugin;
+using Veda.Interface;
 using Veda.Plugins.Help;
 using Veda.Plugins.Plugin;
-using Veda.Storage;
 
 namespace Veda.ConsoleServer
 {
@@ -81,22 +79,22 @@ namespace Veda.ConsoleServer
             IBot bot = new Bot(client, storage, command, plugin);
             if(bot.Connections.IsEmpty())
             {
-                ConnectionData data = new ConnectionData();
                 Console.WriteLine("No connections have been set up yet, adding a connection now.");
-                Console.WriteLine("Nickname?");
-                data.Nickname = Console.ReadLine();
-                Console.WriteLine("Username?");
-                data.Username = Console.ReadLine();
-                Console.WriteLine("Real name?");
-                data.Realname = Console.ReadLine();
                 Console.WriteLine("Server address?");
-                data.Address = Console.ReadLine();
+                String address = Console.ReadLine();
                 Console.WriteLine("Server port?");
-                data.Port = Convert.ToUInt16(Console.ReadLine());
-                Console.WriteLine("Password? (leave empty for no password)");
-                data.Password = Console.ReadLine();
+                ushort port = Convert.ToUInt16(Console.ReadLine());
 
-                bot.Connect(data);
+                Console.WriteLine("Nickname?");
+                String nickname = Console.ReadLine();
+                Console.WriteLine("Username?");
+                String username = Console.ReadLine();
+                Console.WriteLine("Real name?");
+                String realname = Console.ReadLine();
+                Console.WriteLine("Password? (leave empty for no password)");
+                String password = Console.ReadLine();
+
+                bot.Connect(address, port, nickname, username, realname, password);
             }
 
             // Loop

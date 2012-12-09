@@ -21,18 +21,19 @@ namespace Veda.Plugin
 
         public static ScannedPlugin Scan(Type type)
         {
+            // Plugin info
             PluginAttribute pluginAttribute = type.GetCustomAttribute<PluginAttribute>(true);
             if(pluginAttribute == null)
                 return null;
+            String pluginName = pluginAttribute.Name ?? type.Name;
 
+            // Instance
             ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
-            if(constructor == null)
-                return null;
+            object instance = constructor == null ? null : constructor.Invoke(null);
 
-            object instance = constructor.Invoke(null);
+            ScannedPlugin plugin = new ScannedPlugin(pluginName, pluginAttribute.Description, instance, null);
 
-            ScannedPlugin plugin = new ScannedPlugin(pluginAttribute.Name, pluginAttribute.Description, instance, null);
-
+            // Command info
             IEnumerable<Tuple<CommandAttribute, MethodInfo>> commandAttributes = ScanCommands(type.GetMethods());
             IEnumerable<ICommand> commands = commandAttributes
                 .Select(t => ToCommand(plugin, t.Item1, t.Item2, instance))
@@ -55,10 +56,12 @@ namespace Veda.Plugin
         private static ICommand ToCommand(IPlugin plugin, CommandAttribute attribute, MethodInfo method, 
             object instance)
         {
+            String methodName = attribute.Name ?? method.Name;
+
             if(method.IsStatic)
-                return CommandBuilder.CreateCommand(plugin, attribute.Name, attribute.Description, method);
+                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, method);
             else
-                return CommandBuilder.CreateCommand(plugin, attribute.Name, attribute.Description, method, instance);
+                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, method, instance);
         }
     }
 }

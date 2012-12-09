@@ -4,6 +4,7 @@ namespace Veda.Interface
 {
     public interface ICommand : IEquatable<ICommand>
     {
+        IPlugin Plugin { get; }
         String Name { get; }
         String Description { get; }
         Type[] ParameterTypes { get; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Gohla.Shared;
@@ -9,7 +10,7 @@ using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Command;
 using Veda.Interface;
-using Veda.Plugins.Help;
+using Veda.Plugins.Info;
 using Veda.Plugins.Plugin;
 
 namespace Veda.ConsoleServer
@@ -67,12 +68,17 @@ namespace Veda.ConsoleServer
 
             // Create command manager
             ICommandManager command = CompositionManager.Get<ICommandManager>();
-            command.Add(CommandBuilder.CreateConverter<IPlugin, IBot>((s, b) => b.PluginManager.Get(s)));
+            command.Add(CommandBuilder.CreateConverter<IEnumerable<ICommand>, IBot>(
+                (str, b) => b.CommandManager.GetUnambigousCommands(str))
+            );
+            command.Add(CommandBuilder.CreateConverter<IPlugin, IBot>(
+                (str, b) => b.PluginManager.Get(str))
+            );
 
             // Create plugin manager
             IPluginManager plugin = CompositionManager.Get<IPluginManager>();
             plugin.Load(typeof(PluginPlugin));
-            plugin.Load(typeof(HelpPlugin));
+            plugin.Load(typeof(InfoPlugin));
 
             // Create bot
             IClient client = CompositionManager.Get<IClient>();

@@ -7,12 +7,14 @@ namespace Veda.Command
 {
     public abstract class Command : ICommand
     {
+        public IPlugin Plugin { get; private set; }
         public String Name { get; private set; }
         public String Description { get; private set; }
         public Type[] ParameterTypes { get; private set; }
 
-        public Command(String name, String description, params Type[] parameterTypes)
+        public Command(IPlugin plugin, String name, String description, params Type[] parameterTypes)
         {
+            Plugin = plugin;
             Name = name;
             Description = description;
             ParameterTypes = parameterTypes;
@@ -56,8 +58,9 @@ namespace Veda.Command
                 return false;
 
             return
-                EqualityComparer<String>.Default.Equals(this.Name, other.Name)
-             && this.ParameterTypes.SequenceEqual(other.ParameterTypes);
+                EqualityComparer<IPlugin>.Default.Equals(this.Plugin, other.Plugin)
+             && StringComparer.OrdinalIgnoreCase.Equals(this.Name, other.Name)
+             && this.ParameterTypes.SequenceEqual(other.ParameterTypes)
              ;
         }
 
@@ -66,15 +69,21 @@ namespace Veda.Command
             unchecked
             {
                 int hash = 17;
-                hash = hash * 23 + EqualityComparer<String>.Default.GetHashCode(this.Name);
+                hash = hash * 23 + EqualityComparer<IPlugin>.Default.GetHashCode(this.Plugin);
+                hash = hash * 23 + StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name);
                 hash = hash * 23 + EqualityComparer<Type[]>.Default.GetHashCode(this.ParameterTypes);
                 return hash;
             }
         }
 
-        public override string ToString()
+        public override String ToString()
         {
-            return this.Name;
+            return
+                "("
+              + this.Name
+              + (ParameterTypes.Length == 1 ? String.Empty : " ")
+              + String.Join(", ", ParameterTypes.Skip(1).Select(t => t.Name)) 
+              + ")";
         }
     }
 }

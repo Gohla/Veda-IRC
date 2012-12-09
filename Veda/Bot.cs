@@ -119,7 +119,10 @@ namespace Veda
 
                 try
                 {
-                    result = _command.Call(message.Contents, this, context)() as String;
+                    Func<object> func = _command.Call(message.Contents, this, context);
+                    if(func == null)
+                        return;
+                    result = func() as String;
                 }
                 catch(Exception e)
                 {

@@ -52,10 +52,12 @@
     <Compile Include="CommandConverterWithoutContext.cs" />
     <Compile Include="CommandManager.cs" />
     <Compile Include="CommandParser.cs" />
+    <Compile Include="QualifiedTypes.cs" />
+    <Compile Include="QualifiedNameTypes.cs" />
     <Compile Include="ExpressionCommand.cs" />
     <Compile Include="MethodCommand.cs" />
-    <Compile Include="ParseResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QualifiedName.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Gohla.Shared\Gohla.Shared\Gohla.Shared.csproj">

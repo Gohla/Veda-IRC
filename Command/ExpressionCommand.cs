@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Veda.Interface;
 
 namespace Veda.Command
 {
@@ -8,8 +9,8 @@ namespace Veda.Command
     {
         private Delegate _delegate;
 
-        public ExpressionCommand(String name, String description, Expression<T> expr) :
-            base(name, description, expr.Parameters.Select(p => p.Type).ToArray())
+        public ExpressionCommand(IPlugin plugin, String name, String description, Expression<T> expr) :
+            base(plugin, name, description, expr.Parameters.Select(p => p.Type).ToArray())
         {
             LambdaExpression lambdaExpr = expr;
             _delegate = lambdaExpr.Compile();

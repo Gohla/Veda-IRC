@@ -31,13 +31,15 @@ namespace Veda.Plugin
 
             object instance = constructor.Invoke(null);
 
+            ScannedPlugin plugin = new ScannedPlugin(pluginAttribute.Name, pluginAttribute.Description, instance, null);
+
             IEnumerable<Tuple<CommandAttribute, MethodInfo>> commandAttributes = ScanCommands(type.GetMethods());
             IEnumerable<ICommand> commands = commandAttributes
-                .Select(t => ToCommand(t.Item1, t.Item2, instance))
+                .Select(t => ToCommand(plugin, t.Item1, t.Item2, instance))
                 ;
+            plugin.AddCommands(commands);
 
-            // TODO: retrieve dispose method.
-            return new ScannedPlugin(pluginAttribute.Name, pluginAttribute.Description, commands, instance, null);
+            return plugin;
         }
 
         private static IEnumerable<Tuple<CommandAttribute, MethodInfo>> ScanCommands(MethodInfo[] methods)
@@ -50,12 +52,13 @@ namespace Veda.Plugin
             }
         }
 
-        private static ICommand ToCommand(CommandAttribute attribute, MethodInfo method, object instance)
+        private static ICommand ToCommand(IPlugin plugin, CommandAttribute attribute, MethodInfo method, 
+            object instance)
         {
             if(method.IsStatic)
-                return CommandBuilder.CreateCommand(attribute.Name, attribute.Description, method);
+                return CommandBuilder.CreateCommand(plugin, attribute.Name, attribute.Description, method);
             else
-                return CommandBuilder.CreateCommand(attribute.Name, attribute.Description, method, instance);
+                return CommandBuilder.CreateCommand(plugin, attribute.Name, attribute.Description, method, instance);
         }
     }
 }

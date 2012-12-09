@@ -9,7 +9,8 @@ namespace Veda.Plugin
     public class PluginManager : IPluginManager
     {
         private ICommandManager _commandManager;
-        private KeyedCollection<String, IPlugin> _plugins = new KeyedCollection<String, IPlugin>();
+        private Dictionary<String, IPlugin> _plugins = 
+            new Dictionary<String, IPlugin>(StringComparer.OrdinalIgnoreCase);
 
         public IEnumerable<IPlugin> Plugins { get { return _plugins.Values; } }
 
@@ -23,18 +24,17 @@ namespace Veda.Plugin
             if(_plugins == null)
                 return;
 
-            _plugins.ToArray().Do(x => Unload(x.Name));
+            _plugins.ToArray().Do(x => Unload(x.Key));
             _plugins.Clear();
-            _plugins.Dispose();
             _plugins = null;
         }
 
         public IPlugin Load(IPlugin plugin)
         {
-            if(_plugins.Contains(plugin.Name))
+            if(_plugins.ContainsKey(plugin.Name))
                 throw new ArgumentException("Plugin with name " + plugin.Name + " is already loaded.", "plugin");
 
-            _plugins.Add(plugin);
+            _plugins.Add(plugin.Name, plugin);
             foreach(ICommand command in plugin.Commands)
                 _commandManager.Add(command);
 
@@ -52,7 +52,7 @@ namespace Veda.Plugin
 
         public IPlugin Get(String name)
         {
-            if(!_plugins.Contains(name))
+            if(!_plugins.ContainsKey(name))
                 throw new ArgumentException("Plugin with name " + name + " does not exist.", "name");
 
             return _plugins[name];
@@ -60,7 +60,7 @@ namespace Veda.Plugin
 
         public void Unload(String name)
         {
-            if(!_plugins.Contains(name))
+            if(!_plugins.ContainsKey(name))
                 throw new ArgumentException("Plugin with name " + name + " is not loaded.", "name");
 
             IPlugin plugin = _plugins[name];

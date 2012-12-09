@@ -46,7 +46,6 @@
     <Compile Include="ICommandManager.cs" />
     <Compile Include="ICommandParser.cs" />
     <Compile Include="IContext.cs" />
-    <Compile Include="IParseResult.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="IPluginManager.cs" />
     <Compile Include="IStorage.cs" />

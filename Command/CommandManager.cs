@@ -253,7 +253,7 @@ namespace Veda.Command
                     return () => command.Call(commandContext.Concat(args));
             }
 
-            throw new InvalidOperationException("Could not convert one or more arguments to the correct type.");
+            throw new InvalidOperationException("Incorrect arguments. Usage: " + nameCandidates.ToString("; "));
         }
 
         private object ConvertOne(object commandContext, String str, Type target)

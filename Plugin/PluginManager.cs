@@ -9,7 +9,7 @@ namespace Veda.Plugin
 {
     public class PluginManager : IPluginManager
     {
-        private readonly Logger _logger = LogManager.GetLogger("PluginManager");
+        private static readonly Logger _logger = LogManager.GetLogger("PluginManager");
 
         private ICommandManager _commandManager;
         private Dictionary<String, IPlugin> _plugins = 

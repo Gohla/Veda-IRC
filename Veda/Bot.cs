@@ -13,9 +13,9 @@ namespace Veda
 {
     public class Bot : IBot
     {
-        private static readonly String _storageIdentifier = "BotData";
+        private static readonly Logger _logger = LogManager.GetLogger("Bot");
 
-        private readonly Logger _logger = LogManager.GetLogger("Bot");
+        private static readonly String _storageIdentifier = "BotData";
 
         private IClient _client;
         private IStorageManager _storage;

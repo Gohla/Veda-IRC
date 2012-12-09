@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NLog;
 using Veda.Command;
 using Veda.Interface;
 
@@ -9,6 +10,8 @@ namespace Veda.Plugin
 {
     public static class PluginScanner
     {
+        private static readonly Logger _logger = LogManager.GetLogger("PluginScanner");
+
         public static IEnumerable<ScannedPlugin> Scan(Assembly assembly)
         {
             foreach(Type type in assembly.GetTypes())
@@ -37,6 +40,7 @@ namespace Veda.Plugin
             IEnumerable<Tuple<CommandAttribute, MethodInfo>> commandAttributes = ScanCommands(type.GetMethods());
             IEnumerable<ICommand> commands = commandAttributes
                 .Select(t => ToCommand(plugin, t.Item1, t.Item2, instance))
+                .Where(c => c != null)
                 ;
             plugin.AddCommands(commands);
 
@@ -57,6 +61,13 @@ namespace Veda.Plugin
             object instance)
         {
             String methodName = attribute.Name ?? method.Name;
+            ParameterInfo[] parameters = method.GetParameters();
+            if(parameters.Length == 0 || !parameters[0].ParameterType.Equals(typeof(IContext)))
+            {
+                _logger.Error("Command " + methodName + " from plugin " + plugin.Name 
+                    + " does not have a parameter of type IContext as first parameter. Command will not be added.");
+                return null;
+            }
 
             if(method.IsStatic)
                 return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, method);

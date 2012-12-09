@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Veda.Plugin.Scan
+namespace Veda.Plugin
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class CommandAttribute : Attribute

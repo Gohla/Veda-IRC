@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Gohla.Shared;
 using Veda.Command;
-using Veda.Plugin.Scan;
 
 namespace Veda.Plugin
 {
@@ -44,7 +43,7 @@ namespace Veda.Plugin
 
         public IPlugin Load(Type type)
         {
-            IPlugin plugin = PluginAssemblyScanner.Scan(type);
+            IPlugin plugin = PluginScanner.Scan(type);
             if(plugin == null)
                 throw new ArgumentException("Type " + plugin.Name + " is not a valid plugin.", "type");
 

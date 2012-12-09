@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Veda.Command;
 
-namespace Veda.Plugin.Scan
+namespace Veda.Plugin
 {
     public class ScannedPlugin : IPlugin
     {

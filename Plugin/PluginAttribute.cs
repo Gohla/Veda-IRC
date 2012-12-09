@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Veda.Plugin.Scan
+namespace Veda.Plugin
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class PluginAttribute : Attribute

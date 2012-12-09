@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Veda.Command;
 
-namespace Veda.Plugin.Scan
+namespace Veda.Plugin
 {
-    public static class PluginAssemblyScanner
+    public static class PluginScanner
     {
         public static IEnumerable<ScannedPlugin> Scan(Assembly assembly)
         {

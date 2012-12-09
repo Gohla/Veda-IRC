@@ -10,5 +10,6 @@ namespace Veda.Plugin
         String Name { get; }
         String Description { get; }
         IEnumerable<ICommand> Commands { get; }
+        object Instance { get; }
     }
 }

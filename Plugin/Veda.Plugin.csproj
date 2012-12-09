@@ -54,6 +54,10 @@
     <Compile Include="IPluginManager.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scan\CommandAttribute.cs" />
+    <Compile Include="Scan\PluginAssemblyScanner.cs" />
+    <Compile Include="Scan\PluginAttribute.cs" />
+    <Compile Include="Scan\ScannedPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Gohla.Shared\Gohla.Shared\Gohla.Shared.csproj">

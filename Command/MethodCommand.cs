@@ -10,7 +10,7 @@ namespace Veda.Command
         private object _obj;
 
         public MethodCommand(String name, String description, MethodInfo method, object obj):
-            base(name, description, method.GetParameters().Select(p => p.GetType()).ToArray())
+            base(name, description, method.GetParameters().Select(p => p.ParameterType).ToArray())
         {
             _method = method;
             _obj = obj;
@@ -18,7 +18,14 @@ namespace Veda.Command
 
         public override object Call(params object[] arguments)
         {
-            return _method.Invoke(_obj, arguments);
+            try
+            {
+                return _method.Invoke(_obj, arguments);
+            }
+            catch(System.Reflection.TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
         }
     }
 }

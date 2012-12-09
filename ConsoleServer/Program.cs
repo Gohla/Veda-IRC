@@ -73,8 +73,8 @@ namespace Veda.ConsoleServer
 
             // Create plugin manager
             IPluginManager plugin = CompositionManager.Get<IPluginManager>();
-            plugin.Load(new PluginPlugin());
-            plugin.Load(new HelpPlugin());
+            plugin.Load(typeof(PluginPlugin));
+            plugin.Load(typeof(HelpPlugin));
 
             // Create bot
             IClient client = CompositionManager.Get<IClient>();

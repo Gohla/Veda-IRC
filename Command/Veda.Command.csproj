@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="NLog">
       <HintPath>..\..\Veda-dev\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>

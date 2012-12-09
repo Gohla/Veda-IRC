@@ -11,7 +11,10 @@ namespace Veda.Command
         private object _obj;
 
         public MethodCommand(IPlugin plugin, String name, String description, MethodInfo method, object obj) :
-            base(plugin, name, description, method.GetParameters().Select(p => p.ParameterType).ToArray())
+            base(plugin, name, description, 
+                method.GetParameters().Select(p => p.ParameterType).ToArray(),
+                method.GetParameters().Select(p => p.Name).ToArray()
+            )
         {
             _method = method;
             _obj = obj;

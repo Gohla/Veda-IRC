@@ -67,25 +67,9 @@
       <Project>{C699BFFA-5FE2-441C-9679-59BEAD165BC6}</Project>
       <Name>ReactiveIRC.Interface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Authentication\Veda.Authentication.csproj">
-      <Project>{5D600922-52FE-4A83-B8A5-ED42AE18CA54}</Project>
-      <Name>Veda.Authentication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Command\Veda.Command.csproj">
-      <Project>{5C8BFB0B-A0CB-4B98-BC8E-E703D9E44F83}</Project>
-      <Name>Veda.Command</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Interface\Veda.Interface.csproj">
       <Project>{BFD3723B-68D5-4A3F-8223-58B9C6E72178}</Project>
       <Name>Veda.Interface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Plugin\Veda.Plugin.csproj">
-      <Project>{8F44F23F-D615-473B-AC4A-FE6B01F0BC74}</Project>
-      <Name>Veda.Plugin</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Storage\Veda.Storage.csproj">
-      <Project>{0AAAE694-1BDE-445D-99AD-0E61301D91E5}</Project>
-      <Name>Veda.Storage</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utility\Veda.Utility.csproj">
       <Project>{F11EF1B0-8C1B-44FB-B11B-1FBA04F9CDFE}</Project>

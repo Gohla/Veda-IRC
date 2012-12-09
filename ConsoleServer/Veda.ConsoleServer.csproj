@@ -100,6 +100,10 @@
       <Project>{c699bffa-5fe2-441c-9679-59bead165bc6}</Project>
       <Name>ReactiveIRC.Interface</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\Google\Veda.Plugins.Google.csproj">
+      <Project>{7d270050-e762-48b5-b678-82b1efb71be0}</Project>
+      <Name>Veda.Plugins.Google</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\Info\Veda.Plugins.Info.csproj">
       <Project>{b7b82246-2e3b-4f8b-9573-cd7cc507a5b9}</Project>
       <Name>Veda.Plugins.Info</Name>

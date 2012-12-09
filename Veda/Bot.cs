@@ -110,40 +110,75 @@ namespace Veda
 
         private void ReceivedMessage(IReceiveMessage message)
         {
-            IClientConnection connection = message.Connection;
-            Context context = new Context { Bot = this, Connection = connection, Message = message };
+            Context context = new Context { Bot = this, Connection = message.Connection, Message = message };
 
             try
             {
-                String result = null;
-
                 try
                 {
                     Func<object> func = _command.Call(message.Contents, this, context);
                     if(func == null)
                         return;
-                    result = func() as String;
+                    
+                    object result = func();
+                    if(result == null)
+                        return;
+
+                    String reply = result as String;
+                    if(reply != null)
+                        Reply(message, reply);
+
+                    IEnumerable<String> replies = result as IEnumerable<String>;
+                    if(replies != null)
+                        Reply(message, replies);
+
+                    IObservable<String> observableReply = result as IObservable<String>;
+                    if(observableReply != null)
+                        observableReply.Subscribe(
+                            str => Reply(message, str),
+                            e => Reply(message, e)
+                        );
+
+                    IObservable<IEnumerable<String>> observableReplies = result as IObservable<IEnumerable<String>>;
+                    if(observableReplies != null)
+                        observableReplies.Subscribe(
+                            r => Reply(message, r),
+                            e => Reply(message, e)
+                        );
                 }
                 catch(Exception e)
                 {
-                    result = "Error: " + e.Message;
-                    _logger.InfoException("Error executing: \"" + message.Contents + "\".", e);
-                }
-                
-                if(result != null)
-                {
-                    IMessageTarget replyTarget = null;
-                    if(message.Receiver.Equals(connection.Me))
-                        replyTarget = message.Sender;
-                    else
-                        replyTarget = message.Receiver;
-                    replyTarget.SendMessage(result);
+                    Reply(message, e);
                 }
             }
             catch(Exception e)
             {
                 _logger.ErrorException("Error executing: \"" + message.Contents + "\".", e);
             }
+        }
+
+        private IMessageTarget ReplyTarget(IReceiveMessage message)
+        {
+            if(message.Receiver.Equals(message.Connection.Me))
+                return message.Sender;
+            else
+                return message.Receiver;
+        }
+
+        private void Reply(IReceiveMessage message, String reply)
+        {
+            ReplyTarget(message).SendMessage(reply);
+        }
+
+        private void Reply(IReceiveMessage message, IEnumerable<String> replies)
+        {
+            ReplyTarget(message).SendMessage(replies.ToString("; "));
+        }
+
+        private void Reply(IReceiveMessage message, Exception e)
+        {
+            Reply(message, "Error: " + e.Message);
+            _logger.InfoException("Error executing: \"" + message.Contents + "\".", e);
         }
     }
 }

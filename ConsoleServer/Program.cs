@@ -10,6 +10,7 @@ using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Command;
 using Veda.Interface;
+using Veda.Plugins.Google;
 using Veda.Plugins.Info;
 using Veda.Plugins.Plugin;
 
@@ -79,6 +80,7 @@ namespace Veda.ConsoleServer
             IPluginManager plugin = CompositionManager.Get<IPluginManager>();
             plugin.Load(typeof(PluginPlugin));
             plugin.Load(typeof(InfoPlugin));
+            plugin.Load(typeof(GooglePlugin));
 
             // Create bot
             IClient client = CompositionManager.Get<IClient>();

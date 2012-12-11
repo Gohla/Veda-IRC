@@ -11,6 +11,7 @@ using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Command;
 using Veda.Interface;
+using Autofac;
 
 namespace Veda.ConsoleServer
 {
@@ -18,7 +19,8 @@ namespace Veda.ConsoleServer
     {
         private static readonly String _applicationDataDirectory = "Veda";
         private static readonly String _storagePath = "Storage";
-        private static readonly String _globalStorageFile = "Config.json";
+        private static readonly String _storageExtension = "json";
+        private static readonly String _globalStorageFile = "Config";
         private static readonly String _logFile = "Log.txt";
 
         private static AppBootstrapper _bootstrapper;
@@ -62,8 +64,9 @@ namespace Veda.ConsoleServer
             _bootstrapper = new AppBootstrapper();
 
             // Open configuration
-            IStorageManager storage = CompositionManager.Get<IStorageManager>();
-            storage.Open(Path.Combine(BasePath, _storagePath), _globalStorageFile);
+            IStorageManager storage = CompositionManager.Get<IStorageManager>(new NamedParameter("path",
+                Path.Combine(BasePath, _storagePath)), new NamedParameter("extension", _storageExtension), 
+                new NamedParameter("globalFile", _globalStorageFile));
 
             // Create command manager
             ICommandManager command = CompositionManager.Get<ICommandManager>();

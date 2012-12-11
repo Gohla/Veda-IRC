@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="CommandAttribute.cs" />
     <Compile Include="IBot.cs" />
+    <Compile Include="ICallable.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandConverter.cs" />
     <Compile Include="ICommandManager.cs" />

@@ -43,7 +43,7 @@ namespace Veda
             _command = command;
             _plugin = plugin;
 
-            _data = storage.Get<BotData>(_storageIdentifier);
+            _data = storage.Global().Get<BotData>(_storageIdentifier);
             if(_data == null)
                 _data = new BotData();
 
@@ -64,7 +64,7 @@ namespace Veda
             _botConnections.Clear();
             _botConnections = null;
 
-            _storage.Set(_storageIdentifier, _data);
+            _storage.Global().Set(_storageIdentifier, _data);
         }
 
         public IClientConnection Connect(String address, ushort port, String nickname, String username, String realname,
@@ -110,17 +110,17 @@ namespace Veda
 
         private void ReceivedMessage(IReceiveMessage message)
         {
-            Context context = new Context { Bot = this, Connection = message.Connection, Message = message };
+            Context context = new Context { Bot = this, Message = message };
 
             try
             {
                 try
                 {
-                    Func<object> func = _command.Call(message.Contents, this, context);
-                    if(func == null)
+                    ICallable callable = _command.Call(message.Contents, this, context);
+                    if(callable == null)
                         return;
                     
-                    object result = func();
+                    object result = callable.Call();
                     if(result == null)
                         return;
 
@@ -142,7 +142,7 @@ namespace Veda
                     IObservable<IEnumerable<String>> observableReplies = result as IObservable<IEnumerable<String>>;
                     if(observableReplies != null)
                         observableReplies.Subscribe(
-                            r => Reply(message, r),
+                            strs => Reply(message, strs),
                             e => Reply(message, e)
                         );
                 }

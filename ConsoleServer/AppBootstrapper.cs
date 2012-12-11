@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Composition.Hosting;
+﻿using System;
+using System.ComponentModel.Composition.Hosting;
 using System.Reflection;
 using Autofac;
 using Autofac.Integration.Mef;
@@ -39,7 +40,8 @@ namespace Veda.ConsoleServer
                 .Exported(x => x.As<IStorage>())
                 .SingleInstance()
                 ;
-            builder.RegisterType<StorageManager>()
+            builder.Register((c, p) => new StorageManager(p.Named<String>("path"), p.Named<String>("extension"),
+                p.Named<String>("globalFile")))
                 .As<IStorageManager>()
                 .Exported(x => x.As<IStorageManager>())
                 .SingleInstance()

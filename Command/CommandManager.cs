@@ -72,7 +72,7 @@ namespace Veda.Command
             return true;
         }
 
-        public Func<object> Call(String command, object conversionContext)
+        public ICallable Call(String command, object conversionContext)
         {
             String[] result = Parse(command);
             if(result == null)
@@ -80,7 +80,7 @@ namespace Veda.Command
             return CallUntyped(conversionContext, result);
         }
 
-        public Func<object> Call(String command, object conversionContext, params object[] commandContext)
+        public ICallable Call(String command, object conversionContext, params object[] commandContext)
         {
             String[] result = Parse(command);
             if(result == null)
@@ -88,12 +88,12 @@ namespace Veda.Command
             return CallUntyped(conversionContext, commandContext, result);
         }
 
-        public Func<object> CallUntyped(object conversionContext, params String[] arguments)
+        public ICallable CallUntyped(object conversionContext, params String[] arguments)
         {
             return Resolve(conversionContext, new object[0], arguments);
         }
 
-        public Func<object> CallUntyped(object conversionContext, object[] commandContext, 
+        public ICallable CallUntyped(object conversionContext, object[] commandContext, 
             params String[] arguments)
         {
             return Resolve(conversionContext, commandContext, arguments);
@@ -223,7 +223,7 @@ namespace Veda.Command
             }
         }
 
-        private Func<object> Resolve(object conversionContext, object[] commandContext, params String[] arguments)
+        private ICallable Resolve(object conversionContext, object[] commandContext, params String[] arguments)
         {
             String[] newArguments;
             IEnumerable<ICommand> nameCandidates = NameCandidates(arguments, out newArguments);
@@ -250,7 +250,7 @@ namespace Veda.Command
                 object[] args = ConvertAll(conversionContext, newArguments, 
                     command.ParameterTypes.Skip(commandContext.Length).ToArray());
                 if(args != null)
-                    return () => command.Call(commandContext.Concat(args));
+                    return new Callable(command, commandContext.Concat(args));
             }
 
             throw new InvalidOperationException("Incorrect arguments. Usage: " + nameCandidates.ToString("; "));

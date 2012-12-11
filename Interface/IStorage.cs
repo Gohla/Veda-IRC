@@ -23,7 +23,7 @@ namespace Veda.Interface
         /// <returns>
         /// Loaded object.
         /// </returns>
-        T Get<T>(String id);
+        T Get<T>(String id) where T : new();
 
         /// <summary>
         /// Query if an object exists at given identifier.

@@ -14,10 +14,10 @@ namespace Veda.Interface
         String[] Parse(String command);
         bool IsCommand(String command);
 
-        Func<object> Call(String command, object conversionContext);
-        Func<object> Call(String command, object conversionContext, params object[] commandContext);
-        Func<object> CallUntyped(object conversionContext, params String[] arguments);
-        Func<object> CallUntyped(object conversionContext, object[] commandContext, params String[] arguments);
+        ICallable Call(String command, object conversionContext);
+        ICallable Call(String command, object conversionContext, params object[] commandContext);
+        ICallable CallUntyped(object conversionContext, params String[] arguments);
+        ICallable CallUntyped(object conversionContext, object[] commandContext, params String[] arguments);
 
         void Add(ICommand command);
         void Remove(ICommand command);

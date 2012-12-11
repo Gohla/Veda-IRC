@@ -6,7 +6,7 @@ namespace Veda
     internal class Context : IContext
     {
         public IBot Bot { get; set; }
-        public IClientConnection Connection { get; set; }
+        public IStorage Storage { get; set; }
         public IReceiveMessage Message { get; set; }
     }
 }

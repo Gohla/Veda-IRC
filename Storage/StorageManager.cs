@@ -1,60 +1,88 @@
 ﻿using System;
 using System.IO;
 using Gohla.Shared.Composition;
+using ReactiveIRC.Interface;
 using Veda.Interface;
+using System.Collections.Generic;
 
 namespace Veda.Storage
 {
     public class StorageManager : IStorageManager
     {
-        private NestedStorage _storage;
-        private String _storagePath;
+        private readonly String _path;
+        private readonly String _extension;
+        private IStorage _global;
+        private Dictionary<IClientConnection, IStorage> _server = new Dictionary<IClientConnection, IStorage>();
+        private Dictionary<IChannel, IStorage> _channel = new Dictionary<IChannel, IStorage>();
 
-        public StorageManager()
+        public StorageManager(String path, String extension, String globalFile)
         {
-
+            _path = path;
+            _extension = extension.StartsWith(".") ? extension : "." + extension;
+            _global = OpenGlobal(globalFile);
         }
 
         public void Dispose()
         {
-            if(_storage == null)
+            if(_channel == null)
                 return;
 
-            _storage.Dispose();
-            _storage = null;
+            _channel.Do(x => x.Value.Dispose());
+            _channel.Clear();
+            _channel = null;
+
+            _server.Do(x => x.Value.Dispose());
+            _server.Clear();
+            _server = null;
+
+            _global.Dispose();
+            _global = null;
         }
 
-        public void Open(String storagePath, String globalStorageFile)
+        public IStorage Global()
         {
-            _storagePath = storagePath;
-
-            IStorage globalStorage = CompositionManager.Get<IStorage>();
-            globalStorage.Open(Path.Combine(storagePath, globalStorageFile));
-            _storage = new NestedStorage("Global", globalStorage);
+            return _global;
         }
 
-        private void EnsureOpened()
+        public IStorage Server(IClientConnection connection)
         {
-            if(_storage == null)
-                throw new InvalidOperationException("Storage has not been opened, open storage with the Open method.");
+            return _server.GetOrCreate(connection, () => OpenServer(connection));
         }
 
-        public T Get<T>(String identifier)
+        public IStorage Channel(IChannel channel)
         {
-            EnsureOpened();
-            return _storage.Storage.Get<T>(identifier);
+            return _channel.GetOrCreate(channel, () => OpenChannel(channel));
         }
 
-        public bool Exists(String identifier)
+        private IStorage OpenGlobal(String file)
         {
-            EnsureOpened();
-            return _storage.Storage.Exists(identifier);
+            IStorage storage = CompositionManager.Get<IStorage>();
+            storage.Open(Path.Combine(_path, file + _extension));
+            return storage;
         }
 
-        public void Set<T>(String identifier, T value)
+        private String ServerString(IClientConnection connection)
         {
-            EnsureOpened();
-            _storage.Storage.Set<T>(identifier, value);
+            return connection.Address + "_" + connection.Port;
+        }
+
+        private IStorage OpenServer(IClientConnection connection)
+        {
+            IStorage storage = CompositionManager.Get<IStorage>();
+            storage.Open(Path.Combine(_path, ServerString(connection) + _extension));
+            return storage;
+        }
+
+        private String ChannelString(IChannel channel)
+        {
+            return channel.Name;
+        }
+
+        private IStorage OpenChannel(IChannel channel)
+        {
+            IStorage storage = CompositionManager.Get<IStorage>();
+            storage.Open(Path.Combine(_path, ServerString(channel.Connection), ChannelString(channel) + _extension));
+            return storage;
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Veda.ConsoleServer
 
             // Open configuration
             IStorageManager storage = CompositionManager.Get<IStorageManager>(new NamedParameter("path",
-                Path.Combine(BasePath, _storagePath)), new NamedParameter("extension", _storageExtension), 
+                Path.Combine(BasePath, _storagePath)), new NamedParameter("extension", _storageExtension),
                 new NamedParameter("globalFile", _globalStorageFile));
 
             // Create command manager
@@ -107,7 +107,7 @@ namespace Veda.ConsoleServer
 
             // Loop
             bool run = true;
-            Console.CancelKeyPress += (s, e) => { run = false; };
+            Console.CancelKeyPress += (s, e) => { e.Cancel = true; run = false; };
             while(run)
             {
                 Thread.Sleep(50);

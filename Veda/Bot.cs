@@ -110,7 +110,8 @@ namespace Veda
 
         private void ReceivedMessage(IReceiveMessage message)
         {
-            Context context = new Context { Bot = this, Message = message };
+            Context context = new Context { Bot = this, Storage = _storage.Server(message.Connection), 
+                Message = message };
 
             try
             {

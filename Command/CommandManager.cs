@@ -263,14 +263,22 @@ namespace Veda.Command
 
             // TODO: Efficient lookup
             IEnumerable<ICommandConverter> candidates;
-            if(commandContext == null)
-                candidates = _converters
-                    .Where(c => target.IsAssignableFrom(c.ToType))
-                    .Where(c => c.ContextType.Equals(typeof(void)));
+            IEnumerable<ICommandConverter> candidatesNoContext = _converters
+                .Where(c => target.IsAssignableFrom(c.ToType))
+                .Where(c => c.ContextType.Equals(typeof(void)));
+            if(commandContext != null)
+            {
+                candidates = Enumerable.Concat(
+                    _converters
+                        .Where(c => target.IsAssignableFrom(c.ToType))
+                        .Where(c => c.ContextType.IsAssignableFrom(commandContext.GetType())),
+                    candidatesNoContext
+                );
+            }
             else
-                candidates = _converters
-                    .Where(c => target.IsAssignableFrom(c.ToType))
-                    .Where(c => c.ContextType.IsAssignableFrom(commandContext.GetType()));
+            {
+                candidates = candidatesNoContext;
+            }
 
             // TODO: Taking the first one that succeeds, may need something smarter though?
             foreach(ICommandConverter converter in candidates)

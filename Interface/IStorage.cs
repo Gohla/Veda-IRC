@@ -17,13 +17,25 @@ namespace Veda.Interface
         /// Gets an object located at given identifier.
         /// </summary>
         ///
-        /// <typeparam name="T">Object type to load.</typeparam>
+        /// <typeparam name="T">Object type to retrieve.</typeparam>
         /// <param name="id">The identifier.</param>
         ///
         /// <returns>
-        /// Loaded object.
+        /// Retrieved object or default(T) if it was not found.
         /// </returns>
-        T Get<T>(String id) where T : new();
+        T Get<T>(String id);
+
+        /// <summary>
+        /// Gets an object located at given identifier, or creates a default instance if it does not exist.
+        /// </summary>
+        ///
+        /// <typeparam name="T">Object type to retrieve.</typeparam>
+        /// <param name="id">The identifier.</param>
+        ///
+        /// <returns>
+        /// Retrieved or created object.
+        /// </returns>
+        T GetOrCreate<T>(String id) where T : new();
 
         /// <summary>
         /// Query if an object exists at given identifier.

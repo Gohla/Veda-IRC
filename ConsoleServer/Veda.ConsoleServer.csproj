@@ -108,6 +108,10 @@
       <Project>{b7b82246-2e3b-4f8b-9573-cd7cc507a5b9}</Project>
       <Name>Veda.Plugins.Info</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\List\Veda.Plugins.List.csproj">
+      <Project>{878889c5-3888-429d-8252-56fcc6861f61}</Project>
+      <Name>Veda.Plugins.List</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\Plugin\Veda.Plugins.Plugin.csproj">
       <Project>{7e3af69c-9179-4fd0-8d80-18df9f7bb116}</Project>
       <Name>Veda.Plugins.Plugin</Name>

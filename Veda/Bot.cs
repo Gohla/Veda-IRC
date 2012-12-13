@@ -33,6 +33,7 @@ namespace Veda
                 return _botConnections.Select(x => x.Connection);
             }
         }
+        public IStorageManager StorageManager { get { return _storage; } }
         public ICommandManager CommandManager { get { return _command; } }
         public IPluginManager PluginManager { get { return _plugin; } }
 
@@ -43,7 +44,7 @@ namespace Veda
             _command = command;
             _plugin = plugin;
 
-            _data = storage.Global().Get<BotData>(_storageIdentifier);
+            _data = storage.Global().GetOrCreate<BotData>(_storageIdentifier);
             if(_data == null)
                 _data = new BotData();
 
@@ -117,17 +118,16 @@ namespace Veda
             {
                 try
                 {
-                    ICallable callable = _command.Call(message.Contents, this, context);
+                    ICallable callable = _command.Call(message.Contents, context, context);
                     if(callable == null)
                         return;
                     
                     object result = callable.Call();
                     if(result == null)
+                    {
+                        Reply(message, "The operation succeeded.");
                         return;
-
-                    String reply = result as String;
-                    if(reply != null)
-                        Reply(message, reply);
+                    }
 
                     IEnumerable<String> replies = result as IEnumerable<String>;
                     if(replies != null)
@@ -146,6 +146,10 @@ namespace Veda
                             strs => Reply(message, strs),
                             e => Reply(message, e)
                         );
+
+                    String reply = result.ToString();
+                    if(!String.IsNullOrWhiteSpace(reply))
+                        Reply(message, reply);
                 }
                 catch(Exception e)
                 {

@@ -3,6 +3,13 @@ using ReactiveIRC.Interface;
 
 namespace Veda.Interface
 {
+    public enum StorageScope
+    {
+        Global,
+        Server,
+        Channel
+    }
+
     public interface IStorageManager : IDisposable
     {
         IStorage Global();

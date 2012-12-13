@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Gohla.Shared.Composition;
 using ReactiveIRC.Interface;
 using Veda.Interface;
-using System.Collections.Generic;
 
 namespace Veda.Storage
 {

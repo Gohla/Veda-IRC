@@ -37,6 +37,16 @@ namespace Veda.Storage
         }
 
         public T Get<T>(String id)
+        {
+            JToken obj;
+            if(_storage.TryGetValue(id, out obj))
+            {
+                return JsonConvert.DeserializeObject<T>(obj.ToString(), _settings);
+            }
+            return default(T);
+        }
+
+        public T GetOrCreate<T>(String id)
             where T : new()
         {
             JToken obj;

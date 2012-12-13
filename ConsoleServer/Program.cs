@@ -70,11 +70,14 @@ namespace Veda.ConsoleServer
 
             // Create command manager
             ICommandManager command = CompositionManager.Get<ICommandManager>();
-            command.Add(CommandBuilder.CreateConverter<IEnumerable<ICommand>, IBot>(
-                (str, b) => b.CommandManager.GetUnambigousCommands(str))
+            command.Add(CommandBuilder.CreateConverter<IEnumerable<ICommand>, IContext>(
+                (str, context) => context.Bot.CommandManager.GetUnambigousCommands(str))
             );
-            command.Add(CommandBuilder.CreateConverter<IPlugin, IBot>(
-                (str, b) => b.PluginManager.Get(str))
+            command.Add(CommandBuilder.CreateConverter<IPlugin, IContext>(
+                (str, context) => context.Bot.PluginManager.Get(str))
+            );
+            command.Add(CommandBuilder.CreateConverter<IChannel, IContext>(
+                (str, context) => context.Message.Connection.GetExistingChannel(str))
             );
 
             // Create plugin manager

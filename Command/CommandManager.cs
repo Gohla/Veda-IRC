@@ -8,8 +8,10 @@ namespace Veda.Command
 {
     public class CommandManager : ICommandManager
     {
-        private MultiValueDictionary<String, ICommand> _commands =
+        private MultiValueDictionary<String, ICommand> _ambiguousCommands =
             new MultiValueDictionary<String, ICommand>(StringComparer.OrdinalIgnoreCase);
+        private MultiValueDictionary<IPlugin, ICommand> _pluginCommands =
+            new MultiValueDictionary<IPlugin, ICommand>();
         private MultiValueDictionary<QualifiedName, ICommand> _nameQualifiedCommands =
             new MultiValueDictionary<QualifiedName, ICommand>();
         private MultiValueDictionary<QualifiedTypes, ICommand> _typesQualifiedCommands =
@@ -34,13 +36,18 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> GetCommands(String name)
         {
-            return _commands.Get(name);
+            return _ambiguousCommands.Get(name);
         }
 
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
         {
             object[] dummy;
             return ResolveNames(new object[] { name }, true, out dummy);
+        }
+
+        public IEnumerable<ICommand> GetCommands(IPlugin plugin)
+        {
+            return _pluginCommands.Get(plugin);
         }
 
         public IEnumerable<ICommand> GetCommands(String pluginName, String name)
@@ -98,7 +105,8 @@ namespace Veda.Command
                     + " already exists.", 
                     "command");
 
-            _commands.Add(command.Name, command);
+            _ambiguousCommands.Add(command.Name, command);
+            _pluginCommands.Add(command.Plugin, command);
             _nameQualifiedCommands.Add(new QualifiedName(command.Plugin.Name, command.Name), command);
             _typesQualifiedCommands.Add(new QualifiedTypes(command.Name, command.ParameterTypes), command);
             _nameTypesQualifiedCommands.Add(qualified, command);
@@ -117,7 +125,8 @@ namespace Veda.Command
                     + " does not exist.",
                     "command");
 
-            _commands.Remove(command.Name, command);
+            _ambiguousCommands.Remove(command.Name, command);
+            _pluginCommands.Remove(command.Plugin, command);
             _nameQualifiedCommands.Remove(new QualifiedName(command.Plugin.Name, command.Name), command);
             _typesQualifiedCommands.Remove(new QualifiedTypes(command.Name, command.ParameterTypes), command);
             _nameTypesQualifiedCommands.Remove(qualified);

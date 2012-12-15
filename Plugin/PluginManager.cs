@@ -54,7 +54,7 @@ namespace Veda.Plugin
                 throw new ArgumentException("Plugin with name " + plugin.Name + " is already loaded.", "plugin");
 
             _plugins.Add(plugin.Name, plugin);
-            foreach(ICommand command in plugin.Commands)
+            foreach(ICommand command in plugin.InitialCommands)
             {
                 try
                 {
@@ -93,7 +93,7 @@ namespace Veda.Plugin
                 throw new ArgumentException("Plugin with name " + name + " is not loaded.", "name");
 
             IPlugin plugin = _plugins[name];
-            foreach(ICommand command in _plugins[name].Commands)
+            foreach(ICommand command in _commandManager.GetCommands(plugin).ToArray())
                 _commandManager.Remove(command);
             _plugins.Remove(name);
             plugin.Dispose();

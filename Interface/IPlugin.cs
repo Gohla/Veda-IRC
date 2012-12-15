@@ -8,7 +8,7 @@ namespace Veda.Interface
     {
         String Name { get; }
         String Description { get; }
-        IEnumerable<ICommand> Commands { get; }
+        IEnumerable<ICommand> InitialCommands { get; }
         object Instance { get; }
     }
 }

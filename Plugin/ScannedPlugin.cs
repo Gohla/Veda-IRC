@@ -11,7 +11,7 @@ namespace Veda.Plugin
 
         public String Name { get; set; }
         public String Description { get; set; }
-        public IEnumerable<ICommand> Commands { get { return _commands; } }
+        public IEnumerable<ICommand> InitialCommands { get { return _commands; } }
         public object Instance { get; set; }
 
         public ScannedPlugin(String name, String description, object instance = null, Action dispose = null)

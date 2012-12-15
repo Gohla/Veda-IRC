@@ -58,8 +58,8 @@ namespace Veda.Command.Grammar {
                                        "[^ \\t\\n\\r~\"\\\\]+");
             AddPattern(pattern);
 
-            pattern = new TokenPattern((int) CommandGrammarConstants.WHITESPACE,
-                                       "WHITESPACE",
+            pattern = new TokenPattern((int) CommandGrammarConstants.LAYOUT,
+                                       "LAYOUT",
                                        TokenPattern.PatternType.REGEXP,
                                        "[ \\t\\n\\r]+");
             pattern.Ignore = true;

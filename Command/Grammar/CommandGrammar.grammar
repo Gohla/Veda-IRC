@@ -1,17 +1,17 @@
 %header%
 
-GRAMMARTYPE = "LL"
+  GRAMMARTYPE = "LL"
 
 %tokens%
 
-COMMAND_START = "~"
-STRING        = <<"([^"\\]|""|\\.)*">>
-TEXT          = <<[^ \t\n\r~"\\]+>>
-LAYOUT        = <<[ \t\n\r]+>>         %ignore%
+  COMMAND_START = "~"
+  STRING        = <<"([^"\\]|""|\\.)*">>
+  TEXT          = <<[^ \t\n\r~"\\]+>>
+  LAYOUT        = <<[ \t\n\r]+>>         %ignore%
 
 %productions%
 
-Command  = COMMAND_START Argument+ ;
-
-Argument = TEXT
-         | STRING ;
+  Command  = COMMAND_START Argument+ ;
+  
+  Argument = TEXT
+           | STRING ;

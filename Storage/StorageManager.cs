@@ -4,6 +4,8 @@ using System.IO;
 using Gohla.Shared.Composition;
 using ReactiveIRC.Interface;
 using Veda.Interface;
+using System.Reactive.Linq;
+using System.Reactive;
 
 namespace Veda.Storage
 {
@@ -11,6 +13,7 @@ namespace Veda.Storage
     {
         private readonly String _path;
         private readonly String _extension;
+        private IDisposable _storeSubscription;
         private IStorage _global;
         private Dictionary<IClientConnection, IStorage> _server = new Dictionary<IClientConnection, IStorage>();
         private Dictionary<IChannel, IStorage> _channel = new Dictionary<IChannel, IStorage>();
@@ -25,12 +28,20 @@ namespace Veda.Storage
             _path = path;
             _extension = extension.StartsWith(".") ? extension : "." + extension;
             _global = OpenGlobal(globalFile);
+
+            _storeSubscription = Observable
+                .Timer(TimeSpan.FromSeconds(30))
+                .Subscribe(_ => Persist())
+                ;
         }
 
         public void Dispose()
         {
-            if(_pluginChannel == null)
+            if(_storeSubscription == null)
                 return;
+
+            _storeSubscription.Dispose();
+            _storeSubscription = null;
 
             _pluginChannel.Do(x => x.Value.Dispose());
             _pluginChannel.Clear();
@@ -161,6 +172,16 @@ namespace Veda.Storage
         private IOpenableStorage NewStorage()
         {
             return new CachedStorage(CompositionManager.Get<IOpenableStorage>());
+        }
+
+        private void Persist()
+        {
+            _global.Persist();
+            _server.Do(s => s.Value.Persist());
+            _channel.Do(s => s.Value.Persist());
+            _pluginGlobal.Do(s => s.Value.Persist());
+            _pluginServer.Do(s => s.Value.Persist());
+            _pluginChannel.Do(s => s.Value.Persist());
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Veda.Interface;
@@ -8,6 +9,7 @@ namespace Veda.Storage
 {
     public class JsonStorage : IOpenableStorage
     {
+        private ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
         private JsonSerializerSettings _settings = new JsonSerializerSettings();
         private JObject _storage = new JObject();
         private String _file = null;
@@ -15,7 +17,7 @@ namespace Veda.Storage
 
         public JsonStorage()
         {
-            //_settings.TypeNameHandling = TypeNameHandling.Objects;
+            _settings.TypeNameHandling = TypeNameHandling.Auto;
         }
 
         ~JsonStorage()
@@ -38,38 +40,78 @@ namespace Veda.Storage
 
         public T Get<T>(String id)
         {
-            JToken obj;
-            if(_storage.TryGetValue(id, out obj))
+            _lock.EnterReadLock();
+            try
             {
-                return JsonConvert.DeserializeObject<T>(obj.ToString(), _settings);
+                JToken obj;
+                if(_storage.TryGetValue(id, out obj))
+                {
+                    return JsonConvert.DeserializeObject<T>(obj.ToString(), _settings);
+                }
+                return default(T);
             }
-            return default(T);
+            finally
+            {
+                _lock.ExitReadLock();	
+            }
         }
 
         public T GetOrCreate<T>(String id)
             where T : new()
         {
-            JToken obj;
-            if(_storage.TryGetValue(id, out obj))
+            _lock.EnterReadLock();
+            try
             {
-                return JsonConvert.DeserializeObject<T>(obj.ToString(), _settings);
+	            JToken obj;
+	            if(_storage.TryGetValue(id, out obj))
+	            {
+	                return JsonConvert.DeserializeObject<T>(obj.ToString(), _settings);
+	            }
+	            return new T();
             }
-            return new T();
+            finally
+            {
+                _lock.ExitReadLock();
+            }
         }
 
         public bool Exists(String id)
         {
-            return _storage[id] != null;
+            _lock.EnterReadLock();
+            try
+            {
+            	return _storage[id] != null;
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
         }
 
         public void Set(String id, object obj)
         {
-            _storage[id] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
+            _lock.EnterWriteLock();
+            try
+            {
+            	_storage[id] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
         }
 
         public bool Remove(String id)
         {
-            return _storage.Remove(id);
+            _lock.EnterWriteLock();
+            try
+            {
+            	return _storage.Remove(id);
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
         }
 
         public bool Persist()
@@ -80,12 +122,20 @@ namespace Veda.Storage
             if(!Directory.Exists(_path))
                 Directory.CreateDirectory(_path);
 
-            using(TextWriter textWriter = new StreamWriter(_file))
+            _lock.EnterReadLock();
+            try
             {
-                JsonTextWriter writer = new JsonTextWriter(textWriter);
-                writer.Formatting = Formatting.Indented;
-                _storage.WriteTo(writer);
-                writer.Close();
+                using(TextWriter textWriter = new StreamWriter(_file))
+                {
+                    JsonTextWriter writer = new JsonTextWriter(textWriter);
+                    writer.Formatting = Formatting.Indented;
+                    _storage.WriteTo(writer);
+                    writer.Close();
+                }
+            }
+            finally
+            {
+                _lock.ExitReadLock();
             }
 
             return true;
@@ -96,11 +146,19 @@ namespace Veda.Storage
             if(!File.Exists(_file))
                 return;
 
-            using(TextReader textReader = new StreamReader(_file))
+            _lock.EnterWriteLock();
+            try
             {
-                JsonTextReader reader = new JsonTextReader(textReader);
-                _storage = JObject.Load(reader);
-                reader.Close();
+                using(TextReader textReader = new StreamReader(_file))
+                {
+                    JsonTextReader reader = new JsonTextReader(textReader);
+                    _storage = JObject.Load(reader);
+                    reader.Close();
+                }
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
             }
         }
     }

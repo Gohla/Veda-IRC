@@ -20,13 +20,13 @@ namespace Veda.Storage
 
         ~JsonStorage()
         {
-            StoreConfiguration();
+            Dispose();
         }
 
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            StoreConfiguration();
+            Persist();
         }
 
         public void Open(String file)
@@ -62,15 +62,33 @@ namespace Veda.Storage
             return _storage[id] != null;
         }
 
-        public void Set<T>(String id, T obj)
+        public void Set(String id, object obj)
         {
             _storage[id] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
-            StoreConfiguration();
         }
 
         public bool Remove(String id)
         {
             return _storage.Remove(id);
+        }
+
+        public bool Persist()
+        {
+            if(_file == null)
+                return false;
+
+            if(!Directory.Exists(_path))
+                Directory.CreateDirectory(_path);
+
+            using(TextWriter textWriter = new StreamWriter(_file))
+            {
+                JsonTextWriter writer = new JsonTextWriter(textWriter);
+                writer.Formatting = Formatting.Indented;
+                _storage.WriteTo(writer);
+                writer.Close();
+            }
+
+            return true;
         }
 
         private void LoadConfiguration()
@@ -83,23 +101,6 @@ namespace Veda.Storage
                 JsonTextReader reader = new JsonTextReader(textReader);
                 _storage = JObject.Load(reader);
                 reader.Close();
-            }
-        }
-
-        private void StoreConfiguration()
-        {
-            if(_file == null)
-                return;
-
-            if(!Directory.Exists(_path))
-                Directory.CreateDirectory(_path);
-
-            using(TextWriter textWriter = new StreamWriter(_file))
-            {
-                JsonTextWriter writer = new JsonTextWriter(textWriter);
-                writer.Formatting = Formatting.Indented;
-                _storage.WriteTo(writer);
-                writer.Close();
             }
         }
     }

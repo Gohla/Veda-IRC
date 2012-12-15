@@ -3,7 +3,7 @@ using Veda.Interface;
 
 namespace Veda.Storage
 {
-    public class NestedStorage : IStorage
+    internal class NestedStorage : IStorage
     {
         public IStorage Storage { get; private set; }
         public IStorage Parent { get; private set; }
@@ -19,10 +19,18 @@ namespace Veda.Storage
             Parent = parent;
         }
 
+        ~NestedStorage()
+        {
+            Dispose();
+        }
+
         public void Dispose()
         {
             if(Storage == null)
                 return;
+
+            GC.SuppressFinalize(this);
+            Persist();
 
             Storage.Dispose();
             Storage = null;
@@ -61,9 +69,9 @@ namespace Veda.Storage
             return false;
         }
 
-        public void Set<T>(String id, T obj)
+        public void Set(String id, object obj)
         {
-            Storage.Set<T>(id, obj);
+            Storage.Set(id, obj);
         }
 
         public bool Remove(String id)
@@ -73,6 +81,14 @@ namespace Veda.Storage
             if(Parent != null && Parent.Remove(id))
                 return true;
             return false;
+        }
+
+        public bool Persist()
+        {
+            bool persisted = Storage.Persist();
+            if(Parent != null)
+                persisted &= Parent.Persist();
+            return persisted;
         }
     }
 }

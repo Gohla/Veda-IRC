@@ -52,7 +52,7 @@ namespace Veda
 
             foreach(ConnectionData data in _data.Connections.ToArray())
             {
-                Connect(data);
+                Connect(data, false);
             }
         }
 
@@ -64,8 +64,6 @@ namespace Veda
             _botConnections.ForEach(x => x.Dispose());
             _botConnections.Clear();
             _botConnections = null;
-
-            _storage.Global().Set(_storageIdentifier, _data);
         }
 
         public IClientConnection Connect(String address, ushort port, String nickname, String username, String realname,
@@ -75,10 +73,10 @@ namespace Veda
             {
                 Address = address, Port = port, Nickname = nickname, Username = username, Realname = realname,
                 Password = password
-            });
+            }, true);
         }
 
-        private IClientConnection Connect(ConnectionData data)
+        private IClientConnection Connect(ConnectionData data, bool store)
         {
             // Prevent duplicate connections
             if(!Connections
@@ -91,7 +89,8 @@ namespace Veda
             IClientConnection connection = _client.CreateClientConnection(data.Address, data.Port, null);
             BotClientConnection botConnection = new BotClientConnection(this, connection, data);
             _botConnections.Add(botConnection);
-            _data.Connections.Add(data);
+            if(store)
+                _data.Connections.Add(data);
 
             // Subscribe to received messages.
             botConnection.ReceivedMessages

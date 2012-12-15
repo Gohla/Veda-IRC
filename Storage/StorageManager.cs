@@ -160,7 +160,7 @@ namespace Veda.Storage
 
         private IOpenableStorage NewStorage()
         {
-            return CompositionManager.Get<IOpenableStorage>();
+            return new CachedStorage(CompositionManager.Get<IOpenableStorage>());
         }
     }
 }

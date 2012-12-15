@@ -43,10 +43,9 @@ namespace Veda.Interface
         /// Sets an object located at given identifier.
         /// </summary>
         ///
-        /// <typeparam name="T">Object type to save.</typeparam>
         /// <param name="id"> The identifier.</param>
         /// <param name="obj">The object to save.</param>
-        void Set<T>(String id, T obj);
+        void Set(String id, object obj);
 
         /// <summary>
         /// Remove the object at given identifier.
@@ -58,5 +57,14 @@ namespace Veda.Interface
         /// True if object was removed, false otherwise.
         /// </returns>
         bool Remove(String id);
+
+        /// <summary>
+        /// Tries to persist the storage to permanent storage.
+        /// </summary>
+        ///
+        /// <returns>
+        /// True if it succeeds, false otherwise.
+        /// </returns>
+        bool Persist();
     }
 }

@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachedStorage.cs" />
     <Compile Include="IStorageManager.cs" />
     <Compile Include="JsonStorage.cs" />
     <Compile Include="NestedStorage.cs" />

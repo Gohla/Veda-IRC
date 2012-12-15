@@ -5,7 +5,7 @@ using Veda.Interface;
 
 namespace Veda.Command
 {
-    public class ExpressionCommand<T> : Command
+    public class ExpressionCommand<T> : AbstractCommand
     {
         private Delegate _delegate;
 
@@ -19,9 +19,10 @@ namespace Veda.Command
             _delegate = lambdaExpr.Compile();
         }
 
-        public override object Call(params object[] arguments)
+        public override object Call(IContext context, params object[] arguments)
         {
-            return _delegate.DynamicInvoke(arguments);
+            // TODO: More efficient array concat?
+            return _delegate.DynamicInvoke(context.AsEnumerable().Concat(arguments).ToArray());
         }
     }
 }

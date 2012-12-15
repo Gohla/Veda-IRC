@@ -2,24 +2,20 @@
 
 namespace Veda.Command
 {
-    class CommandConverterWithoutContext<TTo> : CommandConverter<TTo>
+    class CommandConverterWithoutContext<TFrom, TTo> : CommandConverter<TFrom, TTo>
     {
-        private Func<String, TTo> _converter;
+        private Func<TFrom, TTo> _converter;
 
-        public override Type ToType { get { return typeof(TTo); } }
         public override Type ContextType { get { return typeof(void); } }
 
-        public CommandConverterWithoutContext(Func<String, TTo> converter)
+        public CommandConverterWithoutContext(Func<TFrom, TTo> converter)
         {
             _converter = converter;
         }
 
-        public override object Convert(String str, object context)
+        public override object Convert(object obj, object context)
         {
-            if(context == null)
-                return _converter(str);
-            else
-                return _converter(str);
+            return _converter((TFrom)obj);
         }
     }
 }

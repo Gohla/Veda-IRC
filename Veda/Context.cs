@@ -9,5 +9,6 @@ namespace Veda
         public ICommand Command { get; set; }
         public IStorage Storage { get; set; }
         public IReceiveMessage Message { get; set; }
+        public IConversionContext ConversionContext { get; set; }
     }
 }

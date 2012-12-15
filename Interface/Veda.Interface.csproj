@@ -47,6 +47,7 @@
     <Compile Include="ICommandManager.cs" />
     <Compile Include="ICommandParser.cs" />
     <Compile Include="IContext.cs" />
+    <Compile Include="IConversionContext.cs" />
     <Compile Include="IOpenableStorage.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="IPluginManager.cs" />

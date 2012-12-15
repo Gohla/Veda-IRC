@@ -14,10 +14,8 @@ namespace Veda.Interface
         String[] Parse(String command);
         bool IsCommand(String command);
 
-        ICallable Call(String command, object conversionContext);
-        ICallable Call(String command, object conversionContext, params object[] commandContext);
-        ICallable CallUntyped(object conversionContext, params String[] arguments);
-        ICallable CallUntyped(object conversionContext, object[] commandContext, params String[] arguments);
+        ICallable Call(String command, object conversionContext = null);
+        ICallable CallParsed(object conversionContext, params object[] arguments);
 
         void Add(ICommand command);
         void Remove(ICommand command);

@@ -7,6 +7,6 @@ namespace Veda.Interface
         ICommand Command { get; }
         object[] Arguments { get; }
 
-        object Call();
+        object Call(IContext context);
     }
 }

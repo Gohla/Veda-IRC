@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Callable.cs" />
-    <Compile Include="Command.cs" />
+    <Compile Include="AbstractCommand.cs" />
     <Compile Include="CommandBuilder.cs" />
     <Compile Include="CommandConverter.cs" />
     <Compile Include="CommandConverterWithContext.cs" />

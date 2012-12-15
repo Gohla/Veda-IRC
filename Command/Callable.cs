@@ -13,9 +13,9 @@ namespace Veda.Command
             Arguments = arguments;
         }
 
-        public object Call()
+        public object Call(IContext context)
         {
-            return Command.Call(Arguments);
+            return Command.Call(context, Arguments);
         }
     }
 }

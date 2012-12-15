@@ -13,6 +13,13 @@ namespace Veda.Command
         {
             public List<String> Arguments = new List<String>();
 
+            public override void Reset()
+            {
+                base.Reset();
+
+                Arguments.Clear();
+            }
+
             public override void EnterText(Token node)
             {
                 Arguments.Add(node.Image);
@@ -39,8 +46,7 @@ namespace Veda.Command
             if(String.IsNullOrWhiteSpace(str) || str.Length < 2 || str[0] != _command)
                 return null;
             _parser.Reset(new StringReader(str.Substring(1)));
-            _analyzer.Arguments.Clear();
-            Node command = _parser.Parse();
+            _parser.Parse();
             if(_analyzer.Arguments.IsEmpty())
                 return null;
             return _analyzer.Arguments.ToArray();

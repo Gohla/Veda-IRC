@@ -8,5 +8,6 @@ namespace Veda.Interface
         ICommand Command { get; }
         IStorage Storage { get; }
         IReceiveMessage Message { get; }
+        IConversionContext ConversionContext { get; }
     }
 }

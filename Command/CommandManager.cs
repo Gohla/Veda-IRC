@@ -24,12 +24,12 @@ namespace Veda.Command
             _parser = parser;
 
             // Add default converters
-            Add(CommandBuilder.CreateConverter<Char>(s => Char.Parse(s)));
-            Add(CommandBuilder.CreateConverter<Int16>(s => Int16.Parse(s)));
-            Add(CommandBuilder.CreateConverter<Int32>(s => Int32.Parse(s)));
-            Add(CommandBuilder.CreateConverter<Int64>(s => Int64.Parse(s)));
-            Add(CommandBuilder.CreateConverter<Single>(s => Single.Parse(s)));
-            Add(CommandBuilder.CreateConverter<Double>(s => Double.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, Char>(s => Char.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, Int16>(s => Int16.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, Int32>(s => Int32.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, Int64>(s => Int64.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, Single>(s => Single.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, Double>(s => Double.Parse(s)));
         }
 
         public IEnumerable<ICommand> GetCommands(String name)
@@ -39,8 +39,8 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
         {
-            String[] dummy;
-            return ResolveNames(new[] { name }, true, out dummy);
+            object[] dummy;
+            return ResolveNames(new object[] { name }, true, out dummy);
         }
 
         public IEnumerable<ICommand> GetCommands(String pluginName, String name)
@@ -72,31 +72,17 @@ namespace Veda.Command
             return true;
         }
 
-        public ICallable Call(String command, object conversionContext)
+        public ICallable Call(String command, object conversionContext = null)
         {
             String[] result = Parse(command);
             if(result == null)
                 return null;
-            return CallUntyped(conversionContext, result);
+            return CallParsed(conversionContext, result);
         }
 
-        public ICallable Call(String command, object conversionContext, params object[] commandContext)
+        public ICallable CallParsed(object conversionContext, params object[] arguments)
         {
-            String[] result = Parse(command);
-            if(result == null)
-                return null;
-            return CallUntyped(conversionContext, commandContext, result);
-        }
-
-        public ICallable CallUntyped(object conversionContext, params String[] arguments)
-        {
-            return Resolve(conversionContext, new object[0], arguments);
-        }
-
-        public ICallable CallUntyped(object conversionContext, object[] commandContext, 
-            params String[] arguments)
-        {
-            return Resolve(conversionContext, commandContext, arguments);
+            return Resolve(conversionContext, arguments);
         }
 
         public void Add(ICommand command)
@@ -148,17 +134,17 @@ namespace Veda.Command
             _converters.Remove(converter);
         }
 
-        private ICallable Resolve(object conversionContext, object[] commandContext, params String[] arguments)
+        private ICallable Resolve(object conversionContext, params object[] arguments)
         {
             try
             {
-                String[] newArguments;
+                object[] newArguments;
                 IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, false, out newArguments);
-                return ResolveTypes(conversionContext, commandContext, newArguments, nameCandidates);
+                return ResolveTypes(conversionContext, newArguments, nameCandidates);
             }
             catch(Exception e)
             {
-                String[] newArguments;
+                object[] newArguments;
                 IEnumerable<ICommand> nameCandidates;
                 try
                 {
@@ -168,11 +154,11 @@ namespace Veda.Command
                 {
                     throw e;
                 }
-                return ResolveTypes(conversionContext, commandContext, newArguments, nameCandidates);
+                return ResolveTypes(conversionContext, newArguments, nameCandidates);
             }
         }
 
-        private IEnumerable<ICommand> ResolveNames(String[] arguments, bool qualify, out String[] newArguments)
+        private IEnumerable<ICommand> ResolveNames(object[] arguments, bool qualify, out object[] newArguments)
         {
             if(arguments.Length == 0)
             {
@@ -180,7 +166,7 @@ namespace Veda.Command
             }
             else if(arguments.Length == 1)
             {
-                IEnumerable<ICommand> candidates = GetCommands(arguments[0]);
+                IEnumerable<ICommand> candidates = GetCommands((String)arguments[0]);
                 if(candidates.IsEmpty())
                     throw new ArgumentException("Command with name " + arguments[0] + " does not exist.", "arguments");
 
@@ -224,9 +210,9 @@ namespace Veda.Command
             }
         }
 
-        private IEnumerable<ICommand> ResolveUnqualifiedNames(String[] arguments)
+        private IEnumerable<ICommand> ResolveUnqualifiedNames(object[] arguments)
         {
-            IEnumerable<ICommand> candidates = GetCommands(arguments[0]);
+            IEnumerable<ICommand> candidates = GetCommands((String)arguments[0]);
             if(!candidates.IsEmpty())
             {
                 // Check for a name ambiguity.
@@ -246,9 +232,9 @@ namespace Veda.Command
             return Enumerable.Empty<ICommand>();
         }
 
-        private IEnumerable<ICommand> ResolveQualifiedNames(String[] arguments)
+        private IEnumerable<ICommand> ResolveQualifiedNames(object[] arguments)
         {
-            IEnumerable<ICommand> candidates = GetCommands(arguments[0], arguments[1]);
+            IEnumerable<ICommand> candidates = GetCommands((String)arguments[0], (String)arguments[1]);
             if(!candidates.IsEmpty())
             {
                 return candidates;
@@ -257,42 +243,39 @@ namespace Veda.Command
             return Enumerable.Empty<ICommand>();
         }
 
-        private ICallable ResolveTypes(object conversionContext, object[] commandContext, String[] arguments,
+        private ICallable ResolveTypes(object conversionContext, object[] arguments, 
             IEnumerable<ICommand> nameCandidates)
         {
             // If there are more arguments than the longest command can handle, concatenate the rest of the string 
             // arguments into one.
             // TODO: Efficient lookup
             int maxParamCount = nameCandidates.Max(c => c.ParameterTypes.Length);
-            int desiredArgsLength = maxParamCount - commandContext.Length;
-            if(arguments.Length > desiredArgsLength)
+            if(arguments.Length > maxParamCount)
             {
-                String joined = String.Join(" ", arguments.Skip(desiredArgsLength - 1));
-                Array.Resize(ref arguments, desiredArgsLength);
-                arguments[desiredArgsLength - 1] = joined;
+                String joined = String.Join(" ", arguments.Skip(maxParamCount - 1));
+                Array.Resize(ref arguments, maxParamCount);
+                arguments[maxParamCount - 1] = joined;
             }
 
             // TODO: Efficient lookup
             IEnumerable<ICommand> typeCandidates = nameCandidates
-                .Where(c => c.ParameterTypes.Length == arguments.Length + commandContext.Length)
-                .Where(c => c.IsPartialCompatible(commandContext.Select(o => o.GetType()).ToArray()));
+                .Where(c => c.ParameterTypes.Length == arguments.Length);
 
             // TODO: Taking the first one that succeeds, may need something smarter though?
             foreach(ICommand command in typeCandidates)
             {
-                object[] args = ConvertAll(conversionContext, arguments, 
-                    command.ParameterTypes.Skip(commandContext.Length).ToArray());
+                object[] args = ConvertAll(conversionContext, arguments, command.ParameterTypes.ToArray());
                 if(args != null)
-                    return new Callable(command, commandContext.Concat(args));
+                    return new Callable(command, args);
             }
 
             throw new InvalidOperationException("Incorrect arguments. Usage: " + nameCandidates.ToString("; "));
         }
 
-        private object ConvertOne(object commandContext, String str, Type target)
+        private object ConvertOne(object commandContext, object obj, Type target)
         {
             if(target.IsAssignableFrom(typeof(String)))
-                return str;
+                return obj;
 
             // TODO: Efficient lookup
             IEnumerable<ICommandConverter> candidates;
@@ -318,7 +301,7 @@ namespace Veda.Command
             {
                 try
                 {
-                    object converted = converter.Convert(str, commandContext);
+                    object converted = converter.Convert(obj, commandContext);
                     if(converted != null)
                         return converted;
                 }
@@ -328,21 +311,21 @@ namespace Veda.Command
             return null;
         }
 
-        private object[] ConvertAll(object commandContext, String[] strs, params Type[] types)
+        private object[] ConvertAll(object commandContext, object[] objs, params Type[] types)
         {
-            if(strs.Length != types.Length)
+            if(objs.Length != types.Length)
                 return null;
 
-            object[] objs = new object[strs.Length];
+            object[] converted = new object[objs.Length];
 
-            for(int i = 0; i < strs.Length; ++i)
+            for(int i = 0; i < objs.Length; ++i)
             {
-                objs[i] = ConvertOne(commandContext, strs[i], types[i]);
-                if(objs[i] == null)
+                converted[i] = ConvertOne(commandContext, objs[i], types[i]);
+                if(converted[i] == null)
                     return null;
             }
 
-            return objs;
+            return converted;
         }
     }
 }

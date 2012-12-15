@@ -17,14 +17,14 @@ namespace Veda.Command
             return new ExpressionCommand<T>(plugin, name, description, expression);
         }
 
-        public static ICommandConverter CreateConverter<TTo>(Func<String, TTo> converter)
+        public static ICommandConverter CreateConverter<TFrom, TTo>(Func<TFrom, TTo> converter)
         {
-            return new CommandConverterWithoutContext<TTo>(converter);
+            return new CommandConverterWithoutContext<TFrom, TTo>(converter);
         }
 
-        public static ICommandConverter CreateConverter<TTo, TContext>(Func<String, TContext, TTo> converter)
+        public static ICommandConverter CreateConverter<TFrom, TTo, TContext>(Func<TFrom, TContext, TTo> converter)
         {
-            return new CommandConverterWithContext<TTo, TContext>(converter);
+            return new CommandConverterWithContext<TFrom, TTo, TContext>(converter);
         }
     }
 }

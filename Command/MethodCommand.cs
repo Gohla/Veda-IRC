@@ -5,26 +5,27 @@ using Veda.Interface;
 
 namespace Veda.Command
 {
-    public class MethodCommand : Command
+    public class MethodCommand : AbstractCommand
     {
         private MethodInfo _method;
         private object _obj;
 
         public MethodCommand(IPlugin plugin, String name, String description, MethodInfo method, object obj) :
             base(plugin, name, description, 
-                method.GetParameters().Select(p => p.ParameterType).ToArray(),
-                method.GetParameters().Select(p => p.Name).ToArray()
+                method.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray(),
+                method.GetParameters().Skip(1).Select(p => p.Name).ToArray()
             )
         {
             _method = method;
             _obj = obj;
         }
 
-        public override object Call(params object[] arguments)
+        public override object Call(IContext context, params object[] arguments)
         {
             try
             {
-                return _method.Invoke(_obj, arguments);
+                // TODO: More efficient array concat?
+                return _method.Invoke(_obj, context.AsEnumerable().Concat(arguments).ToArray());
             }
             catch(TargetInvocationException e)
             {

@@ -4,12 +4,13 @@ using Veda.Interface;
 
 namespace Veda.Command
 {
-    public abstract class CommandConverter<TTo> : ICommandConverter
+    public abstract class CommandConverter<TFrom, TTo> : ICommandConverter
     {
-        public abstract Type ToType { get; }
+        public Type FromType { get { return typeof(TFrom); } }
+        public Type ToType { get { return typeof(TTo); } }
         public abstract Type ContextType { get; }
 
-        public abstract object Convert(String str, object context);
+        public abstract object Convert(object obj, object context);
 
         public override bool Equals(object other)
         {
@@ -25,7 +26,8 @@ namespace Veda.Command
                 return false;
 
             return
-                EqualityComparer<Type>.Default.Equals(this.ToType, other.ToType)
+                EqualityComparer<Type>.Default.Equals(this.FromType, other.FromType)
+             && EqualityComparer<Type>.Default.Equals(this.ToType, other.ToType)
              && EqualityComparer<Type>.Default.Equals(this.ContextType, other.ContextType)
              ;
         }
@@ -35,6 +37,7 @@ namespace Veda.Command
             unchecked
             {
                 int hash = 17;
+                hash = hash * 23 + EqualityComparer<Type>.Default.GetHashCode(this.FromType);
                 hash = hash * 23 + EqualityComparer<Type>.Default.GetHashCode(this.ToType);
                 hash = hash * 23 + EqualityComparer<Type>.Default.GetHashCode(this.ContextType);
                 return hash;
@@ -43,7 +46,11 @@ namespace Veda.Command
 
         public override string ToString()
         {
-            return String.Concat(this.ToType.ToString(), " (" + this.ContextType.ToString() + ")");
+            return 
+                this.FromType.Name
+              + " -> " 
+              + this.ToType.Name
+              + " (" + this.ContextType.Name + ")";
         }
     }
 }

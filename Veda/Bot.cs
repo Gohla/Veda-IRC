@@ -117,18 +117,21 @@ namespace Veda
                 try
                 {
                     // Get callable command
-                    Context context = new Context { Bot = this, Message = message };
-                    ICallable callable = _command.Call(message.Contents, conversionContext, context);
+                    ICallable callable = _command.Call(message.Contents, conversionContext);
                     if(callable == null)
                         return;
-                    context.Command = callable.Command;
 
                     // Get storage
-                    context.Storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
+                    IStorage storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
                         message.Receiver as IChannel);
                     
                     // Call command and present results.
-                    object result = callable.Call();
+                    Context context = new Context
+                    {
+                        Bot = this, Message = message, Command = callable.Command,
+                        Storage = storage, ConversionContext = conversionContext
+                    };
+                    object result = callable.Call(context);
                     if(result == null)
                     {
                         Reply(message, "The operation succeeded.");

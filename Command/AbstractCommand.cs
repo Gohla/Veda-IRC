@@ -6,7 +6,7 @@ using Veda.Interface;
 
 namespace Veda.Command
 {
-    public abstract class Command : ICommand
+    public abstract class AbstractCommand : ICommand
     {
         public IPlugin Plugin { get; private set; }
         public String Name { get; private set; }
@@ -14,7 +14,8 @@ namespace Veda.Command
         public Type[] ParameterTypes { get; private set; }
         public String[] ParameterNames { get; private set; }
 
-        public Command(IPlugin plugin, String name, String description, Type[] parameterTypes, String[] parameterNames)
+        public AbstractCommand(IPlugin plugin, String name, String description, Type[] parameterTypes, 
+            String[] parameterNames)
         {
             Plugin = plugin;
             Name = name;
@@ -45,7 +46,7 @@ namespace Veda.Command
             return compatible;
         }
 
-        public abstract object Call(params object[] arguments);
+        public abstract object Call(IContext context, params object[] arguments);
 
         public override bool Equals(object other)
         {
@@ -87,8 +88,8 @@ namespace Veda.Command
               (
                 "~"
               + this.Name.ToLower()
-              + (ParameterTypes.Length == 1 ? String.Empty : " ")
-              + String.Join(", ", ParameterTypes.Zip(ParameterNames, (t, n) => "<" + n + ":" + t.Name + ">").Skip(1))
+              + (ParameterTypes.Length == 0 ? String.Empty : " ")
+              + String.Join(", ", ParameterTypes.Zip(ParameterNames, (t, n) => "<" + n + ":" + t.Name + ">"))
               )
               + ")"
               ;

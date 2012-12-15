@@ -12,6 +12,6 @@ namespace Veda.Interface
 
         bool IsCompatible(params Type[] argumentTypes);
         bool IsPartialCompatible(params Type[] argumentTypes);
-        object Call(params object[] arguments);
+        object Call(IContext context, params object[] arguments);
     }
 }

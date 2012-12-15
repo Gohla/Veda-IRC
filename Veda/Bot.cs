@@ -116,49 +116,22 @@ namespace Veda
             {
                 try
                 {
-                    // Get callable command
                     ICallable callable = _command.Call(message.Contents, conversionContext);
                     if(callable == null)
                         return;
 
-                    // Get storage
                     IStorage storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
                         message.Receiver as IChannel);
-                    
-                    // Call command and present results.
                     Context context = new Context
                     {
                         Bot = this, Message = message, Command = callable.Command,
                         Storage = storage, ConversionContext = conversionContext
                     };
-                    object result = callable.Call(context);
-                    if(result == null)
-                    {
-                        Reply(message, "The operation succeeded.");
-                        return;
-                    }
 
-                    IEnumerable<String> replies = result as IEnumerable<String>;
-                    if(replies != null)
-                        Reply(message, replies);
-
-                    IObservable<String> observableReply = result as IObservable<String>;
-                    if(observableReply != null)
-                        observableReply.Subscribe(
-                            str => Reply(message, str),
-                            e => Reply(message, e)
-                        );
-
-                    IObservable<IEnumerable<String>> observableReplies = result as IObservable<IEnumerable<String>>;
-                    if(observableReplies != null)
-                        observableReplies.Subscribe(
-                            strs => Reply(message, strs),
-                            e => Reply(message, e)
-                        );
-
-                    String reply = result.ToString();
-                    if(!String.IsNullOrWhiteSpace(reply))
-                        Reply(message, reply);
+                    CommandResult(callable, context).Subscribe(
+                        str => Reply(message, str),
+                        e => Reply(message, e)
+                    );
                 }
                 catch(Exception e)
                 {
@@ -169,6 +142,64 @@ namespace Veda
             {
                 _logger.ErrorException("Error executing: \"" + message.Contents + "\".", e);
             }
+        }
+
+        private IObservable<String> CommandResult(object result, IContext context)
+        {
+            if(result == null)
+                return Observable.Return("The operation succeeded.");
+
+            {
+                object[] replies = result as object[];
+                if(replies != null)
+                    return Observable.Return(
+                        replies
+                            .Select(r => CommandResult(r, context))
+                            .ToString("; ", " | ")
+                        );
+            }
+
+            {
+                IEnumerable<object> replies = result as IEnumerable<object>;
+                if(replies != null)
+                    return Observable.Return(
+                        replies
+                            .Select(r => CommandResult(r, context))
+                            .ToString("; ", " | ")
+                        );
+            }
+
+            {
+                IObservable<object> replies = result as IObservable<object>;
+                if(replies != null)
+                    return Observable.Return(
+                        replies
+                            .Select(r => CommandResult(r, context))
+                            .ToString("; ", " | ")
+                        );
+            }
+
+            {
+                ICallable callable = result as ICallable;
+                if(callable != null)
+                    return Observable
+                        .Defer(() => CommandResult(callable.Call(context), context))
+                        ;
+            }
+
+            {
+                Exception exception = result as Exception;
+                if(exception != null)
+                    return Observable.Throw<String>(exception);
+            }
+
+            {
+                String reply = result.ToString();
+                if(!String.IsNullOrWhiteSpace(reply))
+                    return Observable.Return(reply);
+            }
+
+            return Observable.Return(String.Empty);
         }
 
         private IMessageTarget ReplyTarget(IReceiveMessage message)
@@ -182,11 +213,6 @@ namespace Veda
         private void Reply(IReceiveMessage message, String reply)
         {
             ReplyTarget(message).SendMessage(reply);
-        }
-
-        private void Reply(IReceiveMessage message, IEnumerable<String> replies)
-        {
-            ReplyTarget(message).SendMessage(replies.ToString("; "));
         }
 
         private void Reply(IReceiveMessage message, Exception e)

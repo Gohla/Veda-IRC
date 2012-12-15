@@ -40,7 +40,7 @@ namespace Veda.Command
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
         {
             String[] dummy;
-            return NameCandidates(new[] { name }, out dummy);
+            return ResolveNames(new[] { name }, true, out dummy);
         }
 
         public IEnumerable<ICommand> GetCommands(String pluginName, String name)
@@ -148,7 +148,31 @@ namespace Veda.Command
             _converters.Remove(converter);
         }
 
-        private IEnumerable<ICommand> NameCandidates(String[] arguments, out String[] newArguments)
+        private ICallable Resolve(object conversionContext, object[] commandContext, params String[] arguments)
+        {
+            try
+            {
+                String[] newArguments;
+                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, false, out newArguments);
+                return ResolveTypes(conversionContext, commandContext, newArguments, nameCandidates);
+            }
+            catch(Exception e)
+            {
+                String[] newArguments;
+                IEnumerable<ICommand> nameCandidates;
+                try
+                {
+                    nameCandidates = ResolveNames(arguments, true, out newArguments);
+                }
+                catch
+                {
+                    throw e;
+                }
+                return ResolveTypes(conversionContext, commandContext, newArguments, nameCandidates);
+            }
+        }
+
+        private IEnumerable<ICommand> ResolveNames(String[] arguments, bool qualify, out String[] newArguments)
         {
             if(arguments.Length == 0)
             {
@@ -174,80 +198,89 @@ namespace Veda.Command
             }
             else
             {
-                // Try an unqualified name.
-                IEnumerable<ICommand> candidates = GetCommands(arguments[0]);
-                if(candidates.IsEmpty())
+                if(qualify)
                 {
-                    // Try a qualified name.
-                    IEnumerable<ICommand> qualifiedCandidates = GetCommands(arguments[0], arguments[1]);
-                    if(qualifiedCandidates.IsEmpty())
+                    IEnumerable<ICommand> candidates = ResolveQualifiedNames(arguments);
+                    if(candidates.IsEmpty())
                     {
-                        throw new ArgumentException("Command with name " + arguments[0] 
-                            + " does not exist in plugin " + arguments[1] + ".", 
+                        throw new ArgumentException("Command with name " + arguments[1]
+                            + " does not exist in plugin " + arguments[0] + ".",
                             "arguments");
                     }
-                    else
-                    {
-                        newArguments = arguments.Skip(2).ToArray(); // TODO: more efficient array skipping.
-                        return qualifiedCandidates;
-                    }
+                    newArguments = arguments.Skip(2).ToArray(); // TODO: More efficient array skipping.
+                    return candidates;
                 }
                 else
                 {
-                    // Check for a name ambiguity.
-                    IPlugin[] ambiguity = candidates.Select(c => c.Plugin).Distinct().ToArray();
-                    if(ambiguity.Length > 1)
+                    IEnumerable<ICommand> candidates = ResolveUnqualifiedNames(arguments);
+                    if(candidates.IsEmpty())
                     {
-                        // There is a name ambiguity, try a qualified name.
-                        IEnumerable<ICommand> qualifiedCandidates = GetCommands(arguments[0], arguments[1]);
-                        if(qualifiedCandidates.IsEmpty())
-                        {
-                            throw new ArgumentException("Command with name " + arguments[0]
-                                + " exists in multiple plugins: " + ambiguity.ToString(", ") + ". ",
-                                "arguments");
-                        }
-                        else
-                        {
-                            // Name ambiguity can be resolved by qualifying the name.
-                            newArguments = arguments.Skip(2).ToArray(); // TODO: more efficient array skipping.
-                            return qualifiedCandidates;
-                        }
+                        throw new ArgumentException("Command with name " + arguments[0] + " does not exist.",
+                            "arguments");
                     }
-                    else
-                    {
-                        // There is no name ambiguity.
-                        newArguments = arguments.Skip(1).ToArray(); // TODO: more efficient array skipping.
-                        return candidates;
-                    }
+                    newArguments = arguments.Skip(1).ToArray(); // TODO: More efficient array skipping.
+                    return candidates;
                 }
             }
         }
 
-        private ICallable Resolve(object conversionContext, object[] commandContext, params String[] arguments)
+        private IEnumerable<ICommand> ResolveUnqualifiedNames(String[] arguments)
         {
-            String[] newArguments;
-            IEnumerable<ICommand> nameCandidates = NameCandidates(arguments, out newArguments);
+            IEnumerable<ICommand> candidates = GetCommands(arguments[0]);
+            if(!candidates.IsEmpty())
+            {
+                // Check for a name ambiguity.
+                IPlugin[] ambiguity = candidates.Select(c => c.Plugin).Distinct().ToArray();
+                if(ambiguity.Length > 1)
+                {
+                    throw new ArgumentException("Command with name " + arguments[0]
+                        + " exists in multiple plugins: " + ambiguity.ToString(", ") + ". ",
+                        "arguments");
+                }
+                else
+                {
+                    return candidates;
+                }
+            }
 
+            return Enumerable.Empty<ICommand>();
+        }
+
+        private IEnumerable<ICommand> ResolveQualifiedNames(String[] arguments)
+        {
+            IEnumerable<ICommand> candidates = GetCommands(arguments[0], arguments[1]);
+            if(!candidates.IsEmpty())
+            {
+                return candidates;
+            }
+
+            return Enumerable.Empty<ICommand>();
+        }
+
+        private ICallable ResolveTypes(object conversionContext, object[] commandContext, String[] arguments,
+            IEnumerable<ICommand> nameCandidates)
+        {
             // If there are more arguments than the longest command can handle, concatenate the rest of the string 
             // arguments into one.
             // TODO: Efficient lookup
             int maxParamCount = nameCandidates.Max(c => c.ParameterTypes.Length);
-            if(newArguments.Length > maxParamCount)
+            int desiredArgsLength = maxParamCount - commandContext.Length;
+            if(arguments.Length > desiredArgsLength)
             {
-                String joined = String.Join(" ", newArguments.Skip(maxParamCount));
-                Array.Resize(ref newArguments, maxParamCount);
-                newArguments[maxParamCount] = joined;
+                String joined = String.Join(" ", arguments.Skip(desiredArgsLength - 1));
+                Array.Resize(ref arguments, desiredArgsLength);
+                arguments[desiredArgsLength - 1] = joined;
             }
 
             // TODO: Efficient lookup
             IEnumerable<ICommand> typeCandidates = nameCandidates
-                .Where(c => c.ParameterTypes.Length == newArguments.Length + commandContext.Length)
+                .Where(c => c.ParameterTypes.Length == arguments.Length + commandContext.Length)
                 .Where(c => c.IsPartialCompatible(commandContext.Select(o => o.GetType()).ToArray()));
 
             // TODO: Taking the first one that succeeds, may need something smarter though?
             foreach(ICommand command in typeCandidates)
             {
-                object[] args = ConvertAll(conversionContext, newArguments, 
+                object[] args = ConvertAll(conversionContext, arguments, 
                     command.ParameterTypes.Skip(commandContext.Length).ToArray());
                 if(args != null)
                     return new Callable(command, commandContext.Concat(args));

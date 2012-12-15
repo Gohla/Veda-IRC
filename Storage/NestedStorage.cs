@@ -19,11 +19,6 @@ namespace Veda.Storage
             Parent = parent;
         }
 
-        ~NestedStorage()
-        {
-            Dispose();
-        }
-
         public void Dispose()
         {
             if(Storage == null)

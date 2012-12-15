@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="grammatica-1.5">
-      <HintPath>..\..\grammatica\lib\grammatica-1.5.dll</HintPath>
+    <Reference Include="grammatica-1.5, Version=1.5.0.34677, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Veda-dev\grammatica\lib\grammatica-1.5.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NLog">

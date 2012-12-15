@@ -9,43 +9,38 @@ namespace Veda.Command
 {
     public class CommandParser : ICommandParser
     {
+        private class ParseAnalyzer : CommandGrammarAnalyzer
+        {
+            public List<String> Arguments = new List<String>();
+
+            public override void EnterText(Token node)
+            {
+                Arguments.Add(node.Image);
+            }
+
+            public override void EnterString(Token node)
+            {
+                Arguments.Add(node.Image.Substring(1, node.Image.Length - 2));
+            }
+        }
+        
         private readonly CommandGrammarParser _parser;
+        private readonly ParseAnalyzer _analyzer = new ParseAnalyzer();
 
         public CommandParser()
         {
-            _parser = new CommandGrammarParser(new StringReader(String.Empty));
+            _parser = new CommandGrammarParser(new StringReader(String.Empty), _analyzer);
             _parser.Prepare();
         }
 
         public String[] Parse(String str)
         {
             _parser.Reset(new StringReader(str));
+            _analyzer.Arguments.Clear();
             Node command = _parser.Parse();
-
-            if(command.Id == (int)CommandGrammarConstants.COMMAND)
-            {
-                List<String> args = new List<String>();
-                for(int i = 0; i < command.GetChildCount(); ++i)
-                {
-                    Node argument = command.GetChildAt(i);
-                    if(argument.Id == (int)CommandGrammarConstants.ARGUMENT)
-                    {
-                        Token contents = argument.GetChildAt(0) as Token;
-                        switch(contents.Id)
-                        {
-                            case (int)CommandGrammarConstants.TEXT:
-                                args.Add(contents.Image);
-                                break;
-                            case (int)CommandGrammarConstants.STRING:
-                                args.Add(contents.Image.Substring(1, contents.Image.Length - 2));
-                                break;
-                        }
-                        
-                    }
-                }
-                return args.ToArray();
-            }
-            return null;
+            if(_analyzer.Arguments.IsEmpty())
+                return null;
+            return _analyzer.Arguments.ToArray();
         }
     }
 }

@@ -1,0 +1,17 @@
+%header%
+
+GRAMMARTYPE = "LL"
+
+%tokens%
+
+COMMAND_START = "~"
+STRING        = <<"([^"\\]|""|\\.)*">>
+TEXT          = <<[^ \t\n\r~"\\]+>>
+LAYOUT        = <<[ \t\n\r]+>>         %ignore%
+
+%productions%
+
+Command  = COMMAND_START Argument+ ;
+
+Argument = TEXT
+         | STRING ;

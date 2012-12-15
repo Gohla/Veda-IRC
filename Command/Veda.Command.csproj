@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="grammatica-1.5">
+      <HintPath>..\..\grammatica\lib\grammatica-1.5.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NLog">
       <HintPath>..\..\Veda-dev\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
@@ -57,6 +60,10 @@
     <Compile Include="CommandConverterWithoutContext.cs" />
     <Compile Include="CommandManager.cs" />
     <Compile Include="CommandParser.cs" />
+    <Compile Include="Grammar\CommandGrammar\CommandGrammarAnalyzer.cs" />
+    <Compile Include="Grammar\CommandGrammar\CommandGrammarConstants.cs" />
+    <Compile Include="Grammar\CommandGrammar\CommandGrammarParser.cs" />
+    <Compile Include="Grammar\CommandGrammar\CommandGrammarTokenizer.cs" />
     <Compile Include="QualifiedTypes.cs" />
     <Compile Include="QualifiedNameTypes.cs" />
     <Compile Include="ExpressionCommand.cs" />
@@ -83,6 +90,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Grammar\CommandGrammar.grammar" />
+    <None Include="Grammar\make.bat" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

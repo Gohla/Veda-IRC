@@ -1,0 +1,1 @@
+java -jar ../../../grammatica/lib/grammatica-1.5.jar CommandGrammar.grammar --csoutput CommandGrammar --csnamespace Veda.Command.Grammar

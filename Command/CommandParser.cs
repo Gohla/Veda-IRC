@@ -1,65 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
+using PerCederberg.Grammatica.Runtime;
+using Veda.Command.Grammar;
 using Veda.Interface;
 
 namespace Veda.Command
 {
     public class CommandParser : ICommandParser
     {
-        private char _start = '~';
-        private char _separator = ' ';
-        private char _joiner = '"';
-        private char _escape = '\\';
+        private readonly CommandGrammarParser _parser;
 
         public CommandParser()
         {
-
+            _parser = new CommandGrammarParser(new StringReader(String.Empty));
+            _parser.Prepare();
         }
 
-        public String[] Parse(String command)
+        public String[] Parse(String str)
         {
-            String str = command.Trim();
-            if(str.Length < 2)
-                return null;
+            _parser.Reset(new StringReader(str));
+            Node command = _parser.Parse();
 
-            if(str[0] != _start)
-                return null;
-
-            bool joiner = false;
-            StringBuilder builder = new StringBuilder();
-
-            List<String> args = new List<String>();
-            for(int i = 1; i < str.Length; ++i)
+            if(command.Id == (int)CommandGrammarConstants.COMMAND)
             {
-                if(str[i] == _escape)
+                List<String> args = new List<String>();
+                for(int i = 0; i < command.GetChildCount(); ++i)
                 {
-                    if(++i != str.Length)
-                        builder.Append(str[i]);
-                    else
-                        break;
+                    Node argument = command.GetChildAt(i);
+                    if(argument.Id == (int)CommandGrammarConstants.ARGUMENT)
+                    {
+                        Token contents = argument.GetChildAt(0) as Token;
+                        switch(contents.Id)
+                        {
+                            case (int)CommandGrammarConstants.TEXT:
+                                args.Add(contents.Image);
+                                break;
+                            case (int)CommandGrammarConstants.STRING:
+                                args.Add(contents.Image.Substring(1, contents.Image.Length - 2));
+                                break;
+                        }
+                        
+                    }
                 }
-                else if(str[i] == _joiner && !joiner)
-                {
-                    joiner = true;
-                }
-                else if((str[i] == _separator && !joiner) || (str[i] == _joiner && joiner))
-                {
-                    args.Add(builder.ToString());
-                    builder.Clear();
-                }
-                else
-                {
-                    builder.Append(str[i]);
-                }
+                return args.ToArray();
             }
-
-            if(builder.Length > 0)
-            {
-                args.Add(builder.ToString());
-            }
-
-            return args.ToArray();
+            return null;
         }
     }
 }

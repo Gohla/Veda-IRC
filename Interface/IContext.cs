@@ -4,8 +4,9 @@ namespace Veda.Interface
 {
     public interface IContext
     {
-        IBot Bot { get; set; }
-        IStorage Storage { get; set; }
-        IReceiveMessage Message { get; set; }
+        IBot Bot { get; }
+        ICommand Command { get; }
+        IStorage Storage { get; }
+        IReceiveMessage Message { get; }
     }
 }

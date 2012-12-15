@@ -37,11 +37,15 @@ namespace Veda.ConsoleServer
             // Veda.Storage
             builder.RegisterType<JsonStorage>()
                 .As<IStorage>()
+                .As<IOpenableStorage>()
                 .Exported(x => x.As<IStorage>())
+                .Exported(x => x.As<IOpenableStorage>())
                 ;
             builder.Register((c, p) => new StorageManager(p.Named<String>("path"), p.Named<String>("extension"),
                 p.Named<String>("globalFile")))
+                .As<IPluginStorageManager>()
                 .As<IStorageManager>()
+                .Exported(x => x.As<IPluginStorageManager>())
                 .Exported(x => x.As<IStorageManager>())
                 .SingleInstance()
                 ;

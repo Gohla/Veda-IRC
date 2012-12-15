@@ -14,6 +14,11 @@ namespace Veda.Storage
         private IStorage _global;
         private Dictionary<IClientConnection, IStorage> _server = new Dictionary<IClientConnection, IStorage>();
         private Dictionary<IChannel, IStorage> _channel = new Dictionary<IChannel, IStorage>();
+        private Dictionary<IPlugin, IStorage> _pluginGlobal = new Dictionary<IPlugin, IStorage>();
+        private Dictionary<Tuple<IPlugin, IClientConnection>, IStorage> _pluginServer =
+            new Dictionary<Tuple<IPlugin, IClientConnection>, IStorage>();
+        private Dictionary<Tuple<IPlugin, IChannel>, IStorage> _pluginChannel =
+            new Dictionary<Tuple<IPlugin, IChannel>, IStorage>();
 
         public StorageManager(String path, String extension, String globalFile)
         {
@@ -24,8 +29,20 @@ namespace Veda.Storage
 
         public void Dispose()
         {
-            if(_channel == null)
+            if(_pluginChannel == null)
                 return;
+
+            _pluginChannel.Do(x => x.Value.Dispose());
+            _pluginChannel.Clear();
+            _pluginChannel = null;
+
+            _pluginServer.Do(x => x.Value.Dispose());
+            _pluginServer.Clear();
+            _pluginServer = null;
+
+            _pluginGlobal.Do(x => x.Value.Dispose());
+            _pluginGlobal.Clear();
+            _pluginGlobal = null;
 
             _channel.Do(x => x.Value.Dispose());
             _channel.Clear();
@@ -54,10 +71,51 @@ namespace Veda.Storage
             return _channel.GetOrCreate(channel, () => OpenChannel(channel));
         }
 
+        public IStorage Global(IPlugin plugin)
+        {
+            return _pluginGlobal.GetOrCreate(plugin, () => OpenGlobal(plugin));
+        }
+
+        public IStorage Server(IPlugin plugin, IClientConnection connection)
+        {
+            return _pluginServer.GetOrCreate(Tuple.Create(plugin, connection), () => OpenServer(plugin, connection));
+        }
+
+        public IStorage Channel(IPlugin plugin, IChannel channel)
+        {
+            return _pluginChannel.GetOrCreate(Tuple.Create(plugin, channel), () => OpenChannel(plugin, channel));
+        }
+
+        public IStorage PluginStorage(IPlugin plugin, IClientConnection connection = null, IChannel channel = null)
+        {
+            IStorage storage = new NestedStorage(Global(plugin), null);
+            if(connection != null)
+            {
+                storage = new NestedStorage(Server(plugin, connection), storage);
+            }
+            if(channel != null)
+            {
+                storage = new NestedStorage(Channel(plugin, channel), storage);
+            }
+            return storage;
+        }
+
+        private String PluginString(IPlugin plugin)
+        {
+            return plugin.Name;
+        }
+
         private IStorage OpenGlobal(String file)
         {
-            IStorage storage = CompositionManager.Get<IStorage>();
+            IOpenableStorage storage = NewStorage();
             storage.Open(Path.Combine(_path, file + _extension));
+            return storage;
+        }
+
+        private IStorage OpenGlobal(IPlugin plugin)
+        {
+            IOpenableStorage storage = NewStorage();
+            storage.Open(Path.Combine(_path, PluginString(plugin) + _extension));
             return storage;
         }
 
@@ -68,8 +126,15 @@ namespace Veda.Storage
 
         private IStorage OpenServer(IClientConnection connection)
         {
-            IStorage storage = CompositionManager.Get<IStorage>();
+            IOpenableStorage storage = NewStorage();
             storage.Open(Path.Combine(_path, ServerString(connection) + _extension));
+            return storage;
+        }
+
+        private IStorage OpenServer(IPlugin plugin, IClientConnection connection)
+        {
+            IOpenableStorage storage = NewStorage();
+            storage.Open(Path.Combine(_path, ServerString(connection), PluginString(plugin) + _extension));
             return storage;
         }
 
@@ -80,9 +145,22 @@ namespace Veda.Storage
 
         private IStorage OpenChannel(IChannel channel)
         {
-            IStorage storage = CompositionManager.Get<IStorage>();
+            IOpenableStorage storage = NewStorage();
             storage.Open(Path.Combine(_path, ServerString(channel.Connection), ChannelString(channel) + _extension));
             return storage;
+        }
+
+        private IStorage OpenChannel(IPlugin plugin, IChannel channel)
+        {
+            IOpenableStorage storage = NewStorage();
+            storage.Open(Path.Combine(_path, ServerString(channel.Connection), ChannelString(channel), 
+                PluginString(plugin) + _extension));
+            return storage;
+        }
+
+        private IOpenableStorage NewStorage()
+        {
+            return CompositionManager.Get<IOpenableStorage>();
         }
     }
 }

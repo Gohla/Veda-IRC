@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Autofac;
 using Gohla.Shared.Composition;
 using NLog;
 using NLog.Config;
@@ -11,7 +12,7 @@ using NLog.Targets;
 using ReactiveIRC.Interface;
 using Veda.Command;
 using Veda.Interface;
-using Autofac;
+using Veda.Storage;
 
 namespace Veda.ConsoleServer
 {
@@ -70,13 +71,13 @@ namespace Veda.ConsoleServer
 
             // Create command manager
             ICommandManager command = CompositionManager.Get<ICommandManager>();
-            command.Add(CommandBuilder.CreateConverter<IEnumerable<ICommand>, IContext>(
-                (str, context) => context.Bot.CommandManager.GetUnambigousCommands(str))
+            command.Add(CommandBuilder.CreateConverter<IEnumerable<ICommand>, ConversionContext>(
+                (str, context) => context.Bot.Command.GetUnambigousCommands(str))
             );
-            command.Add(CommandBuilder.CreateConverter<IPlugin, IContext>(
-                (str, context) => context.Bot.PluginManager.Get(str))
+            command.Add(CommandBuilder.CreateConverter<IPlugin, ConversionContext>(
+                (str, context) => context.Bot.Plugin.Get(str))
             );
-            command.Add(CommandBuilder.CreateConverter<IChannel, IContext>(
+            command.Add(CommandBuilder.CreateConverter<IChannel, ConversionContext>(
                 (str, context) => context.Message.Connection.GetExistingChannel(str))
             );
 

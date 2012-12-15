@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Gohla.Shared;
 using NLog;
 using ReactiveIRC.Interface;
 using Veda.Configuration;
 using Veda.Interface;
+using Veda.Storage;
 
 namespace Veda
 {
@@ -33,9 +33,9 @@ namespace Veda
                 return _botConnections.Select(x => x.Connection);
             }
         }
-        public IStorageManager StorageManager { get { return _storage; } }
-        public ICommandManager CommandManager { get { return _command; } }
-        public IPluginManager PluginManager { get { return _plugin; } }
+        public IPluginStorageManager Storage { get { return _storage; } }
+        public ICommandManager Command { get { return _command; } }
+        public IPluginManager Plugin { get { return _plugin; } }
 
         public Bot(IClient client, IStorageManager storage, ICommandManager command, IPluginManager plugin)
         {
@@ -73,7 +73,7 @@ namespace Veda
         {
             return Connect(new ConnectionData
             {
-                Address = address, Port = port, Nickname = nickname, Username = username, Realname = realname, 
+                Address = address, Port = port, Nickname = nickname, Username = username, Realname = realname,
                 Password = password
             });
         }
@@ -111,17 +111,24 @@ namespace Veda
 
         private void ReceivedMessage(IReceiveMessage message)
         {
-            Context context = new Context { Bot = this, Storage = _storage.Server(message.Connection), 
-                Message = message };
+            ConversionContext conversionContext = new ConversionContext { Bot = this, Message = message };
 
             try
             {
                 try
                 {
-                    ICallable callable = _command.Call(message.Contents, context, context);
+                    // Get callable command
+                    Context context = new Context { Bot = this, Message = message };
+                    ICallable callable = _command.Call(message.Contents, conversionContext, context);
                     if(callable == null)
                         return;
+                    context.Command = callable.Command;
+
+                    // Get storage
+                    context.Storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
+                        message.Receiver as IChannel);
                     
+                    // Call command and present results.
                     object result = callable.Call();
                     if(result == null)
                     {

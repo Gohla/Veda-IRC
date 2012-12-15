@@ -6,7 +6,7 @@ using Veda.Interface;
 
 namespace Veda.Storage
 {
-    public class JsonStorage : IStorage
+    public class JsonStorage : IOpenableStorage
     {
         private JsonSerializerSettings _settings = new JsonSerializerSettings();
         private JObject _storage = new JObject();
@@ -68,9 +68,9 @@ namespace Veda.Storage
             StoreConfiguration();
         }
 
-        public void Remove<T>(String id)
+        public bool Remove(String id)
         {
-            _storage.Remove(id);
+            return _storage.Remove(id);
         }
 
         private void LoadConfiguration()

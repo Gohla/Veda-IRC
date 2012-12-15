@@ -81,7 +81,6 @@ namespace Veda.Command.Grammar {
             pattern = new ProductionPattern((int) CommandGrammarConstants.COMMAND,
                                             "Command");
             alt = new ProductionPatternAlternative();
-            alt.AddToken((int) CommandGrammarConstants.COMMAND_START, 1, 1);
             alt.AddProduction((int) CommandGrammarConstants.ARGUMENT, 1, -1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);

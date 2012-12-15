@@ -11,10 +11,9 @@ namespace Veda.Command.Grammar {
      * constants.</remarks>
      */
     internal enum CommandGrammarConstants {
-        COMMAND_START = 1001,
-        STRING = 1002,
-        TEXT = 1003,
-        LAYOUT = 1004,
+        STRING = 1001,
+        TEXT = 1002,
+        LAYOUT = 1003,
         COMMAND = 2001,
         ARGUMENT = 2002
     }

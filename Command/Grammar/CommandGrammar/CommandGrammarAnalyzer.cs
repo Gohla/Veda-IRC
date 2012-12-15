@@ -24,9 +24,6 @@ namespace Veda.Command.Grammar {
          */
         public override void Enter(Node node) {
             switch (node.Id) {
-            case (int) CommandGrammarConstants.COMMAND_START:
-                EnterCommandStart((Token) node);
-                break;
             case (int) CommandGrammarConstants.STRING:
                 EnterString((Token) node);
                 break;
@@ -55,8 +52,6 @@ namespace Veda.Command.Grammar {
          */
         public override Node Exit(Node node) {
             switch (node.Id) {
-            case (int) CommandGrammarConstants.COMMAND_START:
-                return ExitCommandStart((Token) node);
             case (int) CommandGrammarConstants.STRING:
                 return ExitString((Token) node);
             case (int) CommandGrammarConstants.TEXT:
@@ -88,32 +83,6 @@ namespace Veda.Command.Grammar {
                 ChildArgument(node, child);
                 break;
             }
-        }
-
-        /**
-         * <summary>Called when entering a parse tree node.</summary>
-         *
-         * <param name='node'>the node being entered</param>
-         *
-         * <exception cref='ParseException'>if the node analysis
-         * discovered errors</exception>
-         */
-        public virtual void EnterCommandStart(Token node) {
-        }
-
-        /**
-         * <summary>Called when exiting a parse tree node.</summary>
-         *
-         * <param name='node'>the node being exited</param>
-         *
-         * <returns>the node to add to the parse tree, or
-         *          null if no parse tree should be created</returns>
-         *
-         * <exception cref='ParseException'>if the node analysis
-         * discovered errors</exception>
-         */
-        public virtual Node ExitCommandStart(Token node) {
-            return node;
         }
 
         /**

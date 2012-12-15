@@ -4,14 +4,13 @@
 
 %tokens%
 
-  COMMAND_START = "~"
   STRING        = <<"([^"\\]|""|\\.)*">>
-  TEXT          = <<[^ \t\n\r~"\\]+>>
+  TEXT          = <<[^ \t\n\r"]+>>
   LAYOUT        = <<[ \t\n\r]+>>         %ignore%
 
 %productions%
 
-  Command  = COMMAND_START Argument+ ;
+  Command  = Argument+ ;
   
   Argument = TEXT
            | STRING ;

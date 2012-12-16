@@ -151,7 +151,7 @@ namespace Veda.Command
             try
             {
                 object[] newArguments;
-                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, false, out newArguments);
+                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, true, out newArguments);
                 return ResolveTypes(conversionContext, newArguments, nameCandidates);
             }
             catch(Exception e)
@@ -160,7 +160,7 @@ namespace Veda.Command
                 IEnumerable<ICommand> nameCandidates;
                 try
                 {
-                    nameCandidates = ResolveNames(arguments, true, out newArguments);
+                    nameCandidates = ResolveNames(arguments, false, out newArguments);
                 }
                 catch
                 {

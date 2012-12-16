@@ -1,4 +1,5 @@
-﻿using ReactiveIRC.Interface;
+﻿using System;
+using ReactiveIRC.Interface;
 
 namespace Veda.Interface
 {
@@ -11,5 +12,7 @@ namespace Veda.Interface
         ICommand Command { get; }
         IConversionContext ConversionContext { get; }
         ushort CallDepth { get; set; }
+
+        IObservable<object> Evaluate(object result);
     }
 }

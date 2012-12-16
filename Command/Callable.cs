@@ -16,7 +16,7 @@ namespace Veda.Command
 
         public object Call(IContext context)
         {
-            if(context.CallDepth > 5)
+            if(context.CallDepth > 10)
                 throw new InvalidOperationException("Command recursing too deep, execution halted.");
 
             ++context.CallDepth;

@@ -124,13 +124,15 @@ namespace Veda
                         message.Receiver as IChannel);
                     Context context = new Context
                     {
-                        Bot = this, Message = message, Storage = storage, Command = callable.Command, 
+                        Bot = this, Message = message, Storage = storage, Command = callable.Command,
                         ConversionContext = conversionContext, CallDepth = 0
                     };
 
-                    CommandResult(callable, context).Subscribe(
-                        str => Reply(message, str),
-                        e => Reply(message, e)
+                    bool reply = false;
+                    context.Evaluate(callable).Subscribe(
+                        str => { Reply(message, str); reply = true; },
+                        e => { Reply(message, e); reply = true; },
+                        () => { if(!reply) Reply(message, "The operation succeeded"); }
                     );
                 }
                 catch(Exception e)
@@ -144,64 +146,6 @@ namespace Veda
             }
         }
 
-        private IObservable<String> CommandResult(object result, IContext context)
-        {
-            if(result == null)
-                return Observable.Return("The operation succeeded.");
-
-            {
-                object[] replies = result as object[];
-                if(replies != null)
-                    return Observable.Return(
-                        replies
-                            .Select(r => CommandResult(r, context))
-                            .ToString("; ", " | ")
-                        );
-            }
-
-            {
-                IEnumerable<object> replies = result as IEnumerable<object>;
-                if(replies != null)
-                    return Observable.Return(
-                        replies
-                            .Select(r => CommandResult(r, context))
-                            .ToString("; ", " | ")
-                        );
-            }
-
-            {
-                IObservable<object> replies = result as IObservable<object>;
-                if(replies != null)
-                    return Observable.Return(
-                        replies
-                            .Select(r => CommandResult(r, context))
-                            .ToString("; ", " | ")
-                        );
-            }
-
-            {
-                ICallable callable = result as ICallable;
-                if(callable != null)
-                    return Observable
-                        .Defer(() => CommandResult(callable.Call(context), context))
-                        ;
-            }
-
-            {
-                Exception exception = result as Exception;
-                if(exception != null)
-                    return Observable.Throw<String>(exception);
-            }
-
-            {
-                String reply = result.ToString();
-                if(!String.IsNullOrWhiteSpace(reply))
-                    return Observable.Return(reply);
-            }
-
-            return Observable.Return(String.Empty);
-        }
-
         private IMessageTarget ReplyTarget(IReceiveMessage message)
         {
             if(message.Receiver.Equals(message.Connection.Me))
@@ -210,9 +154,9 @@ namespace Veda
                 return message.Receiver;
         }
 
-        private void Reply(IReceiveMessage message, String reply)
+        private void Reply(IReceiveMessage message, object reply)
         {
-            ReplyTarget(message).SendMessage(reply);
+            ReplyTarget(message).SendMessage(reply.ToString());
         }
 
         private void Reply(IReceiveMessage message, Exception e)

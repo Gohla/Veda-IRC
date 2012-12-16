@@ -124,8 +124,8 @@ namespace Veda
                         message.Receiver as IChannel);
                     Context context = new Context
                     {
-                        Bot = this, Message = message, Command = callable.Command,
-                        Storage = storage, ConversionContext = conversionContext
+                        Bot = this, Message = message, Storage = storage, Command = callable.Command, 
+                        ConversionContext = conversionContext, CallDepth = 0
                     };
 
                     CommandResult(callable, context).Subscribe(

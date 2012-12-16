@@ -262,7 +262,7 @@ namespace Veda.Command
             // arguments into one.
             // TODO: Efficient lookup
             int maxParamCount = nameCandidates.Max(c => c.ParameterTypes.Length);
-            if(arguments.Length > maxParamCount)
+            if(maxParamCount > 0 && arguments.Length > maxParamCount)
             {
                 String joined = String.Join(" ", arguments.Skip(maxParamCount - 1));
                 Array.Resize(ref arguments, maxParamCount);

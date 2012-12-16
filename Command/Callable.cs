@@ -1,4 +1,5 @@
-﻿using Veda.Interface;
+﻿using System;
+using Veda.Interface;
 
 namespace Veda.Command
 {
@@ -15,6 +16,10 @@ namespace Veda.Command
 
         public object Call(IContext context)
         {
+            if(context.CallDepth > 5)
+                throw new InvalidOperationException("Command recursing too deep, execution halted.");
+
+            ++context.CallDepth;
             return Command.Call(context, Arguments);
         }
     }

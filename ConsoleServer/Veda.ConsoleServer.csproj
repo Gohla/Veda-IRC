@@ -104,6 +104,10 @@
       <Project>{b608cbfb-25e1-4c8f-b2a9-6459247d24d7}</Project>
       <Name>Veda.Plugins.Alias</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\Channel\Veda.Plugins.Channel.csproj">
+      <Project>{27f6acad-6e40-45ff-88b7-c611f56ee459}</Project>
+      <Name>Veda.Plugins.Channel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\Core\Veda.Plugins.Core.csproj">
       <Project>{b7b82246-2e3b-4f8b-9573-cd7cc507a5b9}</Project>
       <Name>Veda.Plugins.Core</Name>

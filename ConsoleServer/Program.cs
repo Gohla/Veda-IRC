@@ -80,6 +80,9 @@ namespace Veda.ConsoleServer
             command.Add(CommandBuilder.CreateConverter<String, IChannel, ConversionContext>(
                 (str, context) => context.Message.Connection.GetExistingChannel(str))
             );
+            command.Add(CommandBuilder.CreateConverter<String, IChannelUser, ConversionContext>(
+                (str, context) => (context.Message.Receiver as IChannel).GetUser(str))
+            );
 
             // Create plugin manager
             IPluginManager plugin = CompositionManager.Get<IPluginManager>();

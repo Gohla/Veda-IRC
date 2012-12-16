@@ -132,7 +132,7 @@ namespace Veda
                     context.Evaluate(callable).Subscribe(
                         str => { Reply(message, str); reply = true; },
                         e => { Reply(message, e); reply = true; },
-                        () => { if(!reply) Reply(message, "The operation succeeded"); }
+                        () => { if(!reply) Reply(message, "The operation succeeded."); }
                     );
                 }
                 catch(Exception e)

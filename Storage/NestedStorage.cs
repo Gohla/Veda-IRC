@@ -45,6 +45,15 @@ namespace Veda.Storage
             return default(T);
         }
 
+        public object Get(String id, Type type)
+        {
+            if(Storage.Exists(id))
+                return Storage.Get(id, type);
+            if(Parent != null)
+                return Parent.Get(id, type);
+            return null;
+        }
+
         public T GetOrCreate<T>(String id) 
             where T : new()
         {

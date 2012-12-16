@@ -17,6 +17,18 @@ namespace Veda.Interface
         T Get<T>(String id);
 
         /// <summary>
+        /// Gets an object with given type located at given identifier.
+        /// </summary>
+        ///
+        /// <param name="id">  The identifier.</param>
+        /// <param name="type">The type.</param>
+        ///
+        /// <returns>
+        /// Retrieved object or null if it was not found.
+        /// </returns>
+        object Get(String id, Type type);
+
+        /// <summary>
         /// Gets an object located at given identifier, or creates a new instance if it does not exist.
         /// </summary>
         ///

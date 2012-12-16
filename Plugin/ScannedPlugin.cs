@@ -12,13 +12,20 @@ namespace Veda.Plugin
         public String Name { get; set; }
         public String Description { get; set; }
         public IEnumerable<ICommand> InitialCommands { get { return _commands; } }
+
+        public Type Type { get; set; }
         public object Instance { get; set; }
 
-        public ScannedPlugin(String name, String description, object instance = null, Action dispose = null)
+        public Action<IPlugin, IBot> Loaded { get; set; }
+
+        public ScannedPlugin(String name, String description, Type type, object instance = null,
+            Action<IPlugin, IBot> loaded = null, Action dispose = null)
         {
             Name = name;
             Description = description;
+            Type = type;
             Instance = instance;
+            Loaded = loaded;
             _dispose = dispose;
         }
 

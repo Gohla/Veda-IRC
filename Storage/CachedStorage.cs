@@ -47,10 +47,25 @@ namespace Veda.Storage
             }
             else
             {
-                T t = Storage.Get<T>(id);
-                if(t != null)
-                    _cache[id] = t;
-                return t;
+                T obj = Storage.Get<T>(id);
+                if(obj != null)
+                    _cache[id] = obj;
+                return obj;
+            }
+        }
+
+        public object Get(String id, Type type)
+        {
+            if(_cache.ContainsKey(id))
+            {
+                return _cache[id];
+            }
+            else
+            {
+                object obj = Storage.Get(id, type);
+                if(obj != null)
+                    _cache[id] = obj;
+                return obj;
             }
         }
 

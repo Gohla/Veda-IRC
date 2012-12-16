@@ -83,11 +83,11 @@ namespace Veda.ConsoleServer
 
             // Create plugin manager
             IPluginManager plugin = CompositionManager.Get<IPluginManager>();
-            GetAssemblies().Do(x => plugin.Load(x));
 
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
             IBot bot = new Bot(client, storage, command, plugin);
+            GetAssemblies().Do(x => plugin.Load(x, bot));
             if(bot.Connections.IsEmpty())
             {
                 Console.WriteLine("No connections have been set up yet, adding a connection now.");

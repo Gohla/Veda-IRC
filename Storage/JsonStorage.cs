@@ -56,6 +56,24 @@ namespace Veda.Storage
             }
         }
 
+        public object Get(String id, Type type)
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                JToken obj;
+                if(_storage.TryGetValue(id, out obj))
+                {
+                    return JsonConvert.DeserializeObject(obj.ToString(), type, _settings);
+                }
+                return null;
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
         public T GetOrCreate<T>(String id)
             where T : new()
         {

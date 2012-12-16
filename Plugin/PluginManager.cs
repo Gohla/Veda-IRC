@@ -11,15 +11,17 @@ namespace Veda.Plugin
     {
         private static readonly Logger _logger = LogManager.GetLogger("PluginManager");
 
-        private ICommandManager _commandManager;
+        private readonly ICommandManager _commandManager;
+        private readonly IPluginStorageManager _pluginStorageManager;
         private Dictionary<String, IPlugin> _plugins = 
             new Dictionary<String, IPlugin>(StringComparer.OrdinalIgnoreCase);
 
         public IEnumerable<IPlugin> Plugins { get { return _plugins.Values; } }
 
-        public PluginManager(ICommandManager commandManager)
+        public PluginManager(ICommandManager commandManager, IPluginStorageManager pluginStorageManager)
         {
             _commandManager = commandManager;
+            _pluginStorageManager = pluginStorageManager;
         }
 
         public void Dispose()
@@ -32,14 +34,14 @@ namespace Veda.Plugin
             _plugins = null;
         }
 
-        public void Load(Assembly assembly)
+        public void Load(Assembly assembly, IBot bot)
         {
             IEnumerable<IPlugin> plugins = PluginScanner.Scan(assembly);
             foreach(IPlugin plugin in plugins)
             {
                 try
                 {
-                    Load(plugin);
+                    Load(plugin, bot);
                 }
                 catch(Exception e)
                 {
@@ -48,7 +50,7 @@ namespace Veda.Plugin
             }
         }
 
-        public IPlugin Load(IPlugin plugin)
+        public IPlugin Load(IPlugin plugin, IBot bot)
         {
             if(_plugins.ContainsKey(plugin.Name))
                 throw new ArgumentException("Plugin with name " + plugin.Name + " is already loaded.", "plugin");
@@ -67,16 +69,18 @@ namespace Veda.Plugin
                 }
             }
 
+            LoadStorage(plugin, bot);
+
             return plugin;
         }
 
-        public IPlugin Load(Type type)
+        public IPlugin Load(Type type, IBot bot)
         {
             IPlugin plugin = PluginScanner.Scan(type);
             if(plugin == null)
                 throw new ArgumentException("Type " + plugin.Name + " is not a valid plugin.", "type");
 
-            return Load(plugin);
+            return Load(plugin, bot);
         }
 
         public IPlugin Get(String name)
@@ -97,6 +101,55 @@ namespace Veda.Plugin
                 _commandManager.Remove(command);
             _plugins.Remove(name);
             plugin.Dispose();
+        }
+
+        private void LoadStorage(IPlugin plugin, IBot bot)
+        {
+            PropertyInfo[] properties = plugin.Type.GetProperties();
+            IStorage storage = _pluginStorageManager.Global(plugin);
+
+            foreach(PropertyInfo property in properties)
+            {
+                if(property.CanRead && property.CanWrite)
+                {
+                    if(storage.Exists(property.Name))
+                    {
+                        try
+                        {
+                            property.SetValue(plugin.Instance, storage.Get(property.Name, property.PropertyType));
+                        }
+                        catch(Exception e)
+                        {
+                            _logger.ErrorException("Could not set property " + property.Name + " in plugin "
+                                + plugin.Name + ".", e);
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            storage.Set(property.Name, property.GetValue(plugin.Instance));
+                        }
+                        catch(Exception e)
+                        {
+                            _logger.ErrorException("Could not get property " + property.Name + " in plugin "
+                                + plugin.Name + ".", e);
+                        }
+                    }
+                }
+            }
+
+            if(plugin.Loaded != null)
+            {
+                try
+                {
+                    plugin.Loaded(plugin, bot);
+                }
+                catch(Exception e)
+                {
+                    _logger.ErrorException("Could not invoke loaded method in plugin " + plugin.Name + ".", e);
+                }
+            }
         }
     }
 }

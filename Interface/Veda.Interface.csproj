@@ -53,6 +53,7 @@
     <Compile Include="IPluginManager.cs" />
     <Compile Include="IPluginStorageManager.cs" />
     <Compile Include="IStorage.cs" />
+    <Compile Include="LoadedAttribute.cs" />
     <Compile Include="PluginAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Veda.Command
 {
@@ -30,7 +28,7 @@ namespace Veda.Command
 
             return
                 StringComparer.OrdinalIgnoreCase.Equals(this.Name, other.Name)
-             && this.ParameterTypes.SequenceEqual(other.ParameterTypes)
+             && ArrayEqualityComparer<Type>.Default.Equals(this.ParameterTypes, other.ParameterTypes)
             ;
         }
 
@@ -40,7 +38,7 @@ namespace Veda.Command
             {
                 int hash = 17;
                 hash = hash * 23 + StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name);
-                hash = hash * 23 + EqualityComparer<Type[]>.Default.GetHashCode(this.ParameterTypes);
+                hash = hash * 23 + ArrayEqualityComparer<Type>.Default.GetHashCode(this.ParameterTypes);
                 return hash;
             }
         }

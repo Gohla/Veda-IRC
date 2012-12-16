@@ -64,7 +64,7 @@ namespace Veda.Command
             return
                 EqualityComparer<IPlugin>.Default.Equals(this.Plugin, other.Plugin)
              && StringComparer.OrdinalIgnoreCase.Equals(this.Name, other.Name)
-             && this.ParameterTypes.SequenceEqual(other.ParameterTypes)
+             && ArrayEqualityComparer<Type>.Default.Equals(this.ParameterTypes, other.ParameterTypes)
              ;
         }
 
@@ -75,7 +75,7 @@ namespace Veda.Command
                 int hash = 17;
                 hash = hash * 23 + EqualityComparer<IPlugin>.Default.GetHashCode(this.Plugin);
                 hash = hash * 23 + StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name);
-                hash = hash * 23 + EqualityComparer<Type[]>.Default.GetHashCode(this.ParameterTypes);
+                hash = hash * 23 + ArrayEqualityComparer<Type>.Default.GetHashCode(this.ParameterTypes);
                 return hash;
             }
         }

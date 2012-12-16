@@ -104,13 +104,13 @@
       <Project>{b608cbfb-25e1-4c8f-b2a9-6459247d24d7}</Project>
       <Name>Veda.Plugins.Alias</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\Core\Veda.Plugins.Core.csproj">
+      <Project>{b7b82246-2e3b-4f8b-9573-cd7cc507a5b9}</Project>
+      <Name>Veda.Plugins.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\Google\Veda.Plugins.Google.csproj">
       <Project>{7d270050-e762-48b5-b678-82b1efb71be0}</Project>
       <Name>Veda.Plugins.Google</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Veda-plugins\Info\Veda.Plugins.Info.csproj">
-      <Project>{b7b82246-2e3b-4f8b-9573-cd7cc507a5b9}</Project>
-      <Name>Veda.Plugins.Info</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\List\Veda.Plugins.List.csproj">
       <Project>{878889c5-3888-429d-8252-56fcc6861f61}</Project>

@@ -27,6 +27,9 @@ namespace Veda.Command
 
             // Add default converters
             Add(CommandBuilder.CreateConverter<String, Char>(s => Char.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, UInt16>(s => UInt16.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, UInt32>(s => UInt32.Parse(s)));
+            Add(CommandBuilder.CreateConverter<String, UInt64>(s => UInt64.Parse(s)));
             Add(CommandBuilder.CreateConverter<String, Int16>(s => Int16.Parse(s)));
             Add(CommandBuilder.CreateConverter<String, Int32>(s => Int32.Parse(s)));
             Add(CommandBuilder.CreateConverter<String, Int64>(s => Int64.Parse(s)));

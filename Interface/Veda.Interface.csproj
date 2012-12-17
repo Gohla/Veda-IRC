@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandAttribute.cs" />
+    <Compile Include="IAuthenticationManager.cs" />
     <Compile Include="IBot.cs" />
     <Compile Include="IBotGroup.cs" />
     <Compile Include="IBotUser.cs" />

@@ -48,12 +48,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticationManager.cs" />
+    <Compile Include="BotGroup.cs" />
+    <Compile Include="BotUser.cs" />
+    <Compile Include="PermissionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveIRC\Interface\ReactiveIRC.Interface.csproj">
+      <Project>{c699bffa-5fe2-441c-9679-59bead165bc6}</Project>
+      <Name>ReactiveIRC.Interface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Interface\Veda.Interface.csproj">
       <Project>{BFD3723B-68D5-4A3F-8223-58B9C6E72178}</Project>
       <Name>Veda.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Storage\Veda.Storage.csproj">
+      <Project>{0aaae694-1bde-445d-99ad-0e61301d91e5}</Project>
+      <Name>Veda.Storage</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utility\Veda.Utility.csproj">
       <Project>{f11ef1b0-8c1b-44fb-b11b-1fba04f9cdfe}</Project>

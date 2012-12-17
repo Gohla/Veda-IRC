@@ -49,7 +49,10 @@ namespace Veda
                 _data = new BotData();
 
             _receivedMessages.Subscribe(ReceivedMessage);
+        }
 
+        public void Init()
+        {
             foreach(ConnectionData data in _data.Connections.ToArray())
             {
                 Connect(data, false);

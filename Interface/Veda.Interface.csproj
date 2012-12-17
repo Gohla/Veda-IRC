@@ -41,6 +41,8 @@
   <ItemGroup>
     <Compile Include="CommandAttribute.cs" />
     <Compile Include="IBot.cs" />
+    <Compile Include="IBotGroup.cs" />
+    <Compile Include="IBotUser.cs" />
     <Compile Include="ICallable.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandConverter.cs" />
@@ -49,6 +51,7 @@
     <Compile Include="IContext.cs" />
     <Compile Include="IConversionContext.cs" />
     <Compile Include="IOpenableStorage.cs" />
+    <Compile Include="IPermissionManager.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="IPluginManager.cs" />
     <Compile Include="IPluginStorageManager.cs" />

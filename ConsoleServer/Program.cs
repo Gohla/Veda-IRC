@@ -89,8 +89,9 @@ namespace Veda.ConsoleServer
 
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
-            IBot bot = new Bot(client, storage, command, plugin);
+            Bot bot = new Bot(client, storage, command, plugin);
             GetAssemblies().Do(x => plugin.Load(x, bot));
+            bot.Init();
             if(bot.Connections.IsEmpty())
             {
                 Console.WriteLine("No connections have been set up yet, adding a connection now.");

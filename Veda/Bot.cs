@@ -102,7 +102,7 @@ namespace Veda
                 .Where(m => !m.Sender.Equals(connection.Me))
                 .Where(m => m.Type == ReceiveType.Message || m.Type == ReceiveType.Notice ||
                     m.Type == ReceiveType.Action)
-                .Where(m => m.Sender.Type == MessageTargetType.User)
+                .Where(m => m.Sender.Type == MessageTargetType.User || m.Sender.Type == MessageTargetType.ChannelUser)
                 .Subscribe(_receivedMessages);
 
             // Create connection
@@ -127,13 +127,25 @@ namespace Veda
                     if(callable == null)
                         return;
 
-                    IBotUser botUser = _authentication.GetUser(message.Sender as IUser);
+                    IUser user = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
+                    IChannel channel = message.Receiver as IChannel;
+                    IBotUser botUser = _authentication.GetUser(user);
                     IStorage storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
                         message.Receiver as IChannel);
                     Context context = new Context
                     {
-                        Bot = this, Message = message, Storage = storage, Sender = botUser,
-                        Command = callable.Command, ConversionContext = conversionContext, CallDepth = 0
+                        Bot = this
+
+                      , Connection = message.Connection
+                      , Sender = user
+                      , Channel = channel
+                      , User = botUser
+                      , Contents = message.Contents
+                      , Storage = storage
+                      , Command = callable.Command
+
+                      , ConversionContext = conversionContext
+                      , CallDepth = 0
                     };
 
                     bool reply = false;

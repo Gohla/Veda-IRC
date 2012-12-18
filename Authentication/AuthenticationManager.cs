@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using NLog;
 using ReactiveIRC.Interface;
+using Veda.Authentication.Configuration;
 using Veda.Interface;
 using Veda.Storage;
 
@@ -8,10 +10,15 @@ namespace Veda.Authentication
 {
     public class AuthenticationManager : IAuthenticationManager
     {
+        private static readonly Logger _logger = LogManager.GetLogger("AuthenticationManager");
+
         private readonly IStorageManager _storageManager;
-        private Dictionary<String, IBotUser> _users;
-        private Dictionary<IUser, IBotUser> _authenticatedUsers = new Dictionary<IUser, IBotUser>();
-        private Dictionary<IUser, IBotUser> _guests = new Dictionary<IUser, IBotUser>();
+        private readonly Dictionary<String, IBotUser> _users = new Dictionary<String, IBotUser>();
+        private readonly Dictionary<String, IBotGroup> _groups = new Dictionary<String, IBotGroup>();
+        private readonly Dictionary<IUser, IBotUser> _identifiedUsers = new Dictionary<IUser, IBotUser>();
+        private readonly Dictionary<IUser, IBotUser> _guests = new Dictionary<IUser, IBotUser>();
+
+        private Dictionary<String, UserData> _userData;
 
         public IBotGroup Guest { get; private set; }
         public IBotGroup Registered { get; private set; }
@@ -22,12 +29,29 @@ namespace Veda.Authentication
         {
             _storageManager = storageManager;
 
-            _users = _storageManager.Global().GetOrCreate<Dictionary<String, IBotUser>>("Users");
-
             Guest = new BotGroup("Guest");
             Registered = new BotGroup("Registered");
             Administrator = new BotGroup("Administrator");
             Owner = new BotGroup("Owner");
+
+            _groups.Add(Guest.Name, Guest);
+            _groups.Add(Registered.Name, Registered);
+            _groups.Add(Administrator.Name, Administrator);
+            _groups.Add(Owner.Name, Owner);
+
+            _userData = _storageManager.Global().GetOrCreate<Dictionary<String, UserData>>("Users");
+            foreach(UserData data in _userData.Values)
+            {
+                if(!_groups.ContainsKey(data.GroupName))
+                {
+                    _logger.Error("User with username " + data.Username + " has invalid group name " + data.GroupName
+                        + ". User was not added.");
+                }
+                else
+                {
+                    _users.Add(data.Username, new BotUser(data.Username, data.Password, _groups[data.GroupName]));
+                }
+            }
         }
 
         public void Dispose()
@@ -37,22 +61,27 @@ namespace Veda.Authentication
 
         public IBotUser Register(IUser user, String username, String password)
         {
+            if(IsIdentified(user))
+                throw new InvalidOperationException("User is already identified.");
+
             if(_users.ContainsKey(username))
                 throw new ArgumentException("Username is already registered.", "username");
 
             if(String.IsNullOrWhiteSpace(password))
                 throw new ArgumentException("Password cannot be null, empty or whitespace.", "password");
 
-            IBotUser botUser = new BotUser(username, password, user, Registered);
+            IBotUser botUser = new BotUser(username, password, Registered);
             _users.Add(username, botUser);
-            _authenticatedUsers.Add(user, botUser);
+            _userData.Add(username, new UserData { Username = username, Password = password, 
+                GroupName = Registered.Name });
+            _identifiedUsers.Add(user, botUser);
             return botUser;
         }
 
-        public IBotUser Authenticate(IUser user, String username, String password)
+        public IBotUser Identify(IUser user, String username, String password)
         {
-            if(_authenticatedUsers.ContainsKey(user))
-                throw new InvalidOperationException("User is already authenticated.");
+            if(IsIdentified(user))
+                throw new InvalidOperationException("User is already identified.");
 
             if(!_users.ContainsKey(username))
                 throw new InvalidOperationException("Incorrect username or password.");
@@ -64,18 +93,18 @@ namespace Veda.Authentication
             if(!botUser.CheckPassword(password))
                 throw new InvalidOperationException("Incorrect username or password.");
 
-            _authenticatedUsers.Add(user, botUser);
+            _identifiedUsers.Add(user, botUser);
 
             return botUser;
         }
 
         public IBotUser GetUser(IUser user)
         {
-            if(!_authenticatedUsers.ContainsKey(user))
+            if(!IsIdentified(user))
             {
                 if(!_guests.ContainsKey(user))
                 {
-                    IBotUser guest = new BotUser("Guest", String.Empty, user, Guest);
+                    IBotUser guest = new BotUser("Guest", String.Empty, Guest);
                     _guests.Add(user, guest);
                     return guest;
                 }
@@ -86,8 +115,13 @@ namespace Veda.Authentication
             }
             else
             {
-                return _authenticatedUsers[user];
+                return _identifiedUsers[user];
             }
+        }
+
+        public bool IsIdentified(IUser user)
+        {
+            return _identifiedUsers.ContainsKey(user);
         }
     }
 }

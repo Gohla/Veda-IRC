@@ -124,6 +124,10 @@
       <Project>{7e3af69c-9179-4fd0-8d80-18df9f7bb116}</Project>
       <Name>Veda.Plugins.Plugin</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\User\Veda.Plugins.User.csproj">
+      <Project>{bba2f257-4e69-40df-b376-afa1233cfa02}</Project>
+      <Name>Veda.Plugins.User</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Authentication\Veda.Authentication.csproj">
       <Project>{5d600922-52fe-4a83-b8a5-ed42ae18ca54}</Project>
       <Name>Veda.Authentication</Name>

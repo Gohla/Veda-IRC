@@ -51,6 +51,7 @@
     <Compile Include="AuthenticationManager.cs" />
     <Compile Include="BotGroup.cs" />
     <Compile Include="BotUser.cs" />
+    <Compile Include="Configuration\UserData.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

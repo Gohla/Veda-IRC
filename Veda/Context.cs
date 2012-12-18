@@ -10,11 +10,14 @@ namespace Veda
     {
         public IBot Bot { get; set; }
 
-        public IReceiveMessage Message { get; set; }
+        public IClientConnection Connection { get; set; }
+        public IUser Sender { get; set; }
+        public IChannel Channel { get; set; }
+        public IBotUser User { get; set; }
+        public String Contents { get; set; }
         public IStorage Storage { get; set; }
-        public IBotUser Sender { get; set; }
         public ICommand Command { get; set; }
-        
+
         public IConversionContext ConversionContext { get; set; }
         public ushort CallDepth { get; set; }
 

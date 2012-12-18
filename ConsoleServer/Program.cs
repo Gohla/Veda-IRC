@@ -87,9 +87,12 @@ namespace Veda.ConsoleServer
             // Create plugin manager
             IPluginManager plugin = CompositionManager.Get<IPluginManager>();
 
+            // Create authentication manager
+            IAuthenticationManager authentication = CompositionManager.Get<IAuthenticationManager>();
+
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
-            Bot bot = new Bot(client, storage, command, plugin);
+            Bot bot = new Bot(client, storage, command, plugin, authentication);
             GetAssemblies().Do(x => plugin.Load(x, bot));
             bot.Init();
             if(bot.Connections.IsEmpty())

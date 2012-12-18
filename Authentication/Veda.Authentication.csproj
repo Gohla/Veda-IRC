@@ -55,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Gohla.Shared\Gohla.Shared\Gohla.Shared.csproj">
+      <Project>{6e1a3f05-4a08-41a0-bab7-a1b6f3315e2a}</Project>
+      <Name>Gohla.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ReactiveIRC\Interface\ReactiveIRC.Interface.csproj">
       <Project>{c699bffa-5fe2-441c-9679-59bead165bc6}</Project>
       <Name>ReactiveIRC.Interface</Name>

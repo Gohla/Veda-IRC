@@ -7,9 +7,9 @@ namespace Veda.Interface
     {
         IBot Bot { get; }
 
-        IStorage Storage { get; }
         IReceiveMessage Message { get; }
-        //IBotUser Sender { get; }
+        IStorage Storage { get; }
+        IBotUser Sender { get; }
         ICommand Command { get; }
 
         IConversionContext ConversionContext { get; }

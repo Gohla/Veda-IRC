@@ -21,6 +21,7 @@ namespace Veda
         private IStorageManager _storage;
         private ICommandManager _command;
         private IPluginManager _plugin;
+        private IAuthenticationManager _authentication;
 
         private BotData _data;
         private List<BotClientConnection> _botConnections = new List<BotClientConnection>();
@@ -36,17 +37,18 @@ namespace Veda
         public IPluginStorageManager Storage { get { return _storage; } }
         public ICommandManager Command { get { return _command; } }
         public IPluginManager Plugin { get { return _plugin; } }
+        public IAuthenticationManager Authentication { get { return _authentication; } }
 
-        public Bot(IClient client, IStorageManager storage, ICommandManager command, IPluginManager plugin)
+        public Bot(IClient client, IStorageManager storage, ICommandManager command, IPluginManager plugin,
+            IAuthenticationManager authentication)
         {
             _client = client;
             _storage = storage;
             _command = command;
             _plugin = plugin;
+            _authentication = authentication;
 
             _data = storage.Global().GetOrCreate<BotData>(_storageIdentifier);
-            if(_data == null)
-                _data = new BotData();
 
             _receivedMessages.Subscribe(ReceivedMessage);
         }
@@ -98,7 +100,9 @@ namespace Veda
             // Subscribe to received messages.
             botConnection.ReceivedMessages
                 .Where(m => !m.Sender.Equals(connection.Me))
-                .Where(m => m.Type == ReceiveType.Message || m.Type == ReceiveType.Notice)
+                .Where(m => m.Type == ReceiveType.Message || m.Type == ReceiveType.Notice ||
+                    m.Type == ReceiveType.Action)
+                .Where(m => m.Sender.Type == MessageTargetType.User)
                 .Subscribe(_receivedMessages);
 
             // Create connection
@@ -123,12 +127,13 @@ namespace Veda
                     if(callable == null)
                         return;
 
+                    IBotUser botUser = _authentication.GetUser(message.Sender as IUser);
                     IStorage storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
                         message.Receiver as IChannel);
                     Context context = new Context
                     {
-                        Bot = this, Message = message, Storage = storage, Command = callable.Command,
-                        ConversionContext = conversionContext, CallDepth = 0
+                        Bot = this, Message = message, Storage = storage, Sender = botUser,
+                        Command = callable.Command, ConversionContext = conversionContext, CallDepth = 0
                     };
 
                     bool reply = false;

@@ -6,6 +6,7 @@ using Autofac.Integration.Mef;
 using Gohla.Shared.Composition;
 using ReactiveIRC.Client;
 using ReactiveIRC.Interface;
+using Veda.Authentication;
 using Veda.Command;
 using Veda.Interface;
 using Veda.Plugin;
@@ -67,6 +68,21 @@ namespace Veda.ConsoleServer
                 .As<ICommandManager>()
                 .Exported(x => x.As<ICommandManager>())
                 .SingleInstance()
+                ;
+
+            // Veda.Authentication
+            builder.RegisterType<AuthenticationManager>()
+                .As<IAuthenticationManager>()
+                .Exported(x => x.As<IAuthenticationManager>())
+                .SingleInstance()
+                ;
+            builder.RegisterType<BotUser>()
+                .As<IBotUser>()
+                .Exported(x => x.As<IBotUser>())
+                ;
+            builder.RegisterType<BotGroup>()
+                .As<IBotGroup>()
+                .Exported(x => x.As<IBotGroup>())
                 ;
 
             // Veda

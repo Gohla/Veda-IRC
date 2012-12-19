@@ -9,6 +9,7 @@ namespace Veda.Interface
         String Description { get; }
         Type[] ParameterTypes { get; }
         String[] ParameterNames { get; }
+        bool Private { get; }
 
         bool IsCompatible(params Type[] argumentTypes);
         bool IsPartialCompatible(params Type[] argumentTypes);

@@ -117,9 +117,11 @@ namespace Veda.Plugin
             }
 
             if(method.IsStatic)
-                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, method);
+                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, attribute.Private, 
+                    method);
             else
-                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, method, instance);
+                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, attribute.Private, 
+                    method, instance);
         }
     }
 }

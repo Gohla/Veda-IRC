@@ -8,20 +8,29 @@ namespace Veda.Command
 {
     public abstract class AbstractCommand : ICommand
     {
+        private String _description;
+
         public IPlugin Plugin { get; private set; }
         public String Name { get; private set; }
-        public String Description { get; private set; }
-        public Type[] ParameterTypes { get; private set; }
-        public String[] ParameterNames { get; private set; }
+        public String Description
+        {
+            get
+            {
+                return _description + (Private ? " This command can only be sent in a private message." : String.Empty);
+            }
+            protected set
+            {
+                _description = value;
+            }
+        }
+        public Type[] ParameterTypes { get; protected set; }
+        public String[] ParameterNames { get; protected set; }
+        public bool Private { get; protected set; }
 
-        public AbstractCommand(IPlugin plugin, String name, String description, Type[] parameterTypes, 
-            String[] parameterNames)
+        public AbstractCommand(IPlugin plugin, String name)
         {
             Plugin = plugin;
             Name = name;
-            Description = description;
-            ParameterTypes = parameterTypes;
-            ParameterNames = parameterNames;
         }
 
         public bool IsCompatible(params Type[] argumentTypes)

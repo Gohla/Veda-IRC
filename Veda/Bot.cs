@@ -127,6 +127,9 @@ namespace Veda
                     if(callable == null)
                         return;
 
+                    if(callable.Command.Private && !message.Receiver.Equals(message.Connection.Me))
+                        throw new InvalidOperationException("This command can only be sent in a private message.");
+
                     IUser user = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
                     IChannel channel = message.Receiver as IChannel;
                     IBotUser botUser = _authentication.GetUser(user);

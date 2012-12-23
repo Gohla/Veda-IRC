@@ -10,6 +10,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using ReactiveIRC.Interface;
+using Veda.Authentication;
 using Veda.Command;
 using Veda.Interface;
 using Veda.Storage;
@@ -80,19 +81,25 @@ namespace Veda.ConsoleServer
             command.Add(CommandBuilder.CreateConverter<String, IChannel, ConversionContext>(
                 (str, context) => context.Message.Connection.GetExistingChannel(str))
             );
+            command.Add(CommandBuilder.CreateConverter<String, IUser, ConversionContext>(
+                (str, context) => context.Message.Connection.GetExistingUser(str))
+            );
             command.Add(CommandBuilder.CreateConverter<String, IChannelUser, ConversionContext>(
                 (str, context) => (context.Message.Receiver as IChannel).GetUser(str))
             );
 
-            // Create plugin manager
-            IPluginManager plugin = CompositionManager.Get<IPluginManager>();
-
             // Create authentication manager
             IAuthenticationManager authentication = CompositionManager.Get<IAuthenticationManager>();
 
+            // Create permission manager
+            IPermissionManager permission = CompositionManager.Get<IPermissionManager>();
+
+            // Create plugin manager
+            IPluginManager plugin = CompositionManager.Get<IPluginManager>();
+
             // Create bot
             IClient client = CompositionManager.Get<IClient>();
-            Bot bot = new Bot(client, storage, command, plugin, authentication);
+            Bot bot = new Bot(client, storage, command, plugin, authentication, permission);
             GetAssemblies().Do(x => plugin.Load(x, bot));
             bot.Init();
             if(bot.Connections.IsEmpty())

@@ -68,6 +68,10 @@
       <Project>{C699BFFA-5FE2-441C-9679-59BEAD165BC6}</Project>
       <Name>ReactiveIRC.Interface</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Authentication\Veda.Authentication.csproj">
+      <Project>{5d600922-52fe-4a83-b8a5-ed42ae18ca54}</Project>
+      <Name>Veda.Authentication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Interface\Veda.Interface.csproj">
       <Project>{BFD3723B-68D5-4A3F-8223-58B9C6E72178}</Project>
       <Name>Veda.Interface</Name>

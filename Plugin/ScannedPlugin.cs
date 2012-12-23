@@ -11,7 +11,7 @@ namespace Veda.Plugin
 
         public String Name { get; set; }
         public String Description { get; set; }
-        public IEnumerable<ICommand> InitialCommands { get { return _commands; } }
+        public ICommand[] InitialCommands { get { return _commands.ToArray(); } }
 
         public Type Type { get; set; }
         public object Instance { get; set; }

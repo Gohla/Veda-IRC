@@ -52,6 +52,9 @@
     <Compile Include="BotGroup.cs" />
     <Compile Include="BotUser.cs" />
     <Compile Include="Configuration\UserData.cs" />
+    <Compile Include="CustomPermission.cs" />
+    <Compile Include="IPermissionManager.cs" />
+    <Compile Include="Permission.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

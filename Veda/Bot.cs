@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using NLog;
 using ReactiveIRC.Interface;
+using Veda.Authentication;
 using Veda.Configuration;
 using Veda.Interface;
 using Veda.Storage;
@@ -22,6 +23,7 @@ namespace Veda
         private ICommandManager _command;
         private IPluginManager _plugin;
         private IAuthenticationManager _authentication;
+        private IPermissionManager _permission;
 
         private BotData _data;
         private List<BotClientConnection> _botConnections = new List<BotClientConnection>();
@@ -38,15 +40,17 @@ namespace Veda
         public ICommandManager Command { get { return _command; } }
         public IPluginManager Plugin { get { return _plugin; } }
         public IAuthenticationManager Authentication { get { return _authentication; } }
+        public IPluginPermissionManager Permission { get { return _permission; } }
 
         public Bot(IClient client, IStorageManager storage, ICommandManager command, IPluginManager plugin,
-            IAuthenticationManager authentication)
+            IAuthenticationManager authentication, IPermissionManager permission)
         {
             _client = client;
             _storage = storage;
             _command = command;
             _plugin = plugin;
             _authentication = authentication;
+            _permission = permission;
 
             _data = storage.Global().GetOrCreate<BotData>(_storageIdentifier);
 
@@ -131,8 +135,19 @@ namespace Veda
                         throw new InvalidOperationException("This command can only be sent in a private message.");
 
                     IUser user = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
-                    IChannel channel = message.Receiver as IChannel;
                     IBotUser botUser = _authentication.GetUser(user);
+                    IPermission permission = _permission.GetPermission(callable.Command);
+
+                    if(callable.Command.DefaultPermissions.Length > 0)
+                    {
+                        permission.CheckThrows(botUser, false);
+                    }
+                    else
+                    {
+                        permission.CheckThrows(botUser, true);
+                    }
+
+                    IChannel channel = message.Receiver as IChannel;
                     IStorage storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
                         message.Receiver as IChannel);
                     Context context = new Context

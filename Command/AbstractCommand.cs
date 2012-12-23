@@ -25,6 +25,7 @@ namespace Veda.Command
         }
         public Type[] ParameterTypes { get; protected set; }
         public String[] ParameterNames { get; protected set; }
+        public PermissionAttribute[] DefaultPermissions { get; protected set; }
         public bool Private { get; protected set; }
 
         public AbstractCommand(IPlugin plugin, String name)

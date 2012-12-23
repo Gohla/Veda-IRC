@@ -29,10 +29,10 @@ namespace Veda.Authentication
         {
             _storageManager = storageManager;
 
-            Guest = new BotGroup("Guest");
-            Registered = new BotGroup("Registered");
-            Administrator = new BotGroup("Administrator");
-            Owner = new BotGroup("Owner");
+            Guest = new BotGroup(GroupNames.Guest);
+            Registered = new BotGroup(GroupNames.Registered);
+            Administrator = new BotGroup(GroupNames.Administrator);
+            Owner = new BotGroup(GroupNames.Owner);
 
             _groups.Add(Guest.Name, Guest);
             _groups.Add(Registered.Name, Registered);
@@ -117,6 +117,13 @@ namespace Veda.Authentication
             {
                 return _identifiedUsers[user];
             }
+        }
+
+        public IBotGroup GetGroup(String name)
+        {
+            if(!_groups.ContainsKey(name))
+                throw new ArgumentException("Group with name " + name + " does not exist.", "name");
+            return _groups[name];
         }
 
         public bool IsIdentified(IUser user)

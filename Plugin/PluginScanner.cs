@@ -103,6 +103,8 @@ namespace Veda.Plugin
         {
             String methodName = attribute.Name ?? method.Name;
             ParameterInfo[] parameters = method.GetParameters();
+
+            // Check signature
             if(parameters.Length == 0 || !parameters[0].ParameterType.Equals(typeof(IContext)))
             {
                 _logger.Error("Command " + methodName + " from plugin " + plugin.Name
@@ -116,12 +118,26 @@ namespace Veda.Plugin
                 return null;
             }
 
-            if(method.IsStatic)
-                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, attribute.Private, 
-                    method);
+            // Gather default permissions
+            PermissionAttribute[] permissions = new PermissionAttribute[0];
+            IEnumerable<PermissionAttribute> defaultPermissions = method.GetCustomAttributes<PermissionAttribute>(true);
+            IEnumerable<String> groupNames = defaultPermissions.Select(p => p.GroupName);
+            if(groupNames.Distinct().Count() != defaultPermissions.Count())
+            {
+                _logger.Error("Command " + methodName + " from plugin " + plugin.Name
+                    + " has multiple default permissions for the same group. Permissions will not be added.");
+            }
             else
-                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, attribute.Private, 
-                    method, instance);
+            {
+                permissions = defaultPermissions.ToArray();
+            }
+
+            if(method.IsStatic)
+                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, permissions, 
+                    attribute.Private, method);
+            else
+                return CommandBuilder.CreateCommand(plugin, methodName, attribute.Description, permissions, 
+                    attribute.Private, method, instance);
         }
     }
 }

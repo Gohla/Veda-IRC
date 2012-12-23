@@ -13,15 +13,20 @@ namespace Veda.Plugin
 
         private readonly ICommandManager _commandManager;
         private readonly IPluginStorageManager _pluginStorageManager;
+        private readonly IPluginPermissionManager _pluginPermissionManager;
+        private readonly IAuthenticationManager _authenticationManager;
         private Dictionary<String, IPlugin> _plugins = 
             new Dictionary<String, IPlugin>(StringComparer.OrdinalIgnoreCase);
 
         public IEnumerable<IPlugin> Plugins { get { return _plugins.Values; } }
 
-        public PluginManager(ICommandManager commandManager, IPluginStorageManager pluginStorageManager)
+        public PluginManager(ICommandManager commandManager, IPluginStorageManager pluginStorageManager, 
+            IPluginPermissionManager pluginPermissionManager, IAuthenticationManager authenticationManager)
         {
             _commandManager = commandManager;
             _pluginStorageManager = pluginStorageManager;
+            _pluginPermissionManager = pluginPermissionManager;
+            _authenticationManager = authenticationManager;
         }
 
         public void Dispose()
@@ -61,6 +66,30 @@ namespace Veda.Plugin
                 try
                 {
                     _commandManager.Add(command);
+                    if(command.DefaultPermissions.Length == 0)
+                        continue;
+
+                    IPermission commandPermission = _pluginPermissionManager.GetPermission(command);
+                    foreach(PermissionAttribute permission in command.DefaultPermissions)
+                    {
+                        try
+                        {
+                            IBotGroup group = _authenticationManager.GetGroup(permission.GroupName);
+                            commandPermission.DefaultAllowed(group, permission.Allowed);
+                            if(permission.Limit != 0 && permission.Timespan != 0)
+                            {
+                                commandPermission.DefaultTimedLimit(group, permission.Limit, 
+                                    TimeSpan.FromMilliseconds(permission.Timespan));
+                            }
+                        }
+                        catch(Exception e)
+                        {
+                            _logger.ErrorException("Unable to set default permission " 
+                                + " for group " + permission.GroupName 
+                                + " for command " + command.Name 
+                                + " from plugin " + plugin.Name + ".", e);
+                        }
+                    }
                 }
                 catch(Exception e)
                 {

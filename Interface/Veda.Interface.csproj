@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandAttribute.cs" />
+    <Compile Include="GroupNames.cs" />
     <Compile Include="IAuthenticationManager.cs" />
     <Compile Include="IBot.cs" />
     <Compile Include="IBotGroup.cs" />
@@ -51,13 +52,16 @@
     <Compile Include="ICommandParser.cs" />
     <Compile Include="IContext.cs" />
     <Compile Include="IConversionContext.cs" />
+    <Compile Include="ICustomPermission.cs" />
     <Compile Include="IOpenableStorage.cs" />
-    <Compile Include="IPermissionManager.cs" />
+    <Compile Include="IPluginPermissionManager.cs" />
+    <Compile Include="IPermission.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="IPluginManager.cs" />
     <Compile Include="IPluginStorageManager.cs" />
     <Compile Include="IStorage.cs" />
     <Compile Include="LoadedAttribute.cs" />
+    <Compile Include="PermissionAttribute.cs" />
     <Compile Include="PluginAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

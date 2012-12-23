@@ -10,13 +10,14 @@ namespace Veda.Command
         private MethodInfo _method;
         private object _obj;
 
-        public MethodCommand(IPlugin plugin, String name, String description, bool @private, MethodInfo method, 
-            object obj) :
+        public MethodCommand(IPlugin plugin, String name, String description, PermissionAttribute[] defaultPermissions, 
+            bool @private, MethodInfo method, object obj) :
             base(plugin, name)
         {
             Description = description;
             ParameterTypes = method.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray();
             ParameterNames = method.GetParameters().Skip(1).Select(p => p.Name).ToArray();
+            DefaultPermissions = defaultPermissions;
             Private = @private;
 
             _method = method;

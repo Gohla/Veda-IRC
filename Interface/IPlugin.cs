@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using Gohla.Shared;
 
 namespace Veda.Interface
 {
@@ -17,7 +15,7 @@ namespace Veda.Interface
         /// <summary>
         /// Gets the commands that should be added to the command manager initially.
         /// </summary>
-        IEnumerable<ICommand> InitialCommands { get; }
+        ICommand[] InitialCommands { get; }
 
         /// <summary>
         /// Gets the type of the plugin. Can be null.

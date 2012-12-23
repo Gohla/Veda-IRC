@@ -9,12 +9,14 @@ namespace Veda.Command
     {
         private Delegate _delegate;
 
-        public ExpressionCommand(IPlugin plugin, String name, String description, bool @private, Expression<T> expr) :
+        public ExpressionCommand(IPlugin plugin, String name, String description, 
+            PermissionAttribute[] defaultPermissions, bool @private, Expression<T> expr) :
             base(plugin, name)
         {
             Description = description;
             ParameterTypes = expr.Parameters.Select(p => p.Type).ToArray();
             ParameterNames = expr.Parameters.Select(p => p.Name).ToArray();
+            DefaultPermissions = defaultPermissions;
             Private = @private;
 
             LambdaExpression lambdaExpr = expr;

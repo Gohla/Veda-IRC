@@ -7,16 +7,16 @@ namespace Veda.Command
 {
     public static class CommandBuilder
     {
-        public static ICommand CreateCommand(IPlugin plugin, String name, String description, bool @private, 
-            MethodInfo method, object obj = null)
+        public static ICommand CreateCommand(IPlugin plugin, String name, String description, 
+            PermissionAttribute[] defaultPermissions, bool @private, MethodInfo method, object obj = null)
         {
-            return new MethodCommand(plugin, name, description, @private, method, obj);
+            return new MethodCommand(plugin, name, description, defaultPermissions, @private, method, obj);
         }
 
-        public static ICommand CreateCommand<T>(IPlugin plugin, String name, String description, bool @private,
-            Expression<T> expression)
+        public static ICommand CreateCommand<T>(IPlugin plugin, String name, String description, 
+            PermissionAttribute[] defaultPermissions, bool @private, Expression<T> expression)
         {
-            return new ExpressionCommand<T>(plugin, name, description, @private, expression);
+            return new ExpressionCommand<T>(plugin, name, description, defaultPermissions, @private, expression);
         }
 
         public static ICommandConverter CreateConverter<TFrom, TTo>(Func<TFrom, TTo> converter)

@@ -11,6 +11,7 @@ namespace Veda.Interface
         ICommandManager Command { get; }
         IPluginManager Plugin { get; }
         IAuthenticationManager Authentication { get; }
+        IPluginPermissionManager Permission { get; }
 
         IClientConnection Connect(String address, ushort port, String nickname, String username, String realname,
             String password);

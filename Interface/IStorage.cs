@@ -14,19 +14,19 @@ namespace Veda.Interface
         /// <returns>
         /// Retrieved object or default(T) if it was not found.
         /// </returns>
-        T Get<T>(String id);
+        T Get<T>(params String[] id);
 
         /// <summary>
         /// Gets an object with given type located at given identifier.
         /// </summary>
         ///
-        /// <param name="id">  The identifier.</param>
         /// <param name="type">The type.</param>
+        /// <param name="id">  The identifier.</param>
         ///
         /// <returns>
         /// Retrieved object or null if it was not found.
         /// </returns>
-        object Get(String id, Type type);
+        object Get(Type type, params String[] id);
 
         /// <summary>
         /// Gets an object located at given identifier, or creates a new instance if it does not exist.
@@ -38,7 +38,7 @@ namespace Veda.Interface
         /// <returns>
         /// Retrieved or created object.
         /// </returns>
-        T GetOrCreate<T>(String id) where T : new();
+        T GetOrCreate<T>(params String[] id) where T : new();
 
         /// <summary>
         /// Query if an object exists at given identifier.
@@ -49,15 +49,15 @@ namespace Veda.Interface
         /// <returns>
         /// True if object exists, false otherwise.
         /// </returns>
-        bool Exists(String id);
+        bool Exists(params String[] id);
 
         /// <summary>
         /// Sets an object located at given identifier.
         /// </summary>
         ///
-        /// <param name="id"> The identifier.</param>
         /// <param name="obj">The object to save.</param>
-        void Set(String id, object obj);
+        /// <param name="id"> The identifier.</param>
+        void Set(object obj, params String[] id);
 
         /// <summary>
         /// Remove the object at given identifier.
@@ -68,7 +68,7 @@ namespace Veda.Interface
         /// <returns>
         /// True if object was removed, false otherwise.
         /// </returns>
-        bool Remove(String id);
+        bool Remove(params String[] id);
 
         /// <summary>
         /// Tries to persist the storage to permanent storage.

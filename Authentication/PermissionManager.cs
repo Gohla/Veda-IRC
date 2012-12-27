@@ -29,7 +29,7 @@ namespace Veda.Authentication
 
         public IPermission GetPermission(ICommand command)
         {
-            String permission = command.Name + "(" + command.ParameterNames.ToString(", ") + ")";
+            String permission = command.Name + "(" + command.ParameterTypes.ToString(", ") + ")";
             return GetPermission(command.Plugin, permission);
         }
 

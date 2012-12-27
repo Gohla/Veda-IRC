@@ -36,7 +36,7 @@ namespace Veda.Storage
             }
         }
 
-        public T Get<T>(String id)
+        public T Get<T>(params String[] id)
         {
             if(Storage.Exists(id))
                 return Storage.Get<T>(id);
@@ -45,16 +45,16 @@ namespace Veda.Storage
             return default(T);
         }
 
-        public object Get(String id, Type type)
+        public object Get(Type type, params String[] id)
         {
             if(Storage.Exists(id))
-                return Storage.Get(id, type);
+                return Storage.Get(type, id);
             if(Parent != null)
-                return Parent.Get(id, type);
+                return Parent.Get(type, id);
             return null;
         }
 
-        public T GetOrCreate<T>(String id) 
+        public T GetOrCreate<T>(params String[] id) 
             where T : new()
         {
             if(Storage.Exists(id))
@@ -64,7 +64,7 @@ namespace Veda.Storage
             return new T();
         }
 
-        public bool Exists(String id)
+        public bool Exists(params String[] id)
         {
             if(Storage.Exists(id))
                 return true;
@@ -73,12 +73,12 @@ namespace Veda.Storage
             return false;
         }
 
-        public void Set(String id, object obj)
+        public void Set(object obj, params String[] id)
         {
-            Storage.Set(id, obj);
+            Storage.Set(obj, id);
         }
 
-        public bool Remove(String id)
+        public bool Remove(params String[] id)
         {
             if(Storage.Remove(id))
                 return true;

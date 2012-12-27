@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -38,15 +39,15 @@ namespace Veda.Storage
             LoadConfiguration();
         }
 
-        public T Get<T>(String id)
+        public T Get<T>(params String[] id)
         {
             _lock.EnterReadLock();
             try
             {
-                JToken obj;
-                if(_storage.TryGetValue(id, out obj))
+                JToken token = GetNested(id);
+                if(token != null)
                 {
-                    return JsonConvert.DeserializeObject<T>(obj.ToString(), _settings);
+                    return JsonConvert.DeserializeObject<T>(token.ToString(), _settings);
                 }
                 return default(T);
             }
@@ -56,15 +57,15 @@ namespace Veda.Storage
             }
         }
 
-        public object Get(String id, Type type)
+        public object Get(Type type, params String[] id)
         {
             _lock.EnterReadLock();
             try
             {
-                JToken obj;
-                if(_storage.TryGetValue(id, out obj))
+                JToken token = GetNested(id);
+                if(token != null)
                 {
-                    return JsonConvert.DeserializeObject(obj.ToString(), type, _settings);
+                    return JsonConvert.DeserializeObject(token.ToString(), type, _settings);
                 }
                 return null;
             }
@@ -74,18 +75,21 @@ namespace Veda.Storage
             }
         }
 
-        public T GetOrCreate<T>(String id)
+        public T GetOrCreate<T>(params String[] id)
             where T : new()
         {
             _lock.EnterReadLock();
             try
             {
-	            JToken obj;
-	            if(_storage.TryGetValue(id, out obj))
-	            {
-	                return JsonConvert.DeserializeObject<T>(obj.ToString(), _settings);
-	            }
-	            return new T();
+                JToken token = GetNested(id);
+                if(token != null)
+                {
+                    return JsonConvert.DeserializeObject<T>(token.ToString(), _settings);
+                }
+
+                T obj = new T();
+                SetNested(obj, id);
+                return obj;
             }
             finally
             {
@@ -93,12 +97,12 @@ namespace Veda.Storage
             }
         }
 
-        public bool Exists(String id)
+        public bool Exists(params String[] id)
         {
             _lock.EnterReadLock();
             try
             {
-            	return _storage[id] != null;
+                return GetNested(id) != null;
             }
             finally
             {
@@ -106,12 +110,12 @@ namespace Veda.Storage
             }
         }
 
-        public void Set(String id, object obj)
+        public void Set(object obj, params String[] id)
         {
             _lock.EnterWriteLock();
             try
             {
-            	_storage[id] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
+                SetNested(obj, id);
             }
             finally
             {
@@ -119,12 +123,18 @@ namespace Veda.Storage
             }
         }
 
-        public bool Remove(String id)
+        public bool Remove(params String[] id)
         {
             _lock.EnterWriteLock();
             try
             {
-            	return _storage.Remove(id);
+                JToken token = GetNested(id);
+                if(token != null)
+                {
+                    token.Remove();
+                    return true;
+                }
+                return false;
             }
             finally
             {
@@ -178,6 +188,39 @@ namespace Veda.Storage
             {
                 _lock.ExitWriteLock();
             }
+        }
+
+        private JToken GetNested(params String[] id)
+        {
+            if(id == null || id.Length == 0)
+                throw new ArgumentException("Identifier cannot be null or empty.", "id");
+
+            JToken token = _storage;
+            foreach(String d in id)
+            {
+                token = token[d];
+                if(token == null)
+                    return null;
+            }
+            return token;
+        }
+
+        private void SetNested(object obj, params String[] id)
+        {
+            if(id == null || id.Length == 0)
+                throw new ArgumentException("Identifier cannot be null or empty.", "id");
+
+            JToken token = _storage;
+            foreach(String d in id.SkipLast(1))
+            {
+                JToken newToken = token[d];
+                if(newToken == null)
+                    token[d] = new JObject();
+                else
+                    token = newToken;
+            }
+
+            token[id[id.Length - 1]] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
         }
     }
 }

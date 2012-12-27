@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Veda.Interface;
 
 namespace Veda.Storage
@@ -39,54 +36,54 @@ namespace Veda.Storage
             Storage.Open(file);
         }
 
-        public T Get<T>(String id)
+        public T Get<T>(params String[] id)
         {
-            if(_cache.ContainsKey(id))
+            if(_cache.ContainsKey(FromIdentifier(id)))
             {
-                return (T)_cache[id];
+                return (T)_cache[FromIdentifier(id)];
             }
             else
             {
                 T obj = Storage.Get<T>(id);
                 if(obj != null)
-                    _cache[id] = obj;
+                    _cache[FromIdentifier(id)] = obj;
                 return obj;
             }
         }
 
-        public object Get(String id, Type type)
+        public object Get(Type type, params String[] id)
         {
-            if(_cache.ContainsKey(id))
+            if(_cache.ContainsKey(FromIdentifier(id)))
             {
-                return _cache[id];
+                return _cache[FromIdentifier(id)];
             }
             else
             {
-                object obj = Storage.Get(id, type);
+                object obj = Storage.Get(type, id);
                 if(obj != null)
-                    _cache[id] = obj;
+                    _cache[FromIdentifier(id)] = obj;
                 return obj;
             }
         }
 
-        public T GetOrCreate<T>(String id) 
+        public T GetOrCreate<T>(params String[] id) 
             where T : new()
         {
-            if(_cache.ContainsKey(id))
+            if(_cache.ContainsKey(FromIdentifier(id)))
             {
-                return (T)_cache[id];
+                return (T)_cache[FromIdentifier(id)];
             }
             else
             {
                 T t = Storage.GetOrCreate<T>(id);
-                _cache[id] = t;
+                _cache[FromIdentifier(id)] = t;
                 return t;
             }
         }
 
-        public bool Exists(String id)
+        public bool Exists(params String[] id)
         {
-            if(_cache.ContainsKey(id))
+            if(_cache.ContainsKey(FromIdentifier(id)))
             {
                 return true;
             }
@@ -96,15 +93,15 @@ namespace Veda.Storage
             }
         }
 
-        public void Set(String id, object obj)
+        public void Set(object obj, params String[] id)
         {
-            _cache[id] = obj;
-            Storage.Set(id, obj);
+            _cache[FromIdentifier(id)] = obj;
+            Storage.Set(obj, id);
         }
 
-        public bool Remove(String id)
+        public bool Remove(params String[] id)
         {
-            _cache.Remove(id);
+            _cache.Remove(FromIdentifier(id));
             return Storage.Remove(id);
         }
 
@@ -112,9 +109,19 @@ namespace Veda.Storage
         {
             foreach(KeyValuePair<String, object> pair in _cache)
             {
-                Storage.Set(pair.Key, pair.Value);
+                Storage.Set(pair.Value, ToIdentifier(pair.Key));
             }
             return Storage.Persist();
+        }
+
+        private String FromIdentifier(params String[] id)
+        {
+            return id.ToString("_");
+        }
+
+        private String[] ToIdentifier(String id)
+        {
+            return id.Split('_');
         }
     }
 }

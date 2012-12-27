@@ -23,9 +23,9 @@ namespace Veda.Authentication
             _storage = storage;
             _permission = permission;
 
-            _allowed = _storage.GetOrCreate<Dictionary<String, bool>>(_permission + "." + ALLOWED_QUALIFIER);
-            _limit = _storage.GetOrCreate<Dictionary<String, ushort>>(_permission + "." + LIMIT_QUALIFIER);
-            _timespan = _storage.GetOrCreate<Dictionary<String, TimeSpan>>(_permission + "." + TIMESPAN_QUALIFIER);
+            _allowed = _storage.GetOrCreate<Dictionary<String, bool>>(_permission, ALLOWED_QUALIFIER);
+            _limit = _storage.GetOrCreate<Dictionary<String, ushort>>(_permission,  LIMIT_QUALIFIER);
+            _timespan = _storage.GetOrCreate<Dictionary<String, TimeSpan>>(_permission, TIMESPAN_QUALIFIER);
         }
 
         public IPermission DefaultAllowed(IBotGroup group, bool allowed)

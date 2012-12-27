@@ -145,7 +145,7 @@ namespace Veda.Plugin
                     {
                         try
                         {
-                            property.SetValue(plugin.Instance, storage.Get(property.Name, property.PropertyType));
+                            property.SetValue(plugin.Instance, storage.Get(property.PropertyType, property.Name));
                         }
                         catch(Exception e)
                         {
@@ -157,7 +157,7 @@ namespace Veda.Plugin
                     {
                         try
                         {
-                            storage.Set(property.Name, property.GetValue(plugin.Instance));
+                            storage.Set(property.GetValue(plugin.Instance), property.Name);
                         }
                         catch(Exception e)
                         {

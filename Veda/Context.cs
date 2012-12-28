@@ -76,7 +76,7 @@ namespace Veda
                     return Observable.Return(reply);
             }
 
-            return Observable.Empty<object>();
+            return Observable.Return<object>(result);
         }
     }
 }

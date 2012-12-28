@@ -9,7 +9,7 @@ namespace Veda.Authentication.Configuration
         public String Username { get; set; }
         public String Password { get; set; }
         public String GroupName { get; set; }
-        public IList<IdentityMask> Masks { get; set; }
+        public List<IdentityMask> Masks { get; set; }
 
         public UserData()
         {

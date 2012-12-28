@@ -51,6 +51,12 @@ namespace Veda
             }
 
             {
+                IEnumerable<object> replies = result as IEnumerable<object>;
+                if(replies != null)
+                    return replies.ToObservable();
+            }
+
+            {
                 IObservable<object> replies = result as IObservable<object>;
                 if(replies != null)
                     return replies;

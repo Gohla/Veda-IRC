@@ -8,33 +8,20 @@ namespace Veda.Authentication
     public class BotUser : IBotUser
     {
         private String _password;
-        private ISet<IdentityMask> _masks;
 
         public String Username { get; private set; }
         public IBotGroup Group { get; private set; }
-        public IEnumerable<IdentityMask> Masks { get { return _masks; } }
 
-        public BotUser(String username, String password, IBotGroup group, IEnumerable<IdentityMask> masks)
+        public BotUser(String username, String password, IBotGroup group)
         {
             Username = username;
             _password = password;
             Group = group;
-            _masks = new HashSet<IdentityMask>(masks);
         }
 
         public bool CheckPassword(String password)
         {
             return _password.Equals(password);
-        }
-
-        public bool AddMask(IdentityMask mask)
-        {
-            return _masks.Add(mask);
-        }
-
-        public bool RemoveMask(IdentityMask mask)
-        {
-            return _masks.Remove(mask);
         }
 
         public int CompareTo(IBotUser other)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ReactiveIRC.Interface;
 
 namespace Veda.Interface
@@ -14,7 +15,10 @@ namespace Veda.Interface
         IBotUser Identify(IUser user, String username, String password);
         IBotUser GetUser(IUser user);
         IBotGroup GetGroup(String name);
-
         bool IsIdentified(IUser user);
+
+        void AddMask(IBotUser user, IdentityMask mask);
+        void RemoveMask(IBotUser user, IdentityMask mask);
+        IEnumerable<IdentityMask> Masks(IBotUser user);
     }
 }

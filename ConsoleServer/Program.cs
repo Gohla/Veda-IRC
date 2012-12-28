@@ -10,6 +10,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using ReactiveIRC.Interface;
+using ReactiveIRC.Protocol;
 using Veda.Authentication;
 using Veda.Command;
 using Veda.Interface;
@@ -89,6 +90,9 @@ namespace Veda.ConsoleServer
             );
             command.Add(CommandBuilder.CreateConverter<String, IdentityMask, ConversionContext>(
                 (str, context) => IdentityMask.Parse(str))
+            );
+            command.Add(CommandBuilder.CreateConverter<String, IIdentity, ConversionContext>(
+                (str, context) => Identity.Parse(str))
             );
 
             // Create authentication manager

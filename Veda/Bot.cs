@@ -167,7 +167,7 @@ namespace Veda
                     };
 
                     bool reply = false;
-                    context.Evaluate(callable).Subscribe(
+                    context.Evaluate(callable).ToString("; ").Subscribe(
                         str => { Reply(message, str); reply = true; },
                         e => { Reply(message, e); reply = true; },
                         () => { if(!reply) Reply(message, "The operation succeeded."); }

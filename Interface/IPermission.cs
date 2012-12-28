@@ -4,10 +4,15 @@ namespace Veda.Interface
 {
     public interface IPermission
     {
-        IPermission DefaultAllowed(IBotGroup group, bool allowed);
-        IPermission DefaultTimedLimit(IBotGroup group, ushort limit, TimeSpan timeSpan);
-        IPermission SetAllowed(IBotGroup group, bool allowed);
-        IPermission SetTimedLimit(IBotGroup group, ushort limit, TimeSpan timeSpan);
+        String Name { get; }
+        IBotGroup Group { get; }
+
+        bool Allowed { get; set; }
+        ushort Limit { get; set; }
+        TimeSpan Timespan { get; set; }
+
+        void DefaultAllowed(bool allowed);
+        void DefaultTimedLimit(ushort limit, TimeSpan timeSpan);
 
         bool Check(IBotUser user, bool defaultAllowed = true);
         void CheckThrows(IBotUser user, bool defaultAllowed = true);

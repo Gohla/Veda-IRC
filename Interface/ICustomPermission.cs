@@ -4,8 +4,14 @@ namespace Veda.Interface
 {
     public interface ICustomPermission
     {
-        void Default(IBotGroup group, object value);
-        T Get<T>(IBotUser user);
-        object Get(IBotUser user);
+        String Name { get; }
+        IBotGroup Group { get; }
+    }
+
+    public interface ICustomPermission<T> : ICustomPermission
+    {
+        T Value { get; set; }
+
+        void Default(T value);
     }
 }

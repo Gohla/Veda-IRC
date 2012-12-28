@@ -8,14 +8,14 @@ namespace Veda.Authentication
     public class PermissionManager : IPermissionManager
     {
         private readonly IStorageManager _storage;
-        private readonly Dictionary<Tuple<IPlugin, String>, IPermission> _pluginPermissions = 
-            new Dictionary<Tuple<IPlugin, String>, IPermission>();
-        private readonly Dictionary<Tuple<IPlugin, String>, ICustomPermission> _pluginCustomPermissions =
-            new Dictionary<Tuple<IPlugin, String>, ICustomPermission>();
-        private readonly Dictionary<String, IPermission> _permissions = 
-            new Dictionary<String, IPermission>();
-        private readonly Dictionary<String, ICustomPermission> _customPermissions = 
-            new Dictionary<String, ICustomPermission>();
+        private readonly Dictionary<Tuple<IPlugin, String, IBotGroup>, IPermission> _pluginPermissions =
+            new Dictionary<Tuple<IPlugin, String, IBotGroup>, IPermission>();
+        private readonly Dictionary<Tuple<IPlugin, String, IBotGroup>, ICustomPermission> _pluginCustomPermissions =
+            new Dictionary<Tuple<IPlugin, String, IBotGroup>, ICustomPermission>();
+        private readonly Dictionary<Tuple<String, IBotGroup>, IPermission> _permissions =
+            new Dictionary<Tuple<String, IBotGroup>, IPermission>();
+        private readonly Dictionary<Tuple<String, IBotGroup>, ICustomPermission> _customPermissions =
+            new Dictionary<Tuple<String, IBotGroup>, ICustomPermission>();
 
         public PermissionManager(IStorageManager storage)
         {
@@ -27,52 +27,53 @@ namespace Veda.Authentication
 
         }
 
-        public IPermission GetPermission(ICommand command)
+        public IPermission GetPermission(ICommand command, IBotGroup group)
         {
             String permission = command.Name + "(" + command.ParameterTypes.ToString(", ") + ")";
-            return GetPermission(command.Plugin, permission);
+            return GetPermission(command.Plugin, permission, group);
         }
 
-        public IPermission GetPermission(IPlugin plugin, String permission)
+        public IPermission GetPermission(IPlugin plugin, String name, IBotGroup group)
         {
-            return _pluginPermissions.GetOrCreate(Tuple.Create(plugin, permission), 
-                () => CreatePermission(plugin, permission));
+            return _pluginPermissions.GetOrCreate(Tuple.Create(plugin, name, group),
+                () => CreatePermission(plugin, name, group));
         }
 
-        public ICustomPermission GetCustomPermission(IPlugin plugin, String permission)
+        public ICustomPermission<T> GetCustomPermission<T>(IPlugin plugin, String name, IBotGroup group)
         {
-            return _pluginCustomPermissions.GetOrCreate(Tuple.Create(plugin, permission),
-                () => CreateCustomPermission(plugin, permission));
+            return _pluginCustomPermissions.GetOrCreate(Tuple.Create(plugin, name, group),
+                () => CreateCustomPermission<T>(plugin, name, group)) as ICustomPermission<T>;
         }
 
-        public IPermission GetPermission(String permission)
+        public IPermission GetPermission(String name, IBotGroup group)
         {
-            return _permissions.GetOrCreate(permission, () => CreatePermission(permission));
+            return _permissions.GetOrCreate(Tuple.Create(name, group), () => CreatePermission(name, group));
         }
 
-        public ICustomPermission GetCustomPermission(String permission)
+        public ICustomPermission<T> GetCustomPermission<T>(String name, IBotGroup group)
         {
-            return _customPermissions.GetOrCreate(permission, () => CreateCustomPermission(permission));
+            return _customPermissions.GetOrCreate(Tuple.Create(name, group),
+                () => CreateCustomPermission<T>(name, group)) as ICustomPermission<T>;
         }
 
-        private IPermission CreatePermission(IPlugin plugin, String permission)
+        private IPermission CreatePermission(IPlugin plugin, String name, IBotGroup group)
         {
-            return new Permission(_storage.Global(plugin), permission);
+            return new Permission(_storage.Global(plugin), name, group);
         }
 
-        private IPermission CreatePermission(String permission)
+        private IPermission CreatePermission(String name, IBotGroup group)
         {
-            return new Permission(_storage.Global(), permission);
+            return new Permission(_storage.Global(), name, group);
         }
 
-        private ICustomPermission CreateCustomPermission(IPlugin plugin, String permission)
+        private ICustomPermission CreateCustomPermission<T>(IPlugin plugin, String name, IBotGroup group)
         {
-            return new CustomPermission(_storage.Global(plugin), permission);
+            return new CustomPermission<T>(_storage.Global(plugin), name, group);
         }
 
-        private ICustomPermission CreateCustomPermission(String permission)
+        private ICustomPermission CreateCustomPermission<T>(String name, IBotGroup group)
         {
-            return new CustomPermission(_storage.Global(), permission);
+            return new CustomPermission<T>(_storage.Global(), name, group);
         }
     }
 }

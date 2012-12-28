@@ -39,24 +39,6 @@ namespace Veda.Storage
             LoadConfiguration();
         }
 
-        public T Get<T>(params String[] id)
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                JToken token = GetNested(id);
-                if(token != null)
-                {
-                    return JsonConvert.DeserializeObject<T>(token.ToString(), _settings);
-                }
-                return default(T);
-            }
-            finally
-            {
-                _lock.ExitReadLock();	
-            }
-        }
-
         public object Get(Type type, params String[] id)
         {
             _lock.EnterReadLock();
@@ -68,28 +50,6 @@ namespace Veda.Storage
                     return JsonConvert.DeserializeObject(token.ToString(), type, _settings);
                 }
                 return null;
-            }
-            finally
-            {
-                _lock.ExitReadLock();
-            }
-        }
-
-        public T GetOrCreate<T>(params String[] id)
-            where T : new()
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                JToken token = GetNested(id);
-                if(token != null)
-                {
-                    return JsonConvert.DeserializeObject<T>(token.ToString(), _settings);
-                }
-
-                T obj = new T();
-                SetNested(obj, id);
-                return obj;
             }
             finally
             {

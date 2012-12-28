@@ -5,18 +5,6 @@ namespace Veda.Interface
     public interface IStorage : IDisposable
     {
         /// <summary>
-        /// Gets an object located at given identifier.
-        /// </summary>
-        ///
-        /// <typeparam name="T">Object type to retrieve.</typeparam>
-        /// <param name="id">The identifier.</param>
-        ///
-        /// <returns>
-        /// Retrieved object or default(T) if it was not found.
-        /// </returns>
-        T Get<T>(params String[] id);
-
-        /// <summary>
         /// Gets an object with given type located at given identifier.
         /// </summary>
         ///
@@ -27,18 +15,6 @@ namespace Veda.Interface
         /// Retrieved object or null if it was not found.
         /// </returns>
         object Get(Type type, params String[] id);
-
-        /// <summary>
-        /// Gets an object located at given identifier, or creates a new instance if it does not exist.
-        /// </summary>
-        ///
-        /// <typeparam name="T">Object type to retrieve.</typeparam>
-        /// <param name="id">The identifier.</param>
-        ///
-        /// <returns>
-        /// Retrieved or created object.
-        /// </returns>
-        T GetOrCreate<T>(params String[] id) where T : new();
 
         /// <summary>
         /// Query if an object exists at given identifier.
@@ -78,5 +54,82 @@ namespace Veda.Interface
         /// True if it succeeds, false otherwise.
         /// </returns>
         bool Persist();
+    }
+
+    public static class StorageExtensions
+    {
+        /// <summary>
+        /// Gets an object located at given identifier.
+        /// </summary>
+        ///
+        /// <typeparam name="T">Type of the object.</typeparam>
+        /// <param name="storage">The storage to act on.</param>
+        /// <param name="id">     The identifier.</param>
+        ///
+        /// <returns>
+        /// Retrieved object or null if it was not found or
+        /// </returns>
+        public static T Get<T>(this IStorage storage, params String[] id)
+            where T : class
+        {
+            return storage.Get(typeof(T), id) as T;
+        }
+
+        /// <summary>
+        /// Gets an object located at given identifier.
+        /// </summary>
+        ///
+        /// <typeparam name="T">Type of the object.</typeparam>
+        /// <param name="storage">The storage to act on.</param>
+        /// <param name="id">     The identifier.</param>
+        ///
+        /// <returns>
+        /// Retrieved object or null if it was not found.
+        /// </returns>
+        public static T GetCast<T>(this IStorage storage, params String[] id)
+        {
+            return (T)storage.Get(typeof(T), id);
+        }
+
+        /// <summary>
+        /// Gets an object located at given identifier, or creates a new instance if it does not exist.
+        /// </summary>
+        ///
+        /// <typeparam name="T">Type of the object.</typeparam>
+        /// <param name="storage">The storage to act on.</param>
+        /// <param name="id">     The identifier.</param>
+        ///
+        /// <returns>
+        /// Retrieved or created object.
+        /// </returns>
+        public static T GetOrCreate<T>(this IStorage storage, params String[] id) 
+            where T : class, new()
+        {
+            T obj = storage.Get<T>(id);
+            if(obj == null)
+            {
+                obj = new T();
+                storage.Set(obj, id);
+            }
+            return obj;
+        }
+
+        /// <summary>
+        /// Creates an object located at given identifier and returns it.
+        /// </summary>
+        ///
+        /// <typeparam name="T">Type of the object.</typeparam>
+        /// <param name="storage">The storage to act on.</param>
+        /// <param name="obj">    The object to store.</param>
+        /// <param name="id">     The identifier.</param>
+        ///
+        /// <returns>
+        /// The given object.
+        /// </returns>
+        public static T Create<T>(this IStorage storage, T obj, params String[] id)
+        {
+            storage.Set(obj, id);
+            return obj;
+        }
     }
 }

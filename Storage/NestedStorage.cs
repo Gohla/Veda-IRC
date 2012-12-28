@@ -36,15 +36,6 @@ namespace Veda.Storage
             }
         }
 
-        public T Get<T>(params String[] id)
-        {
-            if(Storage.Exists(id))
-                return Storage.Get<T>(id);
-            if(Parent != null)
-                return Parent.Get<T>(id);
-            return default(T);
-        }
-
         public object Get(Type type, params String[] id)
         {
             if(Storage.Exists(id))
@@ -52,16 +43,6 @@ namespace Veda.Storage
             if(Parent != null)
                 return Parent.Get(type, id);
             return null;
-        }
-
-        public T GetOrCreate<T>(params String[] id) 
-            where T : new()
-        {
-            if(Storage.Exists(id))
-                return Storage.GetOrCreate<T>(id);
-            if(Parent != null)
-                return Parent.GetOrCreate<T>(id);
-            return new T();
         }
 
         public bool Exists(params String[] id)

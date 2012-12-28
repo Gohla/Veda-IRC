@@ -93,14 +93,6 @@ namespace Veda.ConsoleServer
                 .Exported(x => x.As<IPermissionManager>())
                 .SingleInstance()
                 ;
-            builder.RegisterType<Permission>()
-                .As<IPermission>()
-                .Exported(x => x.As<IPermission>())
-                ;
-            builder.RegisterType<CustomPermission>()
-                .As<ICustomPermission>()
-                .Exported(x => x.As<ICustomPermission>())
-                ;
 
             // Veda
             builder.RegisterType<Bot>()

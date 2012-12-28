@@ -36,21 +36,6 @@ namespace Veda.Storage
             Storage.Open(file);
         }
 
-        public T Get<T>(params String[] id)
-        {
-            if(_cache.ContainsKey(FromIdentifier(id)))
-            {
-                return (T)_cache[FromIdentifier(id)];
-            }
-            else
-            {
-                T obj = Storage.Get<T>(id);
-                if(obj != null)
-                    _cache[FromIdentifier(id)] = obj;
-                return obj;
-            }
-        }
-
         public object Get(Type type, params String[] id)
         {
             if(_cache.ContainsKey(FromIdentifier(id)))
@@ -63,21 +48,6 @@ namespace Veda.Storage
                 if(obj != null)
                     _cache[FromIdentifier(id)] = obj;
                 return obj;
-            }
-        }
-
-        public T GetOrCreate<T>(params String[] id) 
-            where T : new()
-        {
-            if(_cache.ContainsKey(FromIdentifier(id)))
-            {
-                return (T)_cache[FromIdentifier(id)];
-            }
-            else
-            {
-                T t = Storage.GetOrCreate<T>(id);
-                _cache[FromIdentifier(id)] = t;
-                return t;
             }
         }
 

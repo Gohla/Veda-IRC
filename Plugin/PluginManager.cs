@@ -69,16 +69,17 @@ namespace Veda.Plugin
                     if(command.DefaultPermissions.Length == 0)
                         continue;
 
-                    IPermission commandPermission = _pluginPermissionManager.GetPermission(command);
                     foreach(PermissionAttribute permission in command.DefaultPermissions)
                     {
                         try
                         {
                             IBotGroup group = _authenticationManager.GetGroup(permission.GroupName);
-                            commandPermission.DefaultAllowed(group, permission.Allowed);
+                            IPermission commandPermission = _pluginPermissionManager.GetPermission(command, group);
+
+                            commandPermission.DefaultAllowed(permission.Allowed);
                             if(permission.Limit != 0 && permission.Timespan != 0)
                             {
-                                commandPermission.DefaultTimedLimit(group, permission.Limit, 
+                                commandPermission.DefaultTimedLimit(permission.Limit, 
                                     TimeSpan.FromMilliseconds(permission.Timespan));
                             }
                         }

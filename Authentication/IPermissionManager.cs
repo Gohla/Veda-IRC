@@ -5,7 +5,7 @@ namespace Veda.Authentication
 {
     public interface IPermissionManager : IPluginPermissionManager
     {
-        IPermission GetPermission(String permission);
-        ICustomPermission GetCustomPermission(String permission);
+        IPermission GetPermission(String name, IBotGroup group);
+        ICustomPermission<T> GetCustomPermission<T>(String name, IBotGroup group);
     }
 }

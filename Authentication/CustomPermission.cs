@@ -4,37 +4,41 @@ using Veda.Interface;
 
 namespace Veda.Authentication
 {
-    public class CustomPermission : ICustomPermission
+    public class CustomPermission<T> : ICustomPermission<T>
     {
         private readonly IStorage _storage;
-        private readonly String _permission;
-        private readonly Dictionary<String, object> _data;
+        private T _defaultData;
+        private T _data;
 
-        public CustomPermission(IStorage storage, String permission)
+        public String Name { get; private set; }
+        public IBotGroup Group { get; private set; }
+
+        public T Value
+        {
+            get
+            {
+                if(_data == null)
+                    return _defaultData;
+                return _data;
+            }
+            set
+            {
+                _data = _storage.Create<T>(Value, Group.Name, Name);
+            }
+        }
+
+        public CustomPermission(IStorage storage, String name, IBotGroup group)
         {
             _storage = storage;
-            _permission = permission;
+            Name = name;
+            Group = group;
 
-            _data = _storage.GetOrCreate<Dictionary<String, object>>(_permission);
+            _data = _storage.GetCast<T>(Group.Name, Name);
         }
 
-        public void Default(IBotGroup group, object value)
+        public void Default(T value)
         {
-            if(!_data.ContainsKey(group.Name))
-                _data.Add(group.Name, value);
-        }
-
-        public T Get<T>(IBotUser user)
-        {
-            return (T)Get(user);
-        }
-
-        public object Get(IBotUser user)
-        {
-            IBotGroup group = user.Group;
-            if(!_data.ContainsKey(group.Name))
-                return null;
-            return _data[group.Name];
+            _defaultData = value;
         }
     }
 }

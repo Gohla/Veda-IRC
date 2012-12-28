@@ -11,86 +11,119 @@ namespace Veda.Authentication
         private static readonly String TIMESPAN_QUALIFIER = "Timespan";
 
         private readonly IStorage _storage;
-        private readonly String _permission;
-
         private readonly Dictionary<IBotUser, ushort> _currentItemsPerTimespan = new Dictionary<IBotUser, ushort>();
         private readonly Dictionary<IBotUser, DateTime> _nextTimeReset = new Dictionary<IBotUser, DateTime>();
+        private readonly NullableRef<bool> _defaultAllowed = new NullableRef<bool>();
+        private readonly NullableRef<ushort> _defaultLimit = new NullableRef<ushort>();
+        private readonly NullableRef<TimeSpan> _defaultTimespan = new NullableRef<TimeSpan>();
+        private NullableRef<bool> _allowed;
+        private NullableRef<ushort> _limit;
+        private NullableRef<TimeSpan> _timespan;
 
-        private readonly Dictionary<String, bool> _defaultAllowed = new Dictionary<String, bool>();
-        private readonly Dictionary<String, ushort> _defaultLimit = new Dictionary<String, ushort>();
-        private readonly Dictionary<String, TimeSpan> _defaultTimespan = new Dictionary<String, TimeSpan>();
-        private Dictionary<String, bool> _allowed;
-        private Dictionary<String, ushort> _limit;
-        private Dictionary<String, TimeSpan> _timespan;
+        public String Name { get; private set; }
+        public IBotGroup Group { get; private set; }
 
-        public Permission(IStorage storage, String permission)
+        public bool Allowed
+        {
+            get
+            {
+                if(_allowed == null || !_allowed.HasValue)
+                    return _defaultAllowed.Value;
+
+                return _allowed.Value;
+            }
+            set
+            {
+                if(_allowed == null)
+                    _allowed = _storage.Create(new NullableRef<bool>(value), Group.Name, Name, ALLOWED_QUALIFIER);
+                else
+                    _allowed.Value = value;
+            }
+        }
+
+        public ushort Limit
+        {
+            get
+            {
+                if(_limit == null || !_limit.HasValue)
+                    return _defaultLimit.Value;
+                else
+                    return _limit.Value;
+            }
+            set
+            {
+                if(_limit == null)
+                    _limit = _storage.Create(new NullableRef<ushort>(value), Group.Name, Name, LIMIT_QUALIFIER);
+                else
+                    _limit.Value = value;
+            }
+        }
+
+        public TimeSpan Timespan
+        {
+            get
+            {
+                if(_timespan == null || !_timespan.HasValue)
+                    return _defaultTimespan.Value;
+                else
+                    return _timespan.Value;
+            }
+            set
+            {
+                if(_timespan == null)
+                    _timespan = _storage.Create(new NullableRef<TimeSpan>(value), Group.Name, Name, TIMESPAN_QUALIFIER);
+                else
+                    _timespan.Value = value;
+            }
+        }
+
+        private bool HasAllowed
+        {
+            get
+            {
+                return (_allowed != null && _allowed.HasValue) || _defaultAllowed.HasValue;
+            }
+        }
+
+        private bool HasLimit
+        {
+            get
+            {
+                return (_limit != null && _limit.HasValue) || _defaultLimit.HasValue;
+            }
+        }
+
+        public Permission(IStorage storage, String name, IBotGroup group)
         {
             _storage = storage;
-            _permission = permission;
+            Name = name;
+            Group = group;
 
-            _allowed = _storage.Get<Dictionary<String, bool>>(_permission, ALLOWED_QUALIFIER);
-            _limit = _storage.Get<Dictionary<String, ushort>>(_permission, LIMIT_QUALIFIER);
-            _timespan = _storage.Get<Dictionary<String, TimeSpan>>(_permission, TIMESPAN_QUALIFIER);
+            _allowed = _storage.Get<NullableRef<bool>>(Group.Name, Name, ALLOWED_QUALIFIER);
+            _limit = _storage.Get<NullableRef<ushort>>(Group.Name, Name, LIMIT_QUALIFIER);
+            _timespan = _storage.Get<NullableRef<TimeSpan>>(Group.Name, Name, TIMESPAN_QUALIFIER);
         }
 
-        public IPermission DefaultAllowed(IBotGroup group, bool allowed)
+        public void DefaultAllowed(bool allowed)
         {
-            if(!_defaultAllowed.ContainsKey(group.Name))
-                _defaultAllowed.Add(group.Name, allowed);
-
-            return this;
+            _defaultAllowed.Value = allowed;
         }
 
-        public IPermission DefaultTimedLimit(IBotGroup group, ushort limit, TimeSpan timeSpan)
+        public void DefaultTimedLimit(ushort limit, TimeSpan timeSpan)
         {
-            if(!_defaultLimit.ContainsKey(group.Name))
-            {
-                _defaultLimit.Add(group.Name, limit);
-                _defaultTimespan.Add(group.Name, timeSpan);
-            }
-
-            return this;
-        }
-
-        public IPermission SetAllowed(IBotGroup group, bool allowed)
-        {
-            if(_allowed == null)
-                _allowed = _storage.GetOrCreate<Dictionary<String, bool>>(_permission, ALLOWED_QUALIFIER);
-
-            if(!_allowed.ContainsKey(group.Name))
-                _allowed.Add(group.Name, allowed);
-
-            return this;
-        }
-
-        public IPermission SetTimedLimit(IBotGroup group, ushort limit, TimeSpan timeSpan)
-        {
-            if(_limit == null)
-            {
-                _limit = _storage.GetOrCreate<Dictionary<String, ushort>>(_permission, LIMIT_QUALIFIER);
-                _timespan = _storage.GetOrCreate<Dictionary<String, TimeSpan>>(_permission, TIMESPAN_QUALIFIER);
-            }
-
-            if(!_limit.ContainsKey(group.Name))
-            {
-                _limit.Add(group.Name, limit);
-                _timespan.Add(group.Name, timeSpan);
-            }
-
-            return this;
+            _defaultLimit.Value = limit;
+            _defaultTimespan.Value = timeSpan;
         }
 
         public bool Check(IBotUser user, bool defaultAllowed = true)
         {
-            IBotGroup group = user.Group;
-
-            if(!HasAllowed(group))
+            if(!HasAllowed)
                 return defaultAllowed;
 
-            if(!PeekAllowed(group))
+            if(!Allowed)
                 return false;
 
-            if(!HasLimit(group))
+            if(!HasLimit)
                 return defaultAllowed;
 
             CheckLimitReset(user);
@@ -100,18 +133,16 @@ namespace Veda.Authentication
 
         public void CheckThrows(IBotUser user, bool defaultAllowed = true)
         {
-            IBotGroup group = user.Group;
-
-            if(!HasAllowed(group))
+            if(!HasAllowed)
                 if(defaultAllowed)
                     return;
                 else
                     throw new InvalidOperationException("Not allowed.");
 
-            if(!PeekAllowed(group))
+            if(!Allowed)
                 throw new InvalidOperationException("Not allowed.");
 
-            if(!HasLimit(group))
+            if(!HasLimit)
                 if(defaultAllowed)
                     return;
                 else
@@ -123,31 +154,13 @@ namespace Veda.Authentication
                 throw new InvalidOperationException("Not allowed, too many attempts.");
         }
 
-        private bool HasAllowed(IBotGroup group)
-        {
-            return (_allowed != null && _allowed.ContainsKey(group.Name)) || _defaultAllowed.ContainsKey(group.Name);
-        }
-
-        private bool PeekAllowed(IBotGroup group)
-        {
-            if(_allowed == null || !_allowed.ContainsKey(group.Name))
-                return _defaultAllowed[group.Name];
-
-            return _allowed[group.Name];
-        }
-
-        private bool HasLimit(IBotGroup group)
-        {
-            return (_limit != null && _limit.ContainsKey(group.Name)) || _defaultLimit.ContainsKey(group.Name);
-        }
-
         private void CheckLimitReset(IBotUser user)
         {
             TimeSpan timespan;
-            if(_timespan == null || !_timespan.ContainsKey(user.Group.Name))
-                timespan = _defaultTimespan[user.Group.Name];
+            if(_timespan == null || !_timespan.HasValue)
+                timespan = _defaultTimespan.Value;
             else
-                timespan = _timespan[user.Group.Name];
+                timespan = _timespan.Value;
 
             if(DateTime.Now >= _nextTimeReset.GetOrCreate(user, () => DateTime.MinValue))
             {
@@ -159,10 +172,10 @@ namespace Veda.Authentication
         private bool PeekLimit(IBotUser user)
         {
             ushort limit;
-            if(_limit == null || !_limit.ContainsKey(user.Group.Name))
-                limit = _defaultLimit[user.Group.Name];
+            if(_limit == null || !_limit.HasValue)
+                limit = _defaultLimit.Value;
             else
-                limit = _limit[user.Group.Name];
+                limit = _limit.Value;
 
             if(_currentItemsPerTimespan.GetOrCreate(user, () => (ushort)0) < limit)
             {

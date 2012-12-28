@@ -87,6 +87,9 @@ namespace Veda.ConsoleServer
             command.Add(CommandBuilder.CreateConverter<String, IChannelUser, ConversionContext>(
                 (str, context) => (context.Message.Receiver as IChannel).GetUser(str))
             );
+            command.Add(CommandBuilder.CreateConverter<String, IdentityMask, ConversionContext>(
+                (str, context) => IdentityMask.Parse(str))
+            );
 
             // Create authentication manager
             IAuthenticationManager authentication = CompositionManager.Get<IAuthenticationManager>();

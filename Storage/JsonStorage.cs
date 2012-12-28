@@ -147,6 +147,9 @@ namespace Veda.Storage
             if(_file == null)
                 return false;
 
+            if(_storage.Properties().Count() == 0)
+                return false;
+
             if(!Directory.Exists(_path))
                 Directory.CreateDirectory(_path);
 

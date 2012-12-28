@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NLog;
 using ReactiveIRC.Interface;
 using Veda.Authentication.Configuration;
@@ -49,7 +50,8 @@ namespace Veda.Authentication
                 }
                 else
                 {
-                    _users.Add(data.Username, new BotUser(data.Username, data.Password, _groups[data.GroupName]));
+                    _users.Add(data.Username, new BotUser(data.Username, data.Password, _groups[data.GroupName], 
+                        data.Masks));
                 }
             }
         }
@@ -70,7 +72,7 @@ namespace Veda.Authentication
             if(String.IsNullOrWhiteSpace(password))
                 throw new ArgumentException("Password cannot be null, empty or whitespace.", "password");
 
-            IBotUser botUser = new BotUser(username, password, Registered);
+            IBotUser botUser = new BotUser(username, password, Registered, Enumerable.Empty<IdentityMask>());
             _users.Add(username, botUser);
             _userData.Add(username, new UserData { Username = username, Password = password, 
                 GroupName = Registered.Name });
@@ -102,9 +104,13 @@ namespace Veda.Authentication
         {
             if(!IsIdentified(user))
             {
+                IBotUser maskUser = TryIdentityMask(user);
+                if(maskUser != null)
+                    return maskUser;
+
                 if(!_guests.ContainsKey(user))
                 {
-                    IBotUser guest = new BotUser("Guest", String.Empty, Guest);
+                    IBotUser guest = new BotUser("Guest", String.Empty, Guest, Enumerable.Empty<IdentityMask>());
                     _guests.Add(user, guest);
                     return guest;
                 }
@@ -128,7 +134,24 @@ namespace Veda.Authentication
 
         public bool IsIdentified(IUser user)
         {
+            IBotUser maskUser = TryIdentityMask(user);
+            if(maskUser != null)
+                return true;
+
             return _identifiedUsers.ContainsKey(user);
+        }
+
+        private IBotUser TryIdentityMask(IUser user)
+        {
+            // TODO: Expensive!
+            return _users
+                .Select(u => u.Value)
+                .FirstOrDefault(
+                    u => !u.Masks
+                        .Where(m => m.Match(user.Identity))
+                        .IsEmpty()
+                )
+                ;
         }
     }
 }

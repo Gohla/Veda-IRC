@@ -93,6 +93,14 @@ namespace Veda.Authentication
             }
         }
 
+        private bool HasTimespan
+        {
+            get
+            {
+                return (_timespan != null && _timespan.HasValue) || _defaultTimespan.HasValue;
+            }
+        }
+
         public Permission(IStorage storage, String name, IBotGroup group)
         {
             _storage = storage;
@@ -123,7 +131,7 @@ namespace Veda.Authentication
             if(!Allowed)
                 return false;
 
-            if(!HasLimit)
+            if(!HasLimit || !HasTimespan)
                 return defaultAllowed;
 
             CheckLimitReset(user);
@@ -142,7 +150,7 @@ namespace Veda.Authentication
             if(!Allowed)
                 throw new InvalidOperationException("Not allowed.");
 
-            if(!HasLimit)
+            if(!HasLimit || !HasTimespan)
                 if(defaultAllowed)
                     return;
                 else

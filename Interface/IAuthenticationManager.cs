@@ -12,7 +12,9 @@ namespace Veda.Interface
         IBotGroup Owner { get; }
 
         IBotUser Register(IUser user, String username, String password);
+        void Unregister(IUser user, IBotUser botUser, String username, String password);
         IBotUser Identify(IUser user, String username, String password);
+        void Unidentify(IUser user);
         IBotUser GetUser(IUser user);
         IBotGroup GetGroup(String name);
         bool IsIdentified(IUser user);

@@ -93,6 +93,18 @@ namespace Veda.Authentication
             return botUser;
         }
 
+        public void Unregister(IUser user, IBotUser botUser, String username, String password)
+        {
+            if(!botUser.Username.Equals(username))
+                throw new ArgumentException("Incorrect username.", "username");
+
+            if(!botUser.CheckPassword(password))
+                throw new ArgumentException("Incorrect password.", "password");
+
+            _identifiedUsers.Remove(user);
+            _users.Remove(botUser.Username);
+        }
+
         public IBotUser Identify(IUser user, String username, String password)
         {
             if(IsIdentified(user))
@@ -111,6 +123,14 @@ namespace Veda.Authentication
             _identifiedUsers.Add(user, botUser);
 
             return botUser;
+        }
+
+        public void Unidentify(IUser user)
+        {
+            if(!IsIdentified(user))
+                throw new InvalidOperationException("User is not identified.");
+
+            _identifiedUsers.Remove(user);
         }
 
         public IBotUser GetUser(IUser user)

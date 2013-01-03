@@ -136,15 +136,19 @@ namespace Veda
 
                     IUser user = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
                     IBotUser botUser = _authentication.GetUser(user);
-                    IPermission permission = _permission.GetPermission(callable.Command, botUser.Group);
 
-                    if(callable.Command.DefaultPermissions.Length > 0)
+                    if(_permission.HasPermission(callable.Command, botUser.Group))
                     {
-                        permission.CheckThrows(botUser, false);
-                    }
-                    else
-                    {
-                        permission.CheckThrows(botUser, true);
+                        IPermission permission = _permission.GetPermission(callable.Command, botUser.Group);
+
+                        if(callable.Command.DefaultPermissions.Length > 0)
+                        {
+                            permission.CheckThrows(botUser, false);
+                        }
+                        else
+                        {
+                            permission.CheckThrows(botUser, true);
+                        }
                     }
 
                     IChannel channel = message.Receiver as IChannel;

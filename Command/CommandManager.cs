@@ -26,6 +26,7 @@ namespace Veda.Command
             _parser = parser;
 
             // Add default converters
+            Add(CommandBuilder.CreateConverter<String, Boolean>(s => Boolean.Parse(s)));
             Add(CommandBuilder.CreateConverter<String, Char>(s => Char.Parse(s)));
             Add(CommandBuilder.CreateConverter<String, UInt16>(s => UInt16.Parse(s)));
             Add(CommandBuilder.CreateConverter<String, UInt32>(s => UInt32.Parse(s)));
@@ -46,6 +47,11 @@ namespace Veda.Command
         {
             object[] dummy;
             return ResolveNames(new object[] { name }, true, out dummy);
+        }
+
+        public ICommand GetUnambigousCommand(String name)
+        {
+            return GetUnambigousCommands(name).Single();
         }
 
         public IEnumerable<ICommand> GetCommands(IPlugin plugin)

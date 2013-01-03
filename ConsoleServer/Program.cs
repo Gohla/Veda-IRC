@@ -73,6 +73,9 @@ namespace Veda.ConsoleServer
 
             // Create command manager
             ICommandManager command = CompositionManager.Get<ICommandManager>();
+            command.Add(CommandBuilder.CreateConverter<String, ICommand, ConversionContext>(
+                (str, context) => context.Bot.Command.GetUnambigousCommand(str))
+            );
             command.Add(CommandBuilder.CreateConverter<String, IEnumerable<ICommand>, ConversionContext>(
                 (str, context) => context.Bot.Command.GetUnambigousCommands(str))
             );

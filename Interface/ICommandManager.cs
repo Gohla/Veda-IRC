@@ -7,6 +7,7 @@ namespace Veda.Interface
     {
         IEnumerable<ICommand> GetCommands(String name);
         IEnumerable<ICommand> GetUnambigousCommands(String name);
+        ICommand GetUnambigousCommand(String name);
         IEnumerable<ICommand> GetCommands(IPlugin plugin);
         IEnumerable<ICommand> GetCommands(String pluginName, String name);
         IEnumerable<ICommand> GetCommands(String name, params Type[] argumentTypes);

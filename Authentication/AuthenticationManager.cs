@@ -33,6 +33,9 @@ namespace Veda.Authentication
         public IBotGroup Administrator { get; private set; }
         public IBotGroup Owner { get; private set; }
 
+        public IEnumerable<IBotGroup> Groups { get { return _groups.Values; } }
+        public IEnumerable<IBotUser> Users { get { return _users.Values; } }
+
         public AuthenticationManager(IStorageManager storageManager)
         {
             _storageManager = storageManager;

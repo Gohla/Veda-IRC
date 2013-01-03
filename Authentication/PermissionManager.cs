@@ -45,6 +45,22 @@ namespace Veda.Authentication
                 () => CreateCustomPermission<T>(plugin, name, group)) as ICustomPermission<T>;
         }
 
+        public bool HasPermission(ICommand command, IBotGroup group)
+        {
+            String permission = command.Name + "(" + command.ParameterTypes.ToString(", ") + ")";
+            return HasPermission(command.Plugin, permission, group);
+        }
+
+        public bool HasPermission(IPlugin plugin, String name, IBotGroup group)
+        {
+            return _pluginPermissions.ContainsKey(Tuple.Create(plugin, name, group));
+        }
+
+        public bool HasCustomPermission(IPlugin plugin, String name, IBotGroup group)
+        {
+            return _pluginCustomPermissions.ContainsKey(Tuple.Create(plugin, name, group));
+        }
+
         public IPermission GetPermission(String name, IBotGroup group)
         {
             return _permissions.GetOrCreate(Tuple.Create(name, group), () => CreatePermission(name, group));

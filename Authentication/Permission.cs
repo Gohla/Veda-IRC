@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ReactiveIRC.Interface;
 using Veda.Interface;
 
 namespace Veda.Authentication
@@ -190,6 +191,18 @@ namespace Veda.Authentication
 
             ++_currentItemsPerTimespan[user];
             return false;
+        }
+
+        public override String ToString()
+        {
+            return String.Concat(
+                ControlCodes.Bold(Group.Name)
+              , " - "
+              , "Allowed: "
+              , Allowed.ToString()
+              , HasLimit ? (", Limit: " + Limit.ToString()) : String.Empty
+              , HasTimespan ? (", Timespan: " + Timespan.ToString()) : String.Empty
+            );
         }
     }
 }

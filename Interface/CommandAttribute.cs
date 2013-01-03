@@ -7,11 +7,6 @@ namespace Veda.Interface
     {
         public String Name;
         public String Description;
-        public bool Private;
-
-        public CommandAttribute()
-        {
-            Private = false;
-        }
+        public bool Private = false;
     }
 }

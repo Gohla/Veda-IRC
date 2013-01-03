@@ -15,8 +15,11 @@ namespace Veda.Interface
         void Unregister(IUser user, IBotUser botUser, String username, String password);
         IBotUser Identify(IUser user, String username, String password);
         void Unidentify(IUser user);
+
         IBotUser GetUser(IUser user);
+        IBotUser GetUser(String name);
         IBotGroup GetGroup(String name);
+
         bool IsIdentified(IUser user);
 
         void AddMask(IBotUser user, IdentityMask mask);

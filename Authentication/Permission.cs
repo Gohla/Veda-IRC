@@ -132,7 +132,7 @@ namespace Veda.Authentication
                 return false;
 
             if(!HasLimit || !HasTimespan)
-                return defaultAllowed;
+                return true;
 
             CheckLimitReset(user);
 
@@ -151,10 +151,7 @@ namespace Veda.Authentication
                 throw new InvalidOperationException("Not allowed.");
 
             if(!HasLimit || !HasTimespan)
-                if(defaultAllowed)
-                    return;
-                else
-                    throw new InvalidOperationException("Not allowed.");
+                return;
 
             CheckLimitReset(user);
 

@@ -7,10 +7,22 @@ namespace Veda.Authentication
     public class BotGroup : IBotGroup
     {
         public String Name { get; private set; }
+        public int PrivilegeLevel { get; private set; }
 
-        public BotGroup(String name)
+        public BotGroup(String name, int privilegeLevel)
         {
             Name = name;
+            PrivilegeLevel = privilegeLevel;
+        }
+
+        public bool IsMorePrivileged(IBotGroup other)
+        {
+            return this.PrivilegeLevel > other.PrivilegeLevel;
+        }
+
+        public bool IsMoreOrSamePrivileged(IBotGroup other)
+        {
+            return this.PrivilegeLevel >= other.PrivilegeLevel;
         }
 
         public int CompareTo(IBotGroup other)
@@ -19,7 +31,7 @@ namespace Veda.Authentication
         		return 1;
         
         	int result = 0;
-        	result = this.Name.CompareTo(other.Name);
+            result = this.Name.CompareTo(other.Name);
         	return result;
         }
         

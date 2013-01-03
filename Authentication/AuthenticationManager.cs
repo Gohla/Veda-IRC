@@ -16,7 +16,8 @@ namespace Veda.Authentication
 
         private readonly IStorageManager _storageManager;
         private readonly Dictionary<String, IBotUser> _users = new Dictionary<String, IBotUser>();
-        private readonly Dictionary<String, IBotGroup> _groups = new Dictionary<String, IBotGroup>();
+        private readonly Dictionary<String, IBotGroup> _groups = new Dictionary<String, IBotGroup>(
+            StringComparer.OrdinalIgnoreCase);
 
         private readonly MultiValueDictionary<IBotUser, IdentityMask> _masks =
             new MultiValueDictionary<IBotUser, IdentityMask>();
@@ -36,10 +37,10 @@ namespace Veda.Authentication
         {
             _storageManager = storageManager;
 
-            Guest = new BotGroup(GroupNames.Guest);
-            Registered = new BotGroup(GroupNames.Registered);
-            Administrator = new BotGroup(GroupNames.Administrator);
-            Owner = new BotGroup(GroupNames.Owner);
+            Guest = new BotGroup(GroupNames.Guest, 0);
+            Registered = new BotGroup(GroupNames.Registered, 10);
+            Administrator = new BotGroup(GroupNames.Administrator, 20);
+            Owner = new BotGroup(GroupNames.Owner, 30);
 
             _groups.Add(Guest.Name, Guest);
             _groups.Add(Registered.Name, Registered);
@@ -158,6 +159,14 @@ namespace Veda.Authentication
             {
                 return _identifiedUsers[user];
             }
+        }
+
+        public IBotUser GetUser(String name)
+        {
+            if(!_users.ContainsKey(name))
+                throw new ArgumentException("User with name " + name + " does not exist.", "user");
+
+            return _users[name];
         }
 
         public IBotGroup GetGroup(String name)

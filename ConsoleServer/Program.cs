@@ -94,6 +94,12 @@ namespace Veda.ConsoleServer
             command.Add(CommandBuilder.CreateConverter<String, IIdentity, ConversionContext>(
                 (str, context) => Identity.Parse(str))
             );
+            command.Add(CommandBuilder.CreateConverter<String, IBotGroup, ConversionContext>(
+                (str, context) => context.Bot.Authentication.GetGroup(str))
+            );
+            command.Add(CommandBuilder.CreateConverter<String, IBotUser, ConversionContext>(
+                (str, context) => context.Bot.Authentication.GetUser(str))
+            );
 
             // Create authentication manager
             IAuthenticationManager authentication = CompositionManager.Get<IAuthenticationManager>();

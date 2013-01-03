@@ -9,7 +9,7 @@ namespace Veda.Authentication
     {
         public String Username { get; private set; }
         public String HashedPassword { get; private set; }
-        public IBotGroup Group { get; private set; }
+        public IBotGroup Group { get; set; }
 
         public BotUser(String username, String password, IBotGroup group, bool hash = true)
         {

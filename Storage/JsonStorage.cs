@@ -173,14 +173,14 @@ namespace Veda.Storage
             if(id == null || id.Length == 0)
                 throw new ArgumentException("Identifier cannot be null or empty.", "id");
 
-            JToken token = _storage;
-            foreach(String d in id)
+            JObject jObject = _storage;
+            foreach(String d in id.Take(id.Length - 1))
             {
-                token = token[d];
-                if(token == null)
+                jObject = jObject[d] as JObject;
+                if(jObject == null)
                     return null;
             }
-            return token;
+            return jObject[id[id.Length - 1]];
         }
 
         private void SetNested(object obj, params String[] id)
@@ -188,17 +188,21 @@ namespace Veda.Storage
             if(id == null || id.Length == 0)
                 throw new ArgumentException("Identifier cannot be null or empty.", "id");
 
-            JToken token = _storage;
-            foreach(String d in id.SkipLast(1))
+            JObject jObject = _storage;
+            foreach(String d in id.Take(id.Length - 1))
             {
-                JToken newToken = token[d];
-                if(newToken == null)
-                    token[d] = new JObject();
+                JObject innerJObject = jObject[d] as JObject;
+                if(innerJObject == null)
+                {
+                    JObject newJObject = new JObject();
+                    jObject[d] = newJObject;
+                    jObject = newJObject;
+                }
                 else
-                    token = newToken;
+                    jObject = innerJObject;
             }
 
-            token[id[id.Length - 1]] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
+            jObject[id[id.Length - 1]] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
         }
     }
 }

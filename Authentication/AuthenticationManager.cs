@@ -18,7 +18,7 @@ namespace Veda.Authentication
         private readonly Dictionary<String, IBotUser> _users = new Dictionary<String, IBotUser>();
         private readonly Dictionary<String, IBotGroup> _groups = new Dictionary<String, IBotGroup>();
 
-        private readonly MultiValueDictionary<IBotUser, IdentityMask> _masks = 
+        private readonly MultiValueDictionary<IBotUser, IdentityMask> _masks =
             new MultiValueDictionary<IBotUser, IdentityMask>();
         private readonly HashSet<IdentityMask> _allMasks;
 
@@ -56,7 +56,7 @@ namespace Veda.Authentication
                 }
                 else
                 {
-                    IBotUser user = new BotUser(data.Username, data.Password, _groups[data.GroupName]);
+                    IBotUser user = new BotUser(data.Username, data.Password, _groups[data.GroupName], false);
                     _users.Add(data.Username, user);
                     _masks.Set(user, data.Masks);
                 }
@@ -83,8 +83,12 @@ namespace Veda.Authentication
 
             IBotUser botUser = new BotUser(username, password, Registered);
             _users.Add(username, botUser);
-            _userData.Add(username, new UserData { Username = username, Password = password, 
-                GroupName = Registered.Name });
+            _userData.Add(username, new UserData
+            {
+                Username = botUser.Username, 
+                Password = botUser.HashedPassword,
+                GroupName = botUser.Group.Name
+            });
             _identifiedUsers.Add(user, botUser);
             return botUser;
         }

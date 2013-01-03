@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using ReactiveIRC.Interface;
+using Gohla.Shared;
 using Veda.Interface;
 
 namespace Veda.Authentication
 {
     public class BotUser : IBotUser
     {
-        private String _password;
-
         public String Username { get; private set; }
+        public String HashedPassword { get; private set; }
         public IBotGroup Group { get; private set; }
 
-        public BotUser(String username, String password, IBotGroup group)
+        public BotUser(String username, String password, IBotGroup group, bool hash = true)
         {
             Username = username;
-            _password = password;
+            HashedPassword = hash ? PasswordHash.CreateHash(password) : password;
             Group = group;
         }
 
         public bool CheckPassword(String password)
         {
-            return _password.Equals(password);
+            return PasswordHash.ValidatePassword(password, HashedPassword);
         }
 
         public int CompareTo(IBotUser other)

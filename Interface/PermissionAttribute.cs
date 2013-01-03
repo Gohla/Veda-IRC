@@ -24,7 +24,7 @@ namespace Veda.Interface
         /// <summary>
         /// The limit timespan in milliseconds.
         /// </summary>
-        public long Timespan;
+        public ulong Timespan;
 
         /// <summary>
         /// Constructor.

@@ -108,7 +108,22 @@ namespace Veda.Storage
                 return false;
 
             if(_storage.Properties().Count() == 0)
+            {
+                if(File.Exists(_file))
+                {
+                    try
+                    {
+                        File.Delete(_file);
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+
                 return false;
+            }
 
             if(!Directory.Exists(_path))
                 Directory.CreateDirectory(_path);

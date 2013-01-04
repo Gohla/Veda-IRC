@@ -92,7 +92,7 @@ namespace Veda.Storage
                 JToken token = GetNested(id);
                 if(token != null)
                 {
-                    token.Remove();
+                    token.Parent.Remove();
                     return true;
                 }
                 return false;

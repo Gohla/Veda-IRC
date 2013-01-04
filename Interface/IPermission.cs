@@ -11,9 +11,9 @@ namespace Veda.Interface
         ushort Limit { get; set; }
         TimeSpan Timespan { get; set; }
 
-        bool HasAllowed { get; }
-        bool HasLimit { get; }
-        bool HasTimespan { get; }
+        bool HasAllowed { get; set; }
+        bool HasLimit { get; set; }
+        bool HasTimespan { get; set; }
 
         void DefaultAllowed(bool allowed);
         void DefaultTimedLimit(ushort limit, TimeSpan timeSpan);

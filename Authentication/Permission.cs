@@ -84,6 +84,14 @@ namespace Veda.Authentication
             {
                 return (_allowed != null && _allowed.HasValue) || _defaultAllowed.HasValue;
             }
+            set
+            {
+                if(!value)
+                {
+                    _allowed = null;
+                    _storage.Remove(Group.Name, Name, ALLOWED_QUALIFIER);
+                }
+            }
         }
 
         public bool HasLimit
@@ -92,6 +100,14 @@ namespace Veda.Authentication
             {
                 return (_limit != null && _limit.HasValue) || _defaultLimit.HasValue;
             }
+            set
+            {
+                if(!value)
+                {
+                    _limit = null;
+                    _storage.Remove(Group.Name, Name, LIMIT_QUALIFIER);
+                }
+            }
         }
 
         public bool HasTimespan
@@ -99,6 +115,14 @@ namespace Veda.Authentication
             get
             {
                 return (_timespan != null && _timespan.HasValue) || _defaultTimespan.HasValue;
+            }
+            set
+            {
+                if(!value)
+                {
+                    _timespan = null;
+                    _storage.Remove(Group.Name, Name, TIMESPAN_QUALIFIER);
+                }
             }
         }
 

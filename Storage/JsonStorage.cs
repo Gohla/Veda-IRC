@@ -19,6 +19,7 @@ namespace Veda.Storage
         public JsonStorage()
         {
             _settings.TypeNameHandling = TypeNameHandling.Auto;
+            _settings.Converters.Add(new NullableRefConverter());
         }
 
         ~JsonStorage()
@@ -47,7 +48,7 @@ namespace Veda.Storage
                 JToken token = GetNested(id);
                 if(token != null)
                 {
-                    return JsonConvert.DeserializeObject(token.ToString(), type, _settings);
+                    return JsonConvert.DeserializeObject(token.ToString(), type, new NullableRefConverter());
                 }
                 return null;
             }
@@ -202,7 +203,7 @@ namespace Veda.Storage
                     jObject = innerJObject;
             }
 
-            jObject[id[id.Length - 1]] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, _settings));
+            jObject[id[id.Length - 1]] = JToken.Parse(JsonConvert.SerializeObject(obj, Formatting.Indented, new NullableRefConverter()));
         }
     }
 }

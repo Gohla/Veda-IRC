@@ -78,7 +78,7 @@ namespace Veda.Authentication
             }
         }
 
-        private bool HasAllowed
+        public bool HasAllowed
         {
             get
             {
@@ -86,7 +86,7 @@ namespace Veda.Authentication
             }
         }
 
-        private bool HasLimit
+        public bool HasLimit
         {
             get
             {
@@ -94,7 +94,7 @@ namespace Veda.Authentication
             }
         }
 
-        private bool HasTimespan
+        public bool HasTimespan
         {
             get
             {

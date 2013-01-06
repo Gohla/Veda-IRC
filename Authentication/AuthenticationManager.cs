@@ -62,7 +62,7 @@ namespace Veda.Authentication
                 {
                     IBotUser user = new BotUser(data.Username, data.Password, _groups[data.GroupName], false);
                     _users.Add(data.Username, user);
-                    _masks.Set(user, data.Masks);
+                    _masks[user] = data.Masks;
                 }
             }
 
@@ -222,7 +222,7 @@ namespace Veda.Authentication
         private IBotUser TryIdentityMask(IUser user)
         {
             // TODO: Expensive!
-            return _masks
+            return _masks.Pairs
                 .Where(p => p.Value.Match(user.Identity))
                 .Select(p => p.Key)
                 .FirstOrDefault()

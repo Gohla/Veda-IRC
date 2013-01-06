@@ -40,7 +40,7 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> GetCommands(String name)
         {
-            return _ambiguousCommands.Get(name);
+            return _ambiguousCommands[name];
         }
 
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
@@ -56,17 +56,17 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> GetCommands(IPlugin plugin)
         {
-            return _pluginCommands.Get(plugin);
+            return _pluginCommands[plugin];
         }
 
         public IEnumerable<ICommand> GetCommands(String pluginName, String name)
         {
-            return _nameQualifiedCommands.Get(new QualifiedName(pluginName, name));
+            return _nameQualifiedCommands[new QualifiedName(pluginName, name)];
         }
 
         public IEnumerable<ICommand> GetCommands(String name, params Type[] argumentTypes)
         {
-            return _typesQualifiedCommands.Get(new QualifiedTypes(name, argumentTypes));
+            return _typesQualifiedCommands[new QualifiedTypes(name, argumentTypes)];
         }
 
         public ICommand GetCommand(String pluginName, String name, params Type[] argumentTypes)

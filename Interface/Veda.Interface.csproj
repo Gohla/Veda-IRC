@@ -61,6 +61,7 @@
     <Compile Include="IPluginStorageManager.cs" />
     <Compile Include="IStorage.cs" />
     <Compile Include="LoadedAttribute.cs" />
+    <Compile Include="CommandExceptions.cs" />
     <Compile Include="PermissionAttribute.cs" />
     <Compile Include="PluginAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

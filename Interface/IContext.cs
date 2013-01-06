@@ -3,6 +3,14 @@ using ReactiveIRC.Interface;
 
 namespace Veda.Interface
 {
+    public enum ReplyForm
+    {
+        Echo
+      , Reply
+      , Action
+      , Notice
+    }
+
     public interface IContext
     {
         IBot Bot { get; }
@@ -17,6 +25,7 @@ namespace Veda.Interface
 
         IConversionContext ConversionContext { get; }
         ushort CallDepth { get; set; }
+        ReplyForm ReplyForm { get; set; }
 
         IObservable<object> Evaluate(object result);
     }

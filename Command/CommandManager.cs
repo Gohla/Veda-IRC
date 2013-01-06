@@ -180,85 +180,58 @@ namespace Veda.Command
         {
             if(arguments.Length == 0)
             {
-                throw new ArgumentException("No command name was given.", "arguments");
+                throw new NoCommandNameException();
             }
             else if(arguments.Length == 1)
             {
-                IEnumerable<ICommand> candidates = GetCommands((String)arguments[0]);
-                if(candidates.IsEmpty())
-                    throw new ArgumentException("Command with name " + arguments[0] + " does not exist.", "arguments");
-
-                // Check for a name ambiguity.
-                IPlugin[] ambiguity = candidates.Select(c => c.Plugin).Distinct().ToArray();
-                if(ambiguity.Length > 1)
-                {
-                    throw new ArgumentException("Command with name " + arguments[0]
-                        + " exists in multiple plugins: " + ambiguity.ToString(", ") + ". ",
-                        "arguments");
-                }
-
-                newArguments = arguments.Skip(1).ToArray(); // TODO: more efficient array skipping.
+                IEnumerable<ICommand> candidates = ResolveUnqualifiedNames(arguments[0].ToString());
+                newArguments = arguments.Skip(1).ToArray(); // TODO: More efficient array skipping.
                 return candidates;
             }
             else
             {
                 if(qualify)
                 {
-                    IEnumerable<ICommand> candidates = ResolveQualifiedNames(arguments);
-                    if(candidates.IsEmpty())
-                    {
-                        throw new ArgumentException("Command with name " + arguments[1]
-                            + " does not exist in plugin " + arguments[0] + ".",
-                            "arguments");
-                    }
+                    IEnumerable<ICommand> candidates = ResolveQualifiedNames(arguments[0].ToString(), arguments[1].ToString());
                     newArguments = arguments.Skip(2).ToArray(); // TODO: More efficient array skipping.
                     return candidates;
                 }
                 else
                 {
-                    IEnumerable<ICommand> candidates = ResolveUnqualifiedNames(arguments);
-                    if(candidates.IsEmpty())
-                    {
-                        throw new ArgumentException("Command with name " + arguments[0] + " does not exist.",
-                            "arguments");
-                    }
+                    IEnumerable<ICommand> candidates = ResolveUnqualifiedNames(arguments[0].ToString());
                     newArguments = arguments.Skip(1).ToArray(); // TODO: More efficient array skipping.
                     return candidates;
                 }
             }
         }
 
-        private IEnumerable<ICommand> ResolveUnqualifiedNames(object[] arguments)
+        private IEnumerable<ICommand> ResolveUnqualifiedNames(String commandName)
         {
-            IEnumerable<ICommand> candidates = GetCommands((String)arguments[0]);
+            IEnumerable<ICommand> candidates = GetCommands(commandName);
             if(!candidates.IsEmpty())
             {
                 // Check for a name ambiguity.
-                IPlugin[] ambiguity = candidates.Select(c => c.Plugin).Distinct().ToArray();
+                IPlugin[] ambiguity = candidates
+                    .Select(c => c.Plugin)
+                    .Distinct()
+                    .ToArray()
+                    ;
                 if(ambiguity.Length > 1)
-                {
-                    throw new ArgumentException("Command with name " + arguments[0]
-                        + " exists in multiple plugins: " + ambiguity.ToString(", ") + ". ",
-                        "arguments");
-                }
+                    throw new AmbiguousCommandsException(commandName, ambiguity);
                 else
-                {
                     return candidates;
-                }
             }
-
-            return Enumerable.Empty<ICommand>();
+            else
+                throw new NoCommandException(commandName);
         }
 
-        private IEnumerable<ICommand> ResolveQualifiedNames(object[] arguments)
+        private IEnumerable<ICommand> ResolveQualifiedNames(String pluginName, String commandName)
         {
-            IEnumerable<ICommand> candidates = GetCommands((String)arguments[0], (String)arguments[1]);
+            IEnumerable<ICommand> candidates = GetCommands(pluginName, commandName);
             if(!candidates.IsEmpty())
-            {
                 return candidates;
-            }
-
-            return Enumerable.Empty<ICommand>();
+            else
+                throw new NoCommandException(commandName, pluginName);
         }
 
         private ICallable ResolveTypes(object conversionContext, object[] arguments, 

@@ -20,6 +20,7 @@ namespace Veda
 
         public IConversionContext ConversionContext { get; set; }
         public ushort CallDepth { get; set; }
+        public ReplyForm ReplyForm { get; set; }
 
         public IObservable<object> Evaluate(object result)
         {

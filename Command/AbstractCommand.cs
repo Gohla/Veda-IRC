@@ -96,8 +96,7 @@ namespace Veda.Command
                 "(" 
               + ControlCodes.Bold
               (
-                "~"
-              + this.Name.ToLower()
+                this.Name.ToLower()
               + (ParameterTypes.Length == 0 ? String.Empty : " ")
               + String.Join(", ", ParameterTypes.Zip(ParameterNames, (t, n) => "<" + n + ":" + t.Name + ">"))
               )

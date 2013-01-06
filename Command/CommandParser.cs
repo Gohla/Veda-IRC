@@ -33,7 +33,6 @@ namespace Veda.Command
         
         private readonly CommandGrammarParser _parser;
         private readonly ParseAnalyzer _analyzer = new ParseAnalyzer();
-        private char _command = '~';
 
         public CommandParser()
         {
@@ -43,9 +42,9 @@ namespace Veda.Command
 
         public String[] Parse(String str)
         {
-            if(String.IsNullOrWhiteSpace(str) || str.Length < 2 || str[0] != _command)
+            if(String.IsNullOrWhiteSpace(str))
                 return null;
-            _parser.Reset(new StringReader(str.Substring(1)));
+            _parser.Reset(new StringReader(str));
             _parser.Parse();
             if(_analyzer.Arguments.IsEmpty())
                 return null;

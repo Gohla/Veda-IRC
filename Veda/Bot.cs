@@ -42,6 +42,14 @@ namespace Veda
         public IAuthenticationManager Authentication { get { return _authentication; } }
         public IPluginPermissionManager Permission { get { return _permission; } }
 
+        private ReplyForm DefaultReplyForm
+        {
+            get
+            {
+                return _data.ReplyWithNickname ? ReplyForm.Reply : ReplyForm.Echo;
+            }
+        }
+
         public Bot(IClient client, IStorageManager storage, ICommandManager command, IPluginManager plugin,
             IAuthenticationManager authentication, IPermissionManager permission)
         {
@@ -119,23 +127,52 @@ namespace Veda
             return connection;
         }
 
+        private String ProcessPrefix(IReceiveMessage message)
+        {
+            String contents = message.Contents;
+
+            if(String.IsNullOrWhiteSpace(contents) || contents.Length < 2)
+                return null;
+
+            foreach(char prefix in _data.AddressedCharacters)
+                if(contents[0] == prefix)
+                    return contents.Substring(1);
+
+            if(_data.AddressedNickame)
+            {
+                String nickname = message.Connection.Me.Name;
+                if(contents.Length > nickname.Length + 2 && contents.StartsWith(nickname))
+                {
+                    contents = contents.Substring(nickname.Length);
+                    if(contents[0] == ':' || contents[0] == ',')
+                        return contents.Substring(1);
+                }
+            }
+
+            return null;
+        }
+
         private void ReceivedMessage(IReceiveMessage message)
         {
-            ConversionContext conversionContext = new ConversionContext { Bot = this, Message = message };
-
             try
             {
+                String contents = ProcessPrefix(message);
+                if(contents == null)
+                    return;
+
+                ConversionContext conversionContext = new ConversionContext { Bot = this, Message = message };
+                IUser sender = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
+
                 try
                 {
-                    ICallable callable = _command.Call(message.Contents, conversionContext);
+                    ICallable callable = _command.Call(contents, conversionContext);
                     if(callable == null)
                         return;
 
                     if(callable.Command.Private && !message.Receiver.Equals(message.Connection.Me))
                         throw new InvalidOperationException("This command can only be sent in a private message.");
 
-                    IUser user = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
-                    IBotUser botUser = _authentication.GetUser(user);
+                    IBotUser botUser = _authentication.GetUser(sender);
 
                     IPermission permission = _permission.GetPermission(callable.Command, botUser.Group);
 
@@ -156,27 +193,61 @@ namespace Veda
                         Bot = this
 
                       , Connection = message.Connection
-                      , Sender = user
+                      , Sender = sender
                       , Channel = channel
                       , User = botUser
-                      , Contents = message.Contents
+                      , Contents = contents
                       , Storage = storage
                       , Command = callable.Command
 
                       , ConversionContext = conversionContext
                       , CallDepth = 0
+                      , ReplyForm = DefaultReplyForm
                     };
 
                     bool reply = false;
-                    context.Evaluate(callable).ToString("; ").Subscribe(
-                        str => { Reply(message, str); reply = true; },
-                        e => { Reply(message, e); reply = true; },
-                        () => { if(!reply) Reply(message, "The operation succeeded."); }
+                    context.Evaluate(callable).ToString("; ").Subscribe
+                    (
+                        str => 
+                        { 
+                            Reply(message, sender, context.ReplyForm, str); 
+                            reply = true; 
+                        },
+                        e => 
+                        {
+                            Reply(message, sender, context.ReplyForm, e);
+                            reply = true;
+                        },
+                        () => 
+                        { 
+                            if(!reply && _data.ReplySuccess)
+                                Reply(message, sender, context.ReplyForm, "The operation succeeded.");
+                        }
                     );
+                }
+                catch(NoCommandNameException e)
+                {
+                    if(_data.ReplyNoCommand)
+                        Reply(message, sender, DefaultReplyForm, e);
+                }
+                catch(NoCommandException e)
+                {
+                    if(_data.ReplyNoCommand)
+                        Reply(message, sender, DefaultReplyForm, e);
+                }
+                catch(AmbiguousCommandsException e)
+                {
+                    if(_data.ReplyAmbiguousCommands)
+                        Reply(message, sender, DefaultReplyForm, e);
+                }
+                catch(IncorrectArgumentsException e)
+                {
+                    if(_data.ReplyIncorrectArguments)
+                        Reply(message, sender, DefaultReplyForm, e);
                 }
                 catch(Exception e)
                 {
-                    Reply(message, e);
+                    Reply(message, sender, DefaultReplyForm, e);
                 }
             }
             catch(Exception e)
@@ -193,14 +264,42 @@ namespace Veda
                 return message.Receiver;
         }
 
-        private void Reply(IReceiveMessage message, object reply)
+        private void Reply(IReceiveMessage message, IMessageTarget sender, ReplyForm replyForm, object result)
         {
-            ReplyTarget(message).SendMessage(reply.ToString());
+            IMessageTarget target = ReplyTarget(message);
+            switch(replyForm)
+            {
+                case ReplyForm.Echo:
+                    target.SendMessage(result.ToString());
+                    break;
+                case ReplyForm.Reply:
+                    target.SendMessage(sender.Name + ": " + result.ToString());
+                    break;
+                case ReplyForm.Action:
+                    target.SendAction(result.ToString());
+                    break;
+                case ReplyForm.Notice:
+                    target.SendNotice(result.ToString());
+                    break;
+            }
+            
         }
 
-        private void Reply(IReceiveMessage message, Exception e)
+        private void Reply(IReceiveMessage message, IMessageTarget sender, ReplyForm replyForm, Exception e)
         {
-            Reply(message, "Error: " + e.Message);
+            LogUserError(message, e);
+
+            if(!_data.ReplyError)
+                return;
+            
+            if(_data.ReplyErrorDetailed)
+                Reply(message, sender, replyForm, "Error -- " + e.Message);
+            else
+                Reply(message, sender, replyForm, "An error occurred.");
+        }
+
+        private void LogUserError(IReceiveMessage message, Exception e)
+        {
             _logger.InfoException("Error executing: \"" + message.Contents + "\".", e);
         }
     }

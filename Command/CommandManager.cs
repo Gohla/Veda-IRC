@@ -8,18 +8,11 @@ namespace Veda.Command
 {
     public class CommandManager : ICommandManager
     {
-        private MultiValueDictionary<String, ICommand> _ambiguousCommands =
-            new MultiValueDictionary<String, ICommand>(StringComparer.OrdinalIgnoreCase);
-        private MultiValueDictionary<IPlugin, ICommand> _pluginCommands =
-            new MultiValueDictionary<IPlugin, ICommand>();
-        private MultiValueDictionary<QualifiedName, ICommand> _nameQualifiedCommands =
-            new MultiValueDictionary<QualifiedName, ICommand>();
-        private MultiValueDictionary<QualifiedTypes, ICommand> _typesQualifiedCommands =
-            new MultiValueDictionary<QualifiedTypes, ICommand>();
-        private Dictionary<QualifiedNameTypes, ICommand> _nameTypesQualifiedCommands =
-            new Dictionary<QualifiedNameTypes, ICommand>();
+        private NestedCommandHelper _commands = new NestedCommandHelper();
         private List<ICommandConverter> _converters = new List<ICommandConverter>();
         private ICommandParser _parser;
+
+        private NestedCommandNameHelper _nestedCommandHelper = new NestedCommandNameHelper();
 
         public CommandManager(ICommandParser parser)
         {
@@ -40,7 +33,7 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> GetCommands(String name)
         {
-            return _ambiguousCommands[name];
+            return _commands.Get(name);
         }
 
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
@@ -56,22 +49,17 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> GetCommands(IPlugin plugin)
         {
-            return _pluginCommands[plugin];
+            return _commands.Get(plugin);
         }
 
         public IEnumerable<ICommand> GetCommands(String pluginName, String name)
         {
-            return _nameQualifiedCommands[new QualifiedName(pluginName, name)];
-        }
-
-        public IEnumerable<ICommand> GetCommands(String name, params Type[] argumentTypes)
-        {
-            return _typesQualifiedCommands[new QualifiedTypes(name, argumentTypes)];
+            return _commands.Get(pluginName, name);
         }
 
         public ICommand GetCommand(String pluginName, String name, params Type[] argumentTypes)
         {
-            return _nameTypesQualifiedCommands[new QualifiedNameTypes(pluginName, name, argumentTypes)];
+            return _commands.Get(pluginName, name, argumentTypes);
         }
 
         public String[] Parse(String command)
@@ -103,42 +91,12 @@ namespace Veda.Command
 
         public void Add(ICommand command)
         {
-            QualifiedNameTypes qualified = new QualifiedNameTypes(command.Plugin.Name, command.Name, 
-                command.ParameterTypes);
-
-            if(_nameTypesQualifiedCommands.ContainsKey(qualified))
-                throw new ArgumentException(
-                    "Command from plugin "    + command.Plugin.Name 
-                    + " with name "           + command.Name 
-                    + " and parameter types " + command.ParameterTypes.Select(t => t.Name).ToString(", ") 
-                    + " already exists.", 
-                    "command");
-
-            _ambiguousCommands.Add(command.Name, command);
-            _pluginCommands.Add(command.Plugin, command);
-            _nameQualifiedCommands.Add(new QualifiedName(command.Plugin.Name, command.Name), command);
-            _typesQualifiedCommands.Add(new QualifiedTypes(command.Name, command.ParameterTypes), command);
-            _nameTypesQualifiedCommands.Add(qualified, command);
+            _commands.Add(command);
         }
 
         public void Remove(ICommand command)
         {
-            QualifiedNameTypes qualified = new QualifiedNameTypes(command.Plugin.Name, command.Name, 
-                command.ParameterTypes);
-
-            if(!_nameTypesQualifiedCommands.ContainsKey(qualified))
-                throw new ArgumentException(
-                    "Command from plugin " + command.Plugin.Name
-                    + " with name " + command.Name
-                    + " and parameter types " + command.ParameterTypes.Select(t => t.Name).ToString(", ")
-                    + " does not exist.",
-                    "command");
-
-            _ambiguousCommands.Remove(command.Name, command);
-            _pluginCommands.Remove(command.Plugin, command);
-            _nameQualifiedCommands.Remove(new QualifiedName(command.Plugin.Name, command.Name), command);
-            _typesQualifiedCommands.Remove(new QualifiedTypes(command.Name, command.ParameterTypes), command);
-            _nameTypesQualifiedCommands.Remove(qualified);
+            _commands.Remove(command);
         }
 
         public void Add(ICommandConverter converter)

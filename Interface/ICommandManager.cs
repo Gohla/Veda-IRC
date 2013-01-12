@@ -10,7 +10,6 @@ namespace Veda.Interface
         ICommand GetUnambigousCommand(String name);
         IEnumerable<ICommand> GetCommands(IPlugin plugin);
         IEnumerable<ICommand> GetCommands(String pluginName, String name);
-        IEnumerable<ICommand> GetCommands(String name, params Type[] argumentTypes);
         ICommand GetCommand(String pluginName, String name, params Type[] argumentTypes);
 
         String[] Parse(String command);

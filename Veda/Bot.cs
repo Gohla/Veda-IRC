@@ -203,10 +203,11 @@ namespace Veda
                       , ConversionContext = conversionContext
                       , CallDepth = 0
                       , ReplyForm = DefaultReplyForm
+                      , Seperator = "; "
                     };
 
                     bool reply = false;
-                    context.Evaluate(callable).ToString("; ").Subscribe
+                    context.Evaluate(callable).ToString(context.Seperator).Subscribe
                     (
                         str => 
                         { 

@@ -26,6 +26,7 @@ namespace Veda.Interface
         IConversionContext ConversionContext { get; }
         ushort CallDepth { get; set; }
         ReplyForm ReplyForm { get; set; }
+        String Seperator { get; set; }
 
         IObservable<object> Evaluate(object result);
     }

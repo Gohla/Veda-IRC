@@ -21,6 +21,7 @@ namespace Veda
         public IConversionContext ConversionContext { get; set; }
         public ushort CallDepth { get; set; }
         public ReplyForm ReplyForm { get; set; }
+        public String Seperator { get; set; }
 
         public IObservable<object> Evaluate(object result)
         {
@@ -31,7 +32,7 @@ namespace Veda
                 String[] replies = result as String[];
                 if(replies != null)
                     return Observable
-                        .Defer<String>(() => Observable.Return(replies.ToString("; ")))
+                        .Defer<String>(() => Observable.Return(replies.ToString(Seperator)))
                         ;
             }
 
@@ -39,7 +40,7 @@ namespace Veda
                 IEnumerable<String> replies = result as IEnumerable<String>;
                 if(replies != null)
                     return Observable
-                        .Defer<String>(() => Observable.Return(replies.ToString("; ")))
+                        .Defer<String>(() => Observable.Return(replies.ToString(Seperator)))
                         ;
             }
 
@@ -47,7 +48,7 @@ namespace Veda
                 IObservable<IEnumerable<String>> replies = result as IObservable<IEnumerable<String>>;
                 if(replies != null)
                     return replies
-                        .Select(r => r.ToString("; "))
+                        .Select(r => r.ToString(Seperator))
                         ;
             }
 

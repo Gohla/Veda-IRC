@@ -38,8 +38,8 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
         {
-            object[] dummy;
-            return ResolveNames(new object[] { name }, out dummy);
+            object[] names = new[] { name };
+            return ResolveNames(ref names);
         }
 
         public ICommand GetUnambigousCommand(String name)
@@ -112,12 +112,11 @@ namespace Veda.Command
 
         private ICallable Resolve(object conversionContext, params object[] arguments)
         {
-            object[] newArguments;
-            IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, out newArguments);
-            return ResolveTypes(conversionContext, newArguments, nameCandidates);
+            IEnumerable<ICommand> nameCandidates = ResolveNames(ref arguments);
+            return ResolveTypes(conversionContext, arguments, nameCandidates);
         }
 
-        private IEnumerable<ICommand> ResolveNames(object[] arguments, out object[] newArguments)
+        private IEnumerable<ICommand> ResolveNames(ref object[] arguments)
         {
             IEnumerable<String> strings = arguments
                 .TakeWhile(o => o.GetType().Equals(typeof(String)))
@@ -159,7 +158,7 @@ namespace Veda.Command
                     if(ambiguity.Length > 1)
                         throw new AmbiguousCommandsException(strings.ToString(" "), ambiguity);
 
-                    newArguments = arguments
+                    arguments = arguments
                         .Skip(match.Item1)
                         .ToArray()
                         ;

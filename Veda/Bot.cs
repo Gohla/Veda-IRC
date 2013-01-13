@@ -130,9 +130,12 @@ namespace Veda
             return connection;
         }
 
-        private String ProcessPrefix(IReceiveMessage message)
+        private String ProcessPrefix(IReceiveMessage message, bool privateMessage)
         {
             String contents = message.Contents;
+
+            if(privateMessage)
+                return contents;
 
             if(String.IsNullOrWhiteSpace(contents) || contents.Length < 2)
                 return null;
@@ -159,10 +162,12 @@ namespace Veda
         {
             try
             {
-                String contents = ProcessPrefix(message);
+                bool privateMessage = message.Receiver.Equals(message.Connection.Me);
+
+                String contents = ProcessPrefix(message, privateMessage);
                 if(contents == null)
                     return;
-
+                
                 ConversionContext conversionContext = new ConversionContext { Bot = this, Message = message };
                 IUser sender = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
 
@@ -172,13 +177,11 @@ namespace Veda
                     if(callable == null)
                         return;
 
-                    if(callable.Command.Private && !message.Receiver.Equals(message.Connection.Me))
+                    if(callable.Command.Private && !privateMessage)
                         throw new InvalidOperationException("This command can only be sent in a private message.");
 
                     IBotUser botUser = _authentication.GetUser(sender);
-
                     IPermission permission = _permission.GetPermission(callable.Command, botUser.Group);
-
                     if(callable.Command.DefaultPermissions.Length > 0)
                     {
                         permission.CheckThrows(botUser, false);
@@ -205,7 +208,7 @@ namespace Veda
 
                       , ConversionContext = conversionContext
                       , CallDepth = 0
-                      , ReplyForm = DefaultReplyForm
+                      , ReplyForm = privateMessage ? ReplyForm.Echo : DefaultReplyForm
                       , Seperator = "; "
                     };
 

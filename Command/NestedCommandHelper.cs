@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Veda.Interface;
 using Gohla.Shared;
+using Veda.Interface;
 
 namespace Veda.Command
 {
@@ -48,7 +48,10 @@ namespace Veda.Command
 
         public void Remove(ICommand command)
         {
-            if(!AllCommands.Contains(command))
+            NestedCommandNameHelper qualifiedNameHelper = GetNamed(Root, command.Plugin.Name, command.Name);
+            NestedCommandTypeHelper qualifiedTypeHelper = GetTyped(qualifiedNameHelper, command.ParameterTypes);
+
+            if(qualifiedTypeHelper.Command == null)
                 throw new ArgumentException(
                     "Command from plugin " + command.Plugin.Name
                     + " with name " + command.Name
@@ -56,8 +59,6 @@ namespace Veda.Command
                     + " does not exists.",
                     "command");
 
-            NestedCommandNameHelper qualifiedNameHelper = GetNamed(Root, command.Plugin.Name, command.Name);
-            NestedCommandTypeHelper qualifiedTypeHelper = GetTyped(qualifiedNameHelper, command.ParameterTypes);
             NestedCommandNameHelper unqualifiedNameHelper = GetNamed(Root, command.Name);
             NestedCommandTypeHelper unqualifiedTypeHelper = GetTyped(unqualifiedNameHelper, command.ParameterTypes);
 

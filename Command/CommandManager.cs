@@ -112,86 +112,62 @@ namespace Veda.Command
 
         private ICallable Resolve(object conversionContext, params object[] arguments)
         {
-            Exception exception = null;
-
-            try
-            {
-                object[] newArguments;
-                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, 2, out newArguments);
-                if(!nameCandidates.IsEmpty())
-                    return ResolveTypes(conversionContext, newArguments, nameCandidates);
-            }
-            catch(Exception e)
-            {
-                exception = e;
-            }
-
-            try
-            {
-                object[] newArguments;
-                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, 0, out newArguments);
-                if(!nameCandidates.IsEmpty())
-                    return ResolveTypes(conversionContext, newArguments, nameCandidates);
-            }
-            catch(Exception e)
-            {
-            	if(exception != null)
-                    throw exception;
-                throw e;
-            }
-
-            return null;
+            object[] newArguments;
+            IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, out newArguments);
+            return ResolveTypes(conversionContext, newArguments, nameCandidates);
         }
 
-        private IEnumerable<ICommand> ResolveNames(object[] arguments, ushort minArguments, out object[] newArguments)
+        private IEnumerable<ICommand> ResolveNames(object[] arguments, out object[] newArguments)
         {
             IEnumerable<String> strings = arguments
                 .TakeWhile(o => o.GetType().Equals(typeof(String)))
                 .Select(o => o as String)
                 ;
-            int stringsCount = strings.Count();
-
-            if(stringsCount == 0)
-            {
+            if(strings.IsEmpty())
                 throw new NoCommandNameException();
-            }
 
-            if(stringsCount < minArguments)
+            // Find all command name matches and add them to a stack.
+            Stack<Tuple<ushort, NestedCommandNameHelper>> matches = new Stack<Tuple<ushort, NestedCommandNameHelper>>();
             {
-                newArguments = null;
-                return Enumerable.Empty<ICommand>();
-            }
-
-            int count = 0;
-            NestedCommandNameHelper nameHelper = _commands.Root;
-            Exception lastException = null;
-            foreach(String str in strings)
-            {
-                count++;
-                nameHelper = nameHelper[str];
-                if(nameHelper.TypeHelper.Valid && count >= minArguments)
+                NestedCommandNameHelper nameHelper = _commands.Root;
+                ushort count = 0;
+                foreach(String str in strings)
                 {
-                    try
+                    ++count;
+                    nameHelper = nameHelper[str];
+                    if(nameHelper.TypeHelper.Valid)
                     {
-                        // Check for a name ambiguity.
-                        IPlugin[] ambiguity = nameHelper.Commands
-                            .Select(c => c.Plugin)
-                            .Distinct()
-                            .ToArray()
-                            ;
-                        if(ambiguity.Length > 1)
-                            throw new AmbiguousCommandsException(strings.ToString(" "), ambiguity);
+                        matches.Push(Tuple.Create(count, nameHelper));
+                    }
+                }
+            }
 
-                        newArguments = arguments
-                            .Skip(count)
-                            .ToArray()
-                            ;
-                        return nameHelper.Commands;
-                    }
-                    catch(Exception e)
-                    {
-                        lastException = e;
-                    }
+            // Pop matches from the stack until non-ambiguous commands are found. Stack enforces longest matching.
+            Exception lastException = null;
+            while(matches.Count != 0)
+            {
+                Tuple<ushort, NestedCommandNameHelper> match = matches.Pop();
+
+                try
+                {
+                    // Check for a name ambiguity.
+                    IPlugin[] ambiguity = match.Item2.Commands
+                        .Select(c => c.Plugin)
+                        .Distinct()
+                        .ToArray()
+                        ;
+                    if(ambiguity.Length > 1)
+                        throw new AmbiguousCommandsException(strings.ToString(" "), ambiguity);
+
+                    newArguments = arguments
+                        .Skip(match.Item1)
+                        .ToArray()
+                        ;
+                    return match.Item2.Commands;
+                }
+                catch(Exception e)
+                {
+                    lastException = e;
                 }
             }
 

@@ -126,15 +126,10 @@ namespace Veda.Command
             return GetNamed(nameHelper[pluginName], name);
         }
 
-        private NestedCommandNameHelper GetNamed(NestedCommandNameHelper nameHelper, IEnumerable<String> names, 
-            bool firstmatch = true)
+        private NestedCommandNameHelper GetNamed(NestedCommandNameHelper nameHelper, IEnumerable<String> names)
         {
             foreach(String subname in names)
-            {
                 nameHelper = nameHelper[subname];
-                if(firstmatch && nameHelper.TypeHelper.Valid)
-                    return nameHelper;
-            }
 
             return nameHelper;
         }

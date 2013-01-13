@@ -39,7 +39,7 @@ namespace Veda.Command
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
         {
             object[] dummy;
-            return ResolveNames(new object[] { name }, 0, out dummy);
+            return ResolveNames(new object[] { name }, out dummy);
         }
 
         public ICommand GetUnambigousCommand(String name)

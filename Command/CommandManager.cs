@@ -150,19 +150,25 @@ namespace Veda.Command
                 try
                 {
                     // Check for a name ambiguity.
+                    bool corePluginAmbiguity = false;
                     IPlugin[] ambiguity = match.Item2.Commands
-                        .Select(c => c.Plugin)
+                        .Select(c => { if(c.Plugin.Name == "Core") corePluginAmbiguity = true; return c.Plugin; })
                         .Distinct()
                         .ToArray()
                         ;
-                    if(ambiguity.Length > 1)
+                    if(!corePluginAmbiguity && ambiguity.Length > 1)
                         throw new AmbiguousCommandsException(strings.ToString(" "), ambiguity);
 
                     arguments = arguments
                         .Skip(match.Item1)
                         .ToArray()
                         ;
-                    return match.Item2.Commands;
+
+                    if(corePluginAmbiguity)
+                        return match.Item2.Commands
+                            .Where(c => c.Plugin.Name == "Core");
+                    else
+                        return match.Item2.Commands;
                 }
                 catch(Exception e)
                 {

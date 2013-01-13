@@ -8,21 +8,24 @@ namespace Veda.Command
 {
     public class NestedCommandHelper
     {
-        private NestedCommandNameHelper _root;
         private MultiValueDictionary<String, ICommand> _pluginCommands =
             new MultiValueDictionary<String, ICommand>(StringComparer.OrdinalIgnoreCase);
 
+        public NestedCommandNameHelper Root { get; private set; }
         public HashSet<ICommand> AllCommands { get; private set; }
 
         public NestedCommandHelper()
         {
-            _root = new NestedCommandNameHelper();
+            Root = new NestedCommandNameHelper();
             AllCommands = new HashSet<ICommand>();
         }
 
         public void Add(ICommand command)
         {
-            if(AllCommands.Contains(command))
+            NestedCommandNameHelper qualifiedNameHelper = GetNamed(Root, command.Plugin.Name, command.Name);
+            NestedCommandTypeHelper qualifiedTypeHelper = GetTyped(qualifiedNameHelper, command.ParameterTypes);
+
+            if(qualifiedTypeHelper.Command != null)
                 throw new ArgumentException(
                     "Command from plugin " + command.Plugin.Name
                     + " with name " + command.Name
@@ -30,9 +33,7 @@ namespace Veda.Command
                     + " already exists.",
                     "command");
 
-            NestedCommandNameHelper qualifiedNameHelper = GetNamed(_root, command.Plugin.Name, command.Name);
-            NestedCommandTypeHelper qualifiedTypeHelper = GetTyped(qualifiedNameHelper, command.ParameterTypes);
-            NestedCommandNameHelper unqualifiedNameHelper = GetNamed(_root, command.Name);
+            NestedCommandNameHelper unqualifiedNameHelper = GetNamed(Root, command.Name);
             NestedCommandTypeHelper unqualifiedTypeHelper = GetTyped(unqualifiedNameHelper, command.ParameterTypes);
 
             qualifiedNameHelper.Commands.Add(command);
@@ -55,9 +56,9 @@ namespace Veda.Command
                     + " does not exists.",
                     "command");
 
-            NestedCommandNameHelper qualifiedNameHelper = GetNamed(_root, command.Plugin.Name, command.Name);
+            NestedCommandNameHelper qualifiedNameHelper = GetNamed(Root, command.Plugin.Name, command.Name);
             NestedCommandTypeHelper qualifiedTypeHelper = GetTyped(qualifiedNameHelper, command.ParameterTypes);
-            NestedCommandNameHelper unqualifiedNameHelper = GetNamed(_root, command.Name);
+            NestedCommandNameHelper unqualifiedNameHelper = GetNamed(Root, command.Name);
             NestedCommandTypeHelper unqualifiedTypeHelper = GetTyped(unqualifiedNameHelper, command.ParameterTypes);
 
             qualifiedNameHelper.Commands.Remove(command);
@@ -77,32 +78,42 @@ namespace Veda.Command
 
         public IEnumerable<ICommand> Get(String name)
         {
-            return GetNamed(_root, name).Commands;
+            return GetNamed(Root, name).Commands;
         }
 
         public IEnumerable<ICommand> Get(String pluginName, String name)
         {
-            return GetNamed(_root, pluginName, name).Commands;
+            return GetNamed(Root, pluginName, name).Commands;
         }
 
-        public IEnumerable<ICommand> Get(String[] names)
+        public IEnumerable<ICommand> Get(IEnumerable<String> names)
         {
-            return GetNamed(_root, names).Commands;
+            return GetNamed(Root, names).Commands;
+        }
+
+        public IEnumerable<ICommand> Get(String pluginName, IEnumerable<String> names)
+        {
+            return GetNamed(Root[pluginName], names).Commands;
         }
 
         public ICommand Get(String name, Type[] types)
         {
-            return GetTyped(GetNamed(_root, name), types).Command;
+            return GetTyped(GetNamed(Root, name), types).Command;
         }
 
-        public ICommand Get(String pluginName, String name, Type[] types)
+        public ICommand Get(String pluginName, String name, IEnumerable<Type> types)
         {
-            return GetTyped(GetNamed(_root, pluginName, name), types).Command;
+            return GetTyped(GetNamed(Root, pluginName, name), types).Command;
         }
 
-        public ICommand Get(String[] names, Type[] types)
+        public ICommand Get(IEnumerable<String> names, IEnumerable<Type> types)
         {
-            return GetTyped(GetNamed(_root, names), types).Command;
+            return GetTyped(GetNamed(Root, names), types).Command;
+        }
+
+        public ICommand Get(String pluginName, IEnumerable<String> names, IEnumerable<Type> types)
+        {
+            return GetTyped(GetNamed(Root[pluginName], names), types).Command;
         }
 
         private NestedCommandNameHelper GetNamed(NestedCommandNameHelper nameHelper, String name)
@@ -115,15 +126,20 @@ namespace Veda.Command
             return GetNamed(nameHelper[pluginName], name);
         }
 
-        private NestedCommandNameHelper GetNamed(NestedCommandNameHelper nameHelper, String[] names)
+        private NestedCommandNameHelper GetNamed(NestedCommandNameHelper nameHelper, IEnumerable<String> names, 
+            bool firstmatch = true)
         {
             foreach(String subname in names)
+            {
                 nameHelper = nameHelper[subname];
+                if(firstmatch && nameHelper.TypeHelper.Valid)
+                    return nameHelper;
+            }
 
             return nameHelper;
         }
 
-        private NestedCommandTypeHelper GetTyped(NestedCommandNameHelper nameHelper, Type[] types)
+        private NestedCommandTypeHelper GetTyped(NestedCommandNameHelper nameHelper, IEnumerable<Type> types)
         {
             NestedCommandTypeHelper typeHelper = nameHelper.TypeHelper;
             foreach(Type type in types)

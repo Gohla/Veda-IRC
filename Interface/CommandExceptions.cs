@@ -23,40 +23,35 @@ namespace Veda.Interface
 
     public class NoCommandException : CommandException
     {
-        public String CommandName { get; private set; }
-        public String PluginName { get; private set; }
+        public String Name { get; private set; }
 
-        public NoCommandException(String commandName, String pluginName = null)
-            : base(CreateMessage(commandName, pluginName))
+        public NoCommandException(String name)
+            : base(CreateMessage(name))
         {
-            CommandName = commandName;
-            PluginName = pluginName;
+            Name = name;
         }
 
-        public static String CreateMessage(String commandName, String pluginName)
+        public static String CreateMessage(String name)
         {
-            if(String.IsNullOrWhiteSpace(pluginName))
-                return "Command with name " + commandName + " does not exist.";
-            else
-                return "Command with name " + commandName + " does not exist in plugin " + pluginName + ".";
+            return "Command with name " + name + " does not exist.";
         }
     }
 
     public class AmbiguousCommandsException : CommandException
     {
-        public String CommandName { get; private set; }
+        public String Name { get; private set; }
         public IPlugin[] Candidates { get; private set; }
 
-        public AmbiguousCommandsException(String commandName, IPlugin[] candidates)
-            : base(CreateMessage(commandName, candidates))
+        public AmbiguousCommandsException(String name, IPlugin[] candidates)
+            : base(CreateMessage(name, candidates))
         {
-            CommandName = commandName;
+            Name = name;
             Candidates = candidates;
         }
 
-        public static String CreateMessage(String commandName, IPlugin[] candidates)
+        public static String CreateMessage(String name, IPlugin[] candidates)
         {
-            return "Command with name " + commandName + " exists in multiple plugins: " + candidates.ToString(", ")
+            return "Command with name " + name + " exists in multiple plugins: " + candidates.ToString(", ")
                 + ".";
         }
     }

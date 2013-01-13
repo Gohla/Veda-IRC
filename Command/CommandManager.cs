@@ -39,7 +39,7 @@ namespace Veda.Command
         public IEnumerable<ICommand> GetUnambigousCommands(String name)
         {
             object[] dummy;
-            return ResolveNames(new object[] { name }, true, out dummy);
+            return ResolveNames(new object[] { name }, 0, out dummy);
         }
 
         public ICommand GetUnambigousCommand(String name)
@@ -112,84 +112,92 @@ namespace Veda.Command
 
         private ICallable Resolve(object conversionContext, params object[] arguments)
         {
+            Exception exception = null;
+
             try
             {
                 object[] newArguments;
-                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, true, out newArguments);
-                return ResolveTypes(conversionContext, newArguments, nameCandidates);
+                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, 2, out newArguments);
+                if(!nameCandidates.IsEmpty())
+                    return ResolveTypes(conversionContext, newArguments, nameCandidates);
             }
             catch(Exception e)
             {
-                object[] newArguments;
-                IEnumerable<ICommand> nameCandidates;
-                try
-                {
-                    nameCandidates = ResolveNames(arguments, false, out newArguments);
-                }
-                catch
-                {
-                    throw e;
-                }
-                return ResolveTypes(conversionContext, newArguments, nameCandidates);
+                exception = e;
             }
+
+            try
+            {
+                object[] newArguments;
+                IEnumerable<ICommand> nameCandidates = ResolveNames(arguments, 0, out newArguments);
+                if(!nameCandidates.IsEmpty())
+                    return ResolveTypes(conversionContext, newArguments, nameCandidates);
+            }
+            catch(Exception e)
+            {
+            	if(exception != null)
+                    throw exception;
+                throw e;
+            }
+
+            return null;
         }
 
-        private IEnumerable<ICommand> ResolveNames(object[] arguments, bool qualify, out object[] newArguments)
+        private IEnumerable<ICommand> ResolveNames(object[] arguments, ushort minArguments, out object[] newArguments)
         {
-            if(arguments.Length == 0)
+            IEnumerable<String> strings = arguments
+                .TakeWhile(o => o.GetType().Equals(typeof(String)))
+                .Select(o => o as String)
+                ;
+            int stringsCount = strings.Count();
+
+            if(stringsCount == 0)
             {
                 throw new NoCommandNameException();
             }
-            else if(arguments.Length == 1)
-            {
-                IEnumerable<ICommand> candidates = ResolveUnqualifiedNames(arguments[0].ToString());
-                newArguments = arguments.Skip(1).ToArray(); // TODO: More efficient array skipping.
-                return candidates;
-            }
-            else
-            {
-                if(qualify)
-                {
-                    IEnumerable<ICommand> candidates = ResolveQualifiedNames(arguments[0].ToString(), arguments[1].ToString());
-                    newArguments = arguments.Skip(2).ToArray(); // TODO: More efficient array skipping.
-                    return candidates;
-                }
-                else
-                {
-                    IEnumerable<ICommand> candidates = ResolveUnqualifiedNames(arguments[0].ToString());
-                    newArguments = arguments.Skip(1).ToArray(); // TODO: More efficient array skipping.
-                    return candidates;
-                }
-            }
-        }
 
-        private IEnumerable<ICommand> ResolveUnqualifiedNames(String commandName)
-        {
-            IEnumerable<ICommand> candidates = GetCommands(commandName);
-            if(!candidates.IsEmpty())
+            if(stringsCount < minArguments)
             {
-                // Check for a name ambiguity.
-                IPlugin[] ambiguity = candidates
-                    .Select(c => c.Plugin)
-                    .Distinct()
-                    .ToArray()
-                    ;
-                if(ambiguity.Length > 1)
-                    throw new AmbiguousCommandsException(commandName, ambiguity);
-                else
-                    return candidates;
+                newArguments = null;
+                return Enumerable.Empty<ICommand>();
             }
-            else
-                throw new NoCommandException(commandName);
-        }
 
-        private IEnumerable<ICommand> ResolveQualifiedNames(String pluginName, String commandName)
-        {
-            IEnumerable<ICommand> candidates = GetCommands(pluginName, commandName);
-            if(!candidates.IsEmpty())
-                return candidates;
-            else
-                throw new NoCommandException(commandName, pluginName);
+            int count = 0;
+            NestedCommandNameHelper nameHelper = _commands.Root;
+            Exception lastException = null;
+            foreach(String str in strings)
+            {
+                count++;
+                nameHelper = nameHelper[str];
+                if(nameHelper.TypeHelper.Valid && count >= minArguments)
+                {
+                    try
+                    {
+                        // Check for a name ambiguity.
+                        IPlugin[] ambiguity = nameHelper.Commands
+                            .Select(c => c.Plugin)
+                            .Distinct()
+                            .ToArray()
+                            ;
+                        if(ambiguity.Length > 1)
+                            throw new AmbiguousCommandsException(strings.ToString(" "), ambiguity);
+
+                        newArguments = arguments
+                            .Skip(count)
+                            .ToArray()
+                            ;
+                        return nameHelper.Commands;
+                    }
+                    catch(Exception e)
+                    {
+                        lastException = e;
+                    }
+                }
+            }
+
+            if(lastException == null)
+                throw new NoCommandException(strings.ToString(" "));
+            throw lastException;
         }
 
         private ICallable ResolveTypes(object conversionContext, object[] arguments, 

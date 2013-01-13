@@ -93,15 +93,21 @@ namespace Veda.Command
         public override String ToString()
         {
             return
-                "(" 
-              + ControlCodes.Bold
-              (
-                this.Name.ToLower()
-              + (ParameterTypes.Length == 0 ? String.Empty : " ")
-              + String.Join(", ", ParameterTypes.Zip(ParameterNames, (t, n) => "<" + n + ":" + t.Name + ">"))
-              )
-              + ")"
-              ;
+                String.Concat
+                (
+                  "("
+                , ControlCodes.Bold
+                  (
+                    String.Concat(
+                      this.Plugin.Name
+                    , " "
+                    , this.Name.ToLower()
+                    , (ParameterTypes.Length == 0 ? String.Empty : " ")
+                    , String.Join(", ", ParameterTypes.Zip(ParameterNames, (t, n) => "<" + n + ":" + t.Name + ">"))
+                    )
+                  )
+                , ")"
+              );
         }
     }
 }

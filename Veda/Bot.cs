@@ -36,6 +36,9 @@ namespace Veda
                 return _botConnections.Select(x => x.Connection);
             }
         }
+
+        public IObservable<IReceiveMessage> Messages { get { return _receivedMessages; } }
+
         public IPluginStorageManager Storage { get { return _storage; } }
         public ICommandManager Command { get { return _command; } }
         public IPluginManager Plugin { get { return _plugin; } }

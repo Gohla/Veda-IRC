@@ -4,9 +4,8 @@ namespace Veda.Interface
 {
     public interface ICallable
     {
-        ICommand Command { get; }
         object[] Arguments { get; }
 
-        object Call(IContext context);
+        object Call(IContext context, Action<ICommand> allowed = null);
     }
 }

@@ -43,13 +43,37 @@ namespace Veda.Command.Grammar {
             pattern = new TokenPattern((int) CommandGrammarConstants.STRING,
                                        "STRING",
                                        TokenPattern.PatternType.REGEXP,
-                                       "\"([^\"\\\\]|\"\"|\\\\.)*\"");
+                                       "\"([^\"\\\\$;\\[\\]]|\"\"|\\\\.)*\"");
             AddPattern(pattern);
 
             pattern = new TokenPattern((int) CommandGrammarConstants.TEXT,
                                        "TEXT",
                                        TokenPattern.PatternType.REGEXP,
-                                       "[^ \\t\\n\\r\"]+");
+                                       "[^ \\t\\n\\r\"$;\\[\\]]+");
+            AddPattern(pattern);
+
+            pattern = new TokenPattern((int) CommandGrammarConstants.PARAMETER,
+                                       "PARAMETER",
+                                       TokenPattern.PatternType.REGEXP,
+                                       "\\$[1-9]");
+            AddPattern(pattern);
+
+            pattern = new TokenPattern((int) CommandGrammarConstants.COMMAND_START,
+                                       "COMMAND_START",
+                                       TokenPattern.PatternType.STRING,
+                                       "[");
+            AddPattern(pattern);
+
+            pattern = new TokenPattern((int) CommandGrammarConstants.COMMAND_END,
+                                       "COMMAND_END",
+                                       TokenPattern.PatternType.STRING,
+                                       "]");
+            AddPattern(pattern);
+
+            pattern = new TokenPattern((int) CommandGrammarConstants.COMMAND_SEPARATOR,
+                                       "COMMAND_SEPARATOR",
+                                       TokenPattern.PatternType.STRING,
+                                       ";");
             AddPattern(pattern);
 
             pattern = new TokenPattern((int) CommandGrammarConstants.LAYOUT,

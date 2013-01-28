@@ -20,6 +20,7 @@ namespace Veda.Command.Grammar {
          * identity constants.</summary>
          */
         private enum SynteticPatterns {
+            SUBPRODUCTION_1 = 3001
         }
 
         /**
@@ -78,20 +79,45 @@ namespace Veda.Command.Grammar {
             ProductionPattern             pattern;
             ProductionPatternAlternative  alt;
 
-            pattern = new ProductionPattern((int) CommandGrammarConstants.COMMAND,
-                                            "Command");
+            pattern = new ProductionPattern((int) CommandGrammarConstants.COMMANDS,
+                                            "Commands");
             alt = new ProductionPatternAlternative();
-            alt.AddProduction((int) CommandGrammarConstants.ARGUMENT, 1, -1);
+            alt.AddProduction((int) CommandGrammarConstants.COMMAND, 1, 1);
+            alt.AddProduction((int) SynteticPatterns.SUBPRODUCTION_1, 0, -1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
 
-            pattern = new ProductionPattern((int) CommandGrammarConstants.ARGUMENT,
-                                            "Argument");
+            pattern = new ProductionPattern((int) CommandGrammarConstants.COMMAND,
+                                            "Command");
+            alt = new ProductionPatternAlternative();
+            alt.AddProduction((int) CommandGrammarConstants.EXPRESSION, 1, -1);
+            pattern.AddAlternative(alt);
+            AddPattern(pattern);
+
+            pattern = new ProductionPattern((int) CommandGrammarConstants.EXPRESSION,
+                                            "Expression");
             alt = new ProductionPatternAlternative();
             alt.AddToken((int) CommandGrammarConstants.TEXT, 1, 1);
             pattern.AddAlternative(alt);
             alt = new ProductionPatternAlternative();
             alt.AddToken((int) CommandGrammarConstants.STRING, 1, 1);
+            pattern.AddAlternative(alt);
+            alt = new ProductionPatternAlternative();
+            alt.AddToken((int) CommandGrammarConstants.PARAMETER, 1, 1);
+            pattern.AddAlternative(alt);
+            alt = new ProductionPatternAlternative();
+            alt.AddToken((int) CommandGrammarConstants.COMMAND_START, 1, 1);
+            alt.AddProduction((int) CommandGrammarConstants.COMMAND, 1, 1);
+            alt.AddToken((int) CommandGrammarConstants.COMMAND_END, 1, 1);
+            pattern.AddAlternative(alt);
+            AddPattern(pattern);
+
+            pattern = new ProductionPattern((int) SynteticPatterns.SUBPRODUCTION_1,
+                                            "Subproduction1");
+            pattern.Synthetic = true;
+            alt = new ProductionPatternAlternative();
+            alt.AddToken((int) CommandGrammarConstants.COMMAND_SEPARATOR, 1, 1);
+            alt.AddProduction((int) CommandGrammarConstants.COMMAND, 1, 1);
             pattern.AddAlternative(alt);
             AddPattern(pattern);
         }

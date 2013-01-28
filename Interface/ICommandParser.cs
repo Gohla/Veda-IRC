@@ -4,6 +4,6 @@ namespace Veda.Interface
 {
     public interface ICommandParser
     {
-        String[] Parse(String command);
+        IExpression Parse(String command);
     }
 }

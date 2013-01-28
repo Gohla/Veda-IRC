@@ -53,6 +53,7 @@
     <Compile Include="IContext.cs" />
     <Compile Include="IConversionContext.cs" />
     <Compile Include="ICustomPermission.cs" />
+    <Compile Include="IExpression.cs" />
     <Compile Include="IOpenableStorage.cs" />
     <Compile Include="IPluginPermissionManager.cs" />
     <Compile Include="IPermission.cs" />

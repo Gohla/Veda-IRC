@@ -173,27 +173,12 @@ namespace Veda
 
                 try
                 {
-                    ICallable callable = _command.Call(contents, conversionContext);
+                    ICallable callable = _command.Call(contents);
                     if(callable == null)
                         return;
 
-                    if(callable.Command.Private && !privateMessage)
-                        throw new InvalidOperationException("This command can only be sent in a private message.");
-
                     IBotUser botUser = _authentication.GetUser(sender);
-                    IPermission permission = _permission.GetPermission(callable.Command, botUser.Group);
-                    if(callable.Command.DefaultPermissions.Length > 0)
-                    {
-                        permission.CheckThrows(botUser, false);
-                    }
-                    else
-                    {
-                        permission.CheckThrows(botUser, true);
-                    }
-
                     IChannel channel = message.Receiver as IChannel;
-                    IStorage storage = _storage.PluginStorage(callable.Command.Plugin, message.Connection,
-                        message.Receiver as IChannel);
                     Context context = new Context
                     {
                         Bot = this
@@ -203,8 +188,6 @@ namespace Veda
                       , Channel = channel
                       , User = botUser
                       , Contents = contents
-                      , Storage = storage
-                      , Command = callable.Command
 
                       , ConversionContext = conversionContext
                       , CallDepth = 0
@@ -213,24 +196,26 @@ namespace Veda
                     };
 
                     bool reply = false;
-                    context.Evaluate(callable).ToString(context.Seperator).Subscribe
-                    (
-                        str => 
-                        { 
-                            Reply(message, sender, context.ReplyForm, str); 
-                            reply = true; 
-                        },
-                        e => 
-                        {
-                            Reply(message, sender, context.ReplyForm, e);
-                            reply = true;
-                        },
-                        () => 
-                        { 
-                            if(!reply && _data.ReplySuccess)
-                                Reply(message, sender, context.ReplyForm, "The operation succeeded.");
-                        }
-                    );
+                    context.Evaluate(callable, command => Allowed(command, privateMessage, botUser))
+                        .ToString(context.Seperator)
+                        .Subscribe
+                        (
+                            str =>
+                            {
+                                Reply(message, sender, context.ReplyForm, str);
+                                reply = true;
+                            },
+                            e =>
+                            {
+                                Reply(message, sender, context.ReplyForm, e);
+                                reply = true;
+                            },
+                            () =>
+                            {
+                                if(!reply && _data.ReplySuccess)
+                                    Reply(message, sender, context.ReplyForm, "The operation succeeded.");
+                            }
+                        );
                 }
                 catch(NoCommandNameException e)
                 {
@@ -260,6 +245,22 @@ namespace Veda
             catch(Exception e)
             {
                 _logger.ErrorException("Error executing: \"" + message.Contents + "\".", e);
+            }
+        }
+
+        private void Allowed(ICommand command, bool privateMessage, IBotUser botUser)
+        {
+            if(command.Private && !privateMessage)
+                throw new InvalidOperationException("This command can only be sent in a private message.");
+
+            IPermission permission = _permission.GetPermission(command, botUser.Group);
+            if(command.DefaultPermissions.Length > 0)
+            {
+                permission.CheckThrows(botUser, false);
+            }
+            else
+            {
+                permission.CheckThrows(botUser, true);
             }
         }
 

@@ -15,7 +15,13 @@ namespace Veda
         public IChannel Channel { get; set; }
         public IBotUser User { get; set; }
         public String Contents { get; set; }
-        public IStorage Storage { get; set; }
+        public IStorage Storage
+        {
+            get
+            {
+                return Bot.Storage.PluginStorage(Command.Plugin, Connection, Channel);
+            }
+        }
         public ICommand Command { get; set; }
 
         public IConversionContext ConversionContext { get; set; }
@@ -23,7 +29,7 @@ namespace Veda
         public ReplyForm ReplyForm { get; set; }
         public String Seperator { get; set; }
 
-        public IObservable<object> Evaluate(object result)
+        public IObservable<object> Evaluate(object result, Action<ICommand> allowed = null)
         {
             if(result == null)
                 return Observable.Empty<object>();
@@ -68,7 +74,7 @@ namespace Veda
                 ICallable callable = result as ICallable;
                 if(callable != null)
                     return Observable
-                        .Defer(() => Evaluate(callable.Call(this)))
+                        .Defer(() => Evaluate(callable.Call(this, allowed), allowed))
                         ;
             }
 

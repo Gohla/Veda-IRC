@@ -21,13 +21,13 @@ namespace Veda.Interface
         IBotUser User { get; }
         String Contents { get; }
         IStorage Storage { get; }
-        ICommand Command { get; }
+        ICommand Command { get; set; }
 
         IConversionContext ConversionContext { get; }
         ushort CallDepth { get; set; }
         ReplyForm ReplyForm { get; set; }
         String Seperator { get; set; }
 
-        IObservable<object> Evaluate(object result);
+        IObservable<object> Evaluate(object result, Action<ICommand> allowed = null);
     }
 }

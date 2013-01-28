@@ -62,26 +62,26 @@ namespace Veda.Command
             return _commands.Get(pluginName, name, argumentTypes);
         }
 
-        public String[] Parse(String command)
+        public IExpression Parse(String command)
         {
             return _parser.Parse(command);
         }
 
         public bool IsCommand(String command)
         {
-            String[] result = Parse(command);
+            IExpression result = Parse(command);
             if(result == null)
                 return false;
 
             return true;
         }
 
-        public ICallable Call(String command, object conversionContext = null)
+        public ICallable Call(String command, params object[] arguments)
         {
-            String[] result = Parse(command);
+            IExpression result = Parse(command);
             if(result == null)
                 return null;
-            return CallParsed(conversionContext, result);
+            return new ExpressionCallable(result, arguments);
         }
 
         public ICallable CallParsed(object conversionContext, params object[] arguments)
@@ -204,7 +204,7 @@ namespace Veda.Command
             {
                 object[] args = ConvertAll(conversionContext, arguments, command.ParameterTypes.ToArray());
                 if(args != null)
-                    return new Callable(command, args);
+                    return new CommandCallable(command, args);
             }
 
             throw new InvalidOperationException("Incorrect arguments. Usage: " + nameCandidates.ToString("; "));

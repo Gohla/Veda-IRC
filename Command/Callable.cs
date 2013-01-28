@@ -3,24 +3,54 @@ using Veda.Interface;
 
 namespace Veda.Command
 {
-    public class Callable : ICallable
+    public class CommandCallable : ICallable
     {
-        public ICommand Command { get; private set; }
+        private ICommand _command;
+
         public object[] Arguments { get; private set; }
 
-        public Callable(ICommand command, object[] arguments)
+        public CommandCallable(ICommand command, object[] arguments)
         {
-            Command = command;
+            _command = command;
             Arguments = arguments;
         }
 
-        public object Call(IContext context)
+        public object Call(IContext context, Action<ICommand> allowed = null)
+        {
+            if(context.CallDepth > 10)
+                throw new InvalidOperationException("Command recursing too deep, execution halted.");
+
+            if(allowed != null)
+                allowed(_command);
+
+            ++context.CallDepth;
+            ICommand prevCommand = context.Command;
+            context.Command = _command;
+            object obj = _command.Call(context, Arguments);
+            context.Command = prevCommand;
+            return obj;
+        }
+    }
+
+    public class ExpressionCallable : ICallable
+    {
+        private IExpression _expression;
+
+        public object[] Arguments { get; private set; }
+
+        public ExpressionCallable(IExpression expression, object[] arguments)
+        {
+            _expression = expression;
+            Arguments = arguments;
+        }
+
+        public object Call(IContext context, Action<ICommand> allowed = null)
         {
             if(context.CallDepth > 10)
                 throw new InvalidOperationException("Command recursing too deep, execution halted.");
 
             ++context.CallDepth;
-            return Command.Call(context, Arguments);
+            return _expression.Evaluate(context, Arguments, allowed);
         }
     }
 }

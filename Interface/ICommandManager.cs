@@ -12,10 +12,10 @@ namespace Veda.Interface
         IEnumerable<ICommand> GetCommands(String pluginName, String name);
         ICommand GetCommand(String pluginName, String name, params Type[] argumentTypes);
 
-        String[] Parse(String command);
+        IExpression Parse(String command);
         bool IsCommand(String command);
 
-        ICallable Call(String command, object conversionContext = null);
+        ICallable Call(String command, params object[] arguments);
         ICallable CallParsed(object conversionContext, params object[] arguments);
 
         void Add(ICommand command);

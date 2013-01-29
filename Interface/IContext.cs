@@ -23,11 +23,12 @@ namespace Veda.Interface
         IStorage Storage { get; }
         ICommand Command { get; set; }
 
+        Action<ICommand> Allowed { get; }
         IConversionContext ConversionContext { get; }
         ushort CallDepth { get; set; }
         ReplyForm ReplyForm { get; set; }
         String Seperator { get; set; }
 
-        IObservable<object> Evaluate(object result, Action<ICommand> allowed = null);
+        IObservable<object> Evaluate(object result);
     }
 }

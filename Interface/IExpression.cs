@@ -6,6 +6,6 @@ namespace Veda.Interface
     {
         ushort Arity { get; }
 
-        IObservable<object> Evaluate(IContext context, object[] arguments, Action<ICommand> allowed = null);
+        IObservable<object> Evaluate(IContext context, object[] arguments);
     }
 }

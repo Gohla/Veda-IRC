@@ -15,10 +15,10 @@ namespace Veda.Command
 
         public ushort Arity { get; set; }
 
-        public IObservable<object> Evaluate(IContext context, object[] arguments, Action<ICommand> allowed)
+        public IObservable<object> Evaluate(IContext context, object[] arguments)
         {
             return Commands
-                .Select(command => context.Evaluate(command.Evaluate(context, arguments, allowed), allowed))
+                .Select(command => context.Evaluate(command.Evaluate(context, arguments)))
                 .Concat()
                 ;
         }
@@ -26,24 +26,24 @@ namespace Veda.Command
 
     public interface ICommandExpression
     {
-        IObservable<object> Evaluate(IContext context, object[] arguments, Action<ICommand> allowed = null);
+        IObservable<object> Evaluate(IContext context, object[] arguments);
     }
 
     public class CommandExpression : ICommandExpression
     {
         public List<ICommandExpression> Expressions = new List<ICommandExpression>();
 
-        public IObservable<object> Evaluate(IContext context, object[] arguments, Action<ICommand> allowed)
+        public IObservable<object> Evaluate(IContext context, object[] arguments)
         {
             var results = Expressions
-                .Select(e => context.Evaluate(e.Evaluate(context, arguments, allowed), allowed).Wait()) // TODO: Wait() is blocking!
+                .Select(e => context.Evaluate(e.Evaluate(context, arguments)).Wait()) // TODO: Wait() is blocking!
                 .ToArray()
                 ;
 
             try
             {
                 ICallable callable = context.Bot.Command.CallParsed(context.ConversionContext, results);
-                return context.Evaluate(callable, allowed);
+                return context.Evaluate(callable);
             }
             catch(Exception e)
             {
@@ -56,7 +56,7 @@ namespace Veda.Command
     {
         public String Text;
 
-        public IObservable<object> Evaluate(IContext context, object[] arguments, Action<ICommand> allowed)
+        public IObservable<object> Evaluate(IContext context, object[] arguments)
         {
             return Observable.Return(Text);
         }
@@ -66,7 +66,7 @@ namespace Veda.Command
     {
         public ushort Index;
 
-        public IObservable<object> Evaluate(IContext context, object[] arguments, Action<ICommand> allowed)
+        public IObservable<object> Evaluate(IContext context, object[] arguments)
         {
             if(Index > arguments.Length)
                 return Observable.Return("$" + Index);

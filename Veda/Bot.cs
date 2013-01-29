@@ -28,6 +28,7 @@ namespace Veda
         private BotData _data;
         private List<BotClientConnection> _botConnections = new List<BotClientConnection>();
         private ISubject<IReceiveMessage> _receivedMessages = new Subject<IReceiveMessage>();
+        private ISubject<Tuple<IContext, IReceiveMessage>> _messages = new Subject<Tuple<IContext, IReceiveMessage>>();
 
         public IEnumerable<IClientConnection> Connections
         {
@@ -37,7 +38,7 @@ namespace Veda
             }
         }
 
-        public IObservable<IReceiveMessage> Messages { get { return _receivedMessages; } }
+        public IObservable<Tuple<IContext, IReceiveMessage>> Messages { get { return _messages; } }
 
         public IPluginStorageManager Storage { get { return _storage; } }
         public ICommandManager Command { get { return _command; } }
@@ -94,6 +95,32 @@ namespace Veda
                 Address = address, Port = port, Nickname = nickname, Username = username, Realname = realname,
                 Password = password
             }, true);
+        }
+
+        public void Output(IContext context, IReceiveMessage message, IObservable<object> output, 
+            bool replySuccess = true)
+        {
+            bool reply = false;
+            output
+                .ToString(context.Seperator)
+                .Subscribe
+                (
+                    str =>
+                    {
+                        Reply(message, context.Sender, context.ReplyForm, str);
+                        reply = true;
+                    },
+                    e =>
+                    {
+                        Reply(message, context.Sender, context.ReplyForm, e);
+                        reply = true;
+                    },
+                    () =>
+                    {
+                        if(!reply && _data.ReplySuccess && replySuccess)
+                            Reply(message, context.Sender, context.ReplyForm, "The operation succeeded.");
+                    }
+                );
         }
 
         private IClientConnection Connect(ConnectionData data, bool store)
@@ -163,13 +190,34 @@ namespace Veda
             try
             {
                 bool privateMessage = message.Receiver.Equals(message.Connection.Me);
-
                 String contents = ProcessPrefix(message, privateMessage);
-                if(contents == null)
-                    return;
-                
                 ConversionContext conversionContext = new ConversionContext { Bot = this, Message = message };
                 IUser sender = message.Sender as IUser ?? (message.Sender as IChannelUser).User;
+                IBotUser botUser = _authentication.GetUser(sender);
+                IChannel channel = message.Receiver as IChannel;
+
+                Context context = new Context
+                {
+                    Bot = this
+
+                    , Connection = message.Connection
+                    , Sender = sender
+                    , Channel = channel
+                    , User = botUser
+                    , Contents = contents ?? message.Contents
+
+                    , Allowed = command => Allowed(command, privateMessage, botUser)
+                    , ConversionContext = conversionContext
+                    , CallDepth = 0
+                    , ReplyForm = privateMessage ? ReplyForm.Echo : DefaultReplyForm
+                    , Seperator = "; "
+                };
+
+                if(contents == null)
+                {
+                    _messages.OnNext(Tuple.Create<IContext, IReceiveMessage>(context, message));
+                    return;
+                }
 
                 try
                 {
@@ -177,45 +225,7 @@ namespace Veda
                     if(callable == null)
                         return;
 
-                    IBotUser botUser = _authentication.GetUser(sender);
-                    IChannel channel = message.Receiver as IChannel;
-                    Context context = new Context
-                    {
-                        Bot = this
-
-                      , Connection = message.Connection
-                      , Sender = sender
-                      , Channel = channel
-                      , User = botUser
-                      , Contents = contents
-
-                      , ConversionContext = conversionContext
-                      , CallDepth = 0
-                      , ReplyForm = privateMessage ? ReplyForm.Echo : DefaultReplyForm
-                      , Seperator = "; "
-                    };
-
-                    bool reply = false;
-                    context.Evaluate(callable, command => Allowed(command, privateMessage, botUser))
-                        .ToString(context.Seperator)
-                        .Subscribe
-                        (
-                            str =>
-                            {
-                                Reply(message, sender, context.ReplyForm, str);
-                                reply = true;
-                            },
-                            e =>
-                            {
-                                Reply(message, sender, context.ReplyForm, e);
-                                reply = true;
-                            },
-                            () =>
-                            {
-                                if(!reply && _data.ReplySuccess)
-                                    Reply(message, sender, context.ReplyForm, "The operation succeeded.");
-                            }
-                        );
+                    Output(context, message, context.Evaluate(callable), true);
                 }
                 catch(NoCommandNameException e)
                 {

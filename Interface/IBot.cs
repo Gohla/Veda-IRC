@@ -8,7 +8,7 @@ namespace Veda.Interface
     {
         IEnumerable<IClientConnection> Connections { get; }
 
-        IObservable<IReceiveMessage> Messages { get; }
+        IObservable<Tuple<IContext, IReceiveMessage>> Messages { get; }
 
         IPluginStorageManager Storage { get; }
         ICommandManager Command { get; }
@@ -18,5 +18,6 @@ namespace Veda.Interface
 
         IClientConnection Connect(String address, ushort port, String nickname, String username, String realname,
             String password);
+        void Output(IContext context, IReceiveMessage message, IObservable<object> output, bool replySuccess = true);
     }
 }

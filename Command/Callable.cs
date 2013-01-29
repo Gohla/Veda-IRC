@@ -15,13 +15,13 @@ namespace Veda.Command
             Arguments = arguments;
         }
 
-        public object Call(IContext context, Action<ICommand> allowed = null)
+        public object Call(IContext context)
         {
             if(context.CallDepth > 10)
                 throw new InvalidOperationException("Command recursing too deep, execution halted.");
 
-            if(allowed != null)
-                allowed(_command);
+            if(context.Allowed != null)
+                context.Allowed(_command);
 
             ++context.CallDepth;
             ICommand prevCommand = context.Command;
@@ -44,13 +44,13 @@ namespace Veda.Command
             Arguments = arguments;
         }
 
-        public object Call(IContext context, Action<ICommand> allowed = null)
+        public object Call(IContext context)
         {
             if(context.CallDepth > 10)
                 throw new InvalidOperationException("Command recursing too deep, execution halted.");
 
             ++context.CallDepth;
-            return _expression.Evaluate(context, Arguments, allowed);
+            return _expression.Evaluate(context, Arguments);
         }
     }
 }

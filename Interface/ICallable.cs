@@ -6,6 +6,6 @@ namespace Veda.Interface
     {
         object[] Arguments { get; }
 
-        object Call(IContext context, Action<ICommand> allowed = null);
+        object Call(IContext context);
     }
 }

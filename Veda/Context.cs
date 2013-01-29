@@ -24,12 +24,13 @@ namespace Veda
         }
         public ICommand Command { get; set; }
 
+        public Action<ICommand> Allowed { get; set; }
         public IConversionContext ConversionContext { get; set; }
         public ushort CallDepth { get; set; }
         public ReplyForm ReplyForm { get; set; }
         public String Seperator { get; set; }
 
-        public IObservable<object> Evaluate(object result, Action<ICommand> allowed = null)
+        public IObservable<object> Evaluate(object result)
         {
             if(result == null)
                 return Observable.Empty<object>();
@@ -74,7 +75,7 @@ namespace Veda
                 ICallable callable = result as ICallable;
                 if(callable != null)
                     return Observable
-                        .Defer(() => Evaluate(callable.Call(this, allowed), allowed))
+                        .Defer(() => Evaluate(callable.Call(this)))
                         ;
             }
 

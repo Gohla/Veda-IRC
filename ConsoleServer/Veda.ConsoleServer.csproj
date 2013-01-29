@@ -128,6 +128,10 @@
       <Project>{878889c5-3888-429d-8252-56fcc6861f61}</Project>
       <Name>Veda.Plugins.List</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\MessageParser\Veda.Plugins.MessageParser.csproj">
+      <Project>{9fc68513-6500-43e0-9a42-f5c3e4184125}</Project>
+      <Name>Veda.Plugins.MessageParser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\Permission\Veda.Plugins.Permission.csproj">
       <Project>{0c87c682-daa5-484b-b705-4722806201ad}</Project>
       <Name>Veda.Plugins.Permission</Name>

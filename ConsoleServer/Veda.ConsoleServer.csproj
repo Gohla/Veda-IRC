@@ -120,6 +120,10 @@
       <Project>{7d270050-e762-48b5-b678-82b1efb71be0}</Project>
       <Name>Veda.Plugins.Google</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\HTTP\Veda.Plugins.HTTP.csproj">
+      <Project>{ea023720-2b57-4f4c-bdeb-a03b3e09d3bd}</Project>
+      <Name>Veda.Plugins.HTTP</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\IRC\Veda.Plugins.IRC.csproj">
       <Project>{69f3b837-a608-4ce7-bca2-efe7bf978e3e}</Project>
       <Name>Veda.Plugins.IRC</Name>

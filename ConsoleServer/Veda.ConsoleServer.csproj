@@ -112,6 +112,10 @@
       <Project>{27f6acad-6e40-45ff-88b7-c611f56ee459}</Project>
       <Name>Veda.Plugins.Channel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\Conditional\Veda.Plugins.Conditional.csproj">
+      <Project>{080b4ffc-e464-4876-a0fd-681b322e1b2d}</Project>
+      <Name>Veda.Plugins.Conditional</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\Core\Veda.Plugins.Core.csproj">
       <Project>{b7b82246-2e3b-4f8b-9573-cd7cc507a5b9}</Project>
       <Name>Veda.Plugins.Core</Name>
@@ -132,6 +136,10 @@
       <Project>{878889c5-3888-429d-8252-56fcc6861f61}</Project>
       <Name>Veda.Plugins.List</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\Math\Veda.Plugins.Math.csproj">
+      <Project>{c24e4c19-f181-4a82-8f60-ab2287a61a1c}</Project>
+      <Name>Veda.Plugins.Math</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\MessageParser\Veda.Plugins.MessageParser.csproj">
       <Project>{9fc68513-6500-43e0-9a42-f5c3e4184125}</Project>
       <Name>Veda.Plugins.MessageParser</Name>
@@ -143,6 +151,10 @@
     <ProjectReference Include="..\..\Veda-plugins\Plugin\Veda.Plugins.Plugin.csproj">
       <Project>{7e3af69c-9179-4fd0-8d80-18df9f7bb116}</Project>
       <Name>Veda.Plugins.Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Veda-plugins\String\Veda.Plugins.String.csproj">
+      <Project>{1c19d0fb-d6b7-4477-b9c1-f5ec59a2504c}</Project>
+      <Name>Veda.Plugins.String</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Veda-plugins\User\Veda.Plugins.User.csproj">
       <Project>{bba2f257-4e69-40df-b376-afa1233cfa02}</Project>

@@ -43,7 +43,7 @@ namespace Veda.Command.Grammar {
             pattern = new TokenPattern((int) CommandGrammarConstants.STRING,
                                        "STRING",
                                        TokenPattern.PatternType.REGEXP,
-                                       "\"([^\"\\\\$;\\[\\]]|\"\"|\\\\.)*\"");
+                                       "\"([^\"\\\\;\\[\\]]|\"\"|\\\\.)*\"");
             AddPattern(pattern);
 
             pattern = new TokenPattern((int) CommandGrammarConstants.TEXT,

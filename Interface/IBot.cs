@@ -17,6 +17,8 @@ namespace Veda.Interface
 
         IClientConnection Connect(String address, ushort port, String nickname, String username, String realname,
             String password);
+        String More();
+        String More(IMessageTarget sender);
         void Output(IContext context, IReceiveMessage message, IObservable<object> output, bool replySuccess = true);
     }
 }

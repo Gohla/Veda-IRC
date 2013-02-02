@@ -40,6 +40,14 @@ namespace Veda
         public IAuthenticationManager Authentication { get { return _authentication; } }
         public IPluginPermissionManager Permission { get { return _permission; } }
 
+        public ReplyForm DefaultReplyForm
+        {
+            get
+            {
+                return _data.ReplyWithNickname ? ReplyForm.Reply : ReplyForm.Echo;
+            }
+        }
+
         public Bot(IClient client, IStorageManager storage, ICommandManager command, IPluginManager plugin,
             IAuthenticationManager authentication, IPermissionManager permission)
         {
@@ -52,7 +60,7 @@ namespace Veda
 
             _data = storage.Global().GetOrCreate<BotData>(_storageIdentifier);
 
-            _replyHandler = new ReplyHandler(_data);
+            _replyHandler = new ReplyHandler(this, _data);
             _messsageHandler = new MessageHandler(this, _replyHandler, _data);
         }
 
@@ -108,6 +116,16 @@ namespace Veda
             );
 
             return connection;
+        }
+
+        public String More()
+        {
+            return _replyHandler.More();
+        }
+
+        public String More(IMessageTarget sender)
+        {
+            return _replyHandler.More(sender);
         }
 
         public void Output(IContext context, IReceiveMessage message, IObservable<object> output,

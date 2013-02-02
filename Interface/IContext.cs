@@ -9,6 +9,7 @@ namespace Veda.Interface
       , Reply
       , Action
       , Notice
+      , More
     }
 
     public interface IContext

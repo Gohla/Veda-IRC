@@ -17,14 +17,6 @@ namespace Veda
 
         private ISubject<Tuple<IContext, IReceiveMessage>> _messages = new Subject<Tuple<IContext, IReceiveMessage>>();
 
-        private ReplyForm DefaultReplyForm
-        {
-            get
-            {
-                return _data.ReplyWithNickname ? ReplyForm.Reply : ReplyForm.Echo;
-            }
-        }
-
         public IObservable<Tuple<IContext, IReceiveMessage>> Messages { get { return _messages; } }
 
         public MessageHandler(Bot bot, ReplyHandler replyHandler, BotData data)
@@ -58,7 +50,7 @@ namespace Veda
                     , Allowed = command => Allowed(command, privateMessage, botUser)
                     , ConversionContext = conversionContext
                     , CallDepth = 0
-                    , ReplyForm = privateMessage ? ReplyForm.Echo : DefaultReplyForm
+                    , ReplyForm = privateMessage ? ReplyForm.Echo : _bot.DefaultReplyForm
                     , Seperator = "; "
                 };
 
@@ -79,26 +71,26 @@ namespace Veda
                 catch(NoCommandNameException e)
                 {
                     if(_data.ReplyNoCommand)
-                        _replyHandler.Reply(message, sender, DefaultReplyForm, e);
+                        _replyHandler.Reply(message, sender, _bot.DefaultReplyForm, e);
                 }
                 catch(NoCommandException e)
                 {
                     if(_data.ReplyNoCommand)
-                        _replyHandler.Reply(message, sender, DefaultReplyForm, e);
+                        _replyHandler.Reply(message, sender, _bot.DefaultReplyForm, e);
                 }
                 catch(AmbiguousCommandsException e)
                 {
                     if(_data.ReplyAmbiguousCommands)
-                        _replyHandler.Reply(message, sender, DefaultReplyForm, e);
+                        _replyHandler.Reply(message, sender, _bot.DefaultReplyForm, e);
                 }
                 catch(IncorrectArgumentsException e)
                 {
                     if(_data.ReplyIncorrectArguments)
-                        _replyHandler.Reply(message, sender, DefaultReplyForm, e);
+                        _replyHandler.Reply(message, sender, _bot.DefaultReplyForm, e);
                 }
                 catch(Exception e)
                 {
-                    _replyHandler.Reply(message, sender, DefaultReplyForm, e);
+                    _replyHandler.Reply(message, sender, _bot.DefaultReplyForm, e);
                 }
             }
             catch(Exception e)

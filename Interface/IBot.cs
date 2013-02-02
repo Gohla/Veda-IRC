@@ -7,7 +7,6 @@ namespace Veda.Interface
     public interface IBot : IDisposable
     {
         IEnumerable<IClientConnection> Connections { get; }
-
         IObservable<Tuple<IContext, IReceiveMessage>> Messages { get; }
 
         IPluginStorageManager Storage { get; }

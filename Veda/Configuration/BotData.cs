@@ -15,6 +15,10 @@ namespace Veda.Configuration
         public bool ReplyWithNickname { get; set; }
         public bool ReplySuccess { get; set; }
 
+        public bool UseMores { get; set; }
+        public ushort MaxMores { get; set; }
+        public ushort ReplyMores { get; set; }
+
         public IList<char> AddressedCharacters { get; set; }
         public bool AddressedNickame { get; set; }
 
@@ -30,6 +34,10 @@ namespace Veda.Configuration
             ReplyNoPermission = true;
             ReplyWithNickname = true;
             ReplySuccess = true;
+
+            UseMores = true;
+            MaxMores = 10;
+            ReplyMores = 1;
 
             AddressedCharacters = new List<char>();
             AddressedNickame = true;
